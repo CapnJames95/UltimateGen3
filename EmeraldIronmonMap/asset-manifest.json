@@ -1,0 +1,28 @@
+{
+  "files": {
+    "main.css": "./static/css/main.98d19ae0.css",
+    "main.js": "./static/js/main.e3ad46f7.js",
+    "static/media/FullHoenn.webp": "./static/media/FullHoenn.9a0043c4288b6abfd2a8.webp",
+    "static/media/MapPortalsDemo.gif": "./static/media/MapPortalsDemo.dd8aa90ec2c2f21f9679.gif",
+    "static/media/PortalClickDemo.gif": "./static/media/PortalClickDemo.a893001de870427cc2bf.gif",
+    "static/media/TrainerDemo.gif": "./static/media/TrainerDemo.23bc8b2935461fb596ba.gif",
+    "static/media/MagmaHideoutRoute.webp": "./static/media/MagmaHideoutRoute.c323c0e96d9ad030fe53.webp",
+    "static/media/pokeball.png": "./static/media/pokeball.a423f307223251ab7bff.png",
+    "static/media/star.png": "./static/media/star.8ee1f0879d78a0f695bf.png",
+    "static/media/VictoryRoadRoute.webp": "./static/media/VictoryRoadRoute.7939fb38b5514578ca85.webp",
+    "static/media/checkmark.png": "./static/media/checkmark.d3a535b4929ab14365bf.png",
+    "static/media/CurrentsRoute.webp": "./static/media/CurrentsRoute.b5c4fbd3b5b54b6d3ca9.webp",
+    "static/media/AquaHideoutRoute.webp": "./static/media/AquaHideoutRoute.50800119cbc6edbe3c37.webp",
+    "static/media/SeafloorCavernRoute.webp": "./static/media/SeafloorCavernRoute.1376f6ce397b70193b5f.webp",
+    "static/media/NewMauvilleRoute.webp": "./static/media/NewMauvilleRoute.7887217e3be05093be24.webp",
+    "static/media/GraniteCaveRoute.webp": "./static/media/GraniteCaveRoute.4223c082382f35a6f8e7.webp",
+    "static/media/MeteorFallsRoute.webp": "./static/media/MeteorFallsRoute.3775bb16507eea485bd5.webp",
+    "index.html": "./index.html",
+    "main.98d19ae0.css.map": "./static/css/main.98d19ae0.css.map",
+    "main.e3ad46f7.js.map": "./static/js/main.e3ad46f7.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.98d19ae0.css",
+    "static/js/main.e3ad46f7.js"
+  ]
+}
