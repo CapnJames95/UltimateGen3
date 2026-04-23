@@ -257,6 +257,8 @@ function buildHomePage() {
         { icon:'⚠',  label:'Missables',     desc:'Interactive checklist of one-time events', action:"closeNavDropdown('navGuidesDropdown');showPage('missables',document.getElementById('navMissables'));if(!window._missablesBuilt){buildMissablesPage();window._missablesBuilt=true;}" },
         { icon:'🫐', label:'Berry Farming',  desc:'Growth cycles, mutations, Berry Master',   action:"closeNavDropdown('navGuidesDropdown');showPage('berries',document.getElementById('navBerries'));if(!window._berriesBuilt){buildBerriesPage();window._berriesBuilt=true;}" },
         { icon:'🎲', label:'RNG Guide',      desc:'TID/SID, Methods 1/2/4, shiny & IV abuse', action:"closeNavDropdown('navGuidesDropdown');showPage('rng',document.getElementById('navRng'));if(!window._rngBuilt){buildRngPage();}" },
+        { icon:'📦', label:'Distribution ROMs', desc:'Event carts, eggs, tickets, and patch-based distro catalog', action:"return openPage('distributions','navDistributions','navGuidesDropdown')" },
+        { icon:'✅', label:'Distribution Checklist', desc:'Track every distribution ROM and patch with saved progress', action:"return openPage('distributionchecklist','navDistributionChecklist','navGuidesDropdown')" },
         { icon:'🍬', label:'Pokéblock Optimizer', desc:'Best berries and contest-feeding reference', action:"return openPage('pokeblock','navPokeblock','navGuidesDropdown')" },
       ]
     },
@@ -955,6 +957,14 @@ function setGameFromHeader(g, btn) {
   if (window._movesBuilt) { buildMoveDex(); }
   if (window._easyDexBuilt) { renderEasyDexPage(); }
   if (window._tmhmBuilt) { tmhmSyncFromGame(g); }
+  var distPage = document.getElementById('page-distributions');
+  if (distPage && distPage.classList.contains('active') && typeof buildDistributionsPage === 'function') {
+    buildDistributionsPage();
+  }
+  var distChecklistPage = document.getElementById('page-distributionchecklist');
+  if (distChecklistPage && distChecklistPage.classList.contains('active') && typeof buildDistributionChecklistPage === 'function') {
+    buildDistributionChecklistPage();
+  }
   // Sync Team Builder game filter
   TB_GAME = g;
   document.querySelectorAll('.tb-game-btn').forEach(function(b){ b.className='tb-game-btn'; });
@@ -1205,19 +1215,24 @@ function applyHashRoute(route) {
   if (page === 'encounters') { _openEncounters(params.get('route') || params.get('location') || '', params.get('game') || ''); return; }
   if (page === 'itemlocs') { _openItemLocs(params.get('item') || params.get('name') || '', params.get('game') || ''); return; }
   if (page === 'bulba') {
+    var guideKey = params.get('guide') || '';
     var partNum = parseInt(params.get('part') || '', 10);
     var extraKey = params.get('extra') || '';
     var sectionId = params.get('section') || params.get('id') || '';
     const bulbaBtn = document.getElementById('navBulba');
     showPage('bulba', bulbaBtn);
     if (!window._bulbaBuilt) { buildBulbaGuide(); window._bulbaBuilt = true; }
+    if (guideKey && BULBA_BASES && BULBA_BASES[guideKey] && guideKey !== BULBA_GAME) {
+      bulbaSwitchGame(guideKey, null);
+    }
     if (partNum) { bulbaLoadPart(partNum); return; }
     if (extraKey) { bulbaLoadExtra(extraKey, extraKey); return; }
     if (sectionId) { _openGuideSection(sectionId); return; }
+    if (guideKey) { bulbaLoadIndex(); return; }
     return;
   }
 
-  window.showPage(page, null);
+  openTopLevelPage(page);
 }
 
 function showPage(id, btn) {
@@ -10982,6 +10997,8 @@ function toggleTheme() {
       missables:   { btn:'navMissables',     init: null },
       berries:     { btn:'navBerries',       init: null },
       rng:         { btn:'navRng',           init: null },
+      distributions:{ btn:'navDistributions', init: function(){ if(window.ensurePageReady) window.ensurePageReady('distributions'); } },
+      distributionchecklist:{ btn:'navDistributionChecklist', init: function(){ if(window.ensurePageReady) window.ensurePageReady('distributionchecklist'); } },
       safarizone:  { btn:'navSafariZone',    init: function(){ if(window.ensurePageReady) window.ensurePageReady('safarizone'); } },
       statcalc:    { btn:'navStatCalc',      init: function(){ if(window.ensurePageReady) window.ensurePageReady('statcalc'); } },
       pokeblock:   { btn:'navPokeblock',     init: function(){ if(window.ensurePageReady) window.ensurePageReady('pokeblock'); } },
@@ -11950,7 +11967,7 @@ function _sectionIsRse(id) {
 
 function _openGuideSection(id) {
   closeSearch();
-  setPageHash('bulba', id ? { section: id } : null);
+  setPageHash('bulba', id ? { guide: BULBA_GAME, section: id } : { guide: BULBA_GAME });
   const bulbaBtn = document.getElementById('navBulba');
   showPage('bulba', bulbaBtn);
   if (!window._bulbaBuilt) { buildBulbaGuide(); window._bulbaBuilt = true; }
@@ -14357,6 +14374,105 @@ function bulbaGetGuideSections(ids) {
   }).filter(Boolean);
 }
 
+function _bulbaNoteGuideKey() {
+  return BULBA_GAME === 'rs' ? 'RS' : (BULBA_GAME === 'e' ? 'E' : 'FRLG');
+}
+
+function _bulbaNotePrimaryGame() {
+  var game = (typeof GAME !== 'undefined') ? GAME : 'ALL';
+  if (BULBA_GAME === 'frlg') return (game === 'FR' || game === 'LG') ? game : 'ALL';
+  if (BULBA_GAME === 'rs') return (game === 'R' || game === 'S') ? game : 'ALL';
+  if (BULBA_GAME === 'e') return game === 'E' ? 'E' : 'ALL';
+  return 'ALL';
+}
+
+function _bulbaNoteActionHtml(mode, key, title) {
+  var safeKey = String(key || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  var safeTitle = String(title || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  return '<button onclick="event.stopPropagation();bulbaOpenGuideNote(\'' + mode + '\',\'' + safeKey + '\',\'' + safeTitle + '\')"'
+    + ' style="font-size:9px;padding:5px 10px;border:1px solid var(--border);border-radius:4px;background:rgba(255,215,0,0.08);color:var(--gold);cursor:pointer;white-space:nowrap;flex-shrink:0;">📝 New Note</button>';
+}
+
+function bulbaUpdateSidebarNoteButton(mode, key, title) {
+  var btn = document.getElementById('bulba-sidebar-note-btn');
+  if (!btn) return;
+  if (!mode) {
+    btn.style.display = 'none';
+    btn.onclick = null;
+    btn.textContent = '📝 New Note';
+    btn.title = '';
+    return;
+  }
+  btn.style.display = 'block';
+  btn.textContent = '📝 New Note';
+  btn.title = title ? ('Create a note for ' + title) : 'Create a note for this guide section';
+  btn.onclick = function(event) {
+    if (event) event.stopPropagation();
+    bulbaOpenGuideNote(mode, key, title);
+  };
+}
+
+window.bulbaOpenGuideNote = function(mode, key, title) {
+  var notesPanel = document.getElementById('notes-panel');
+  var notesOverlay = document.getElementById('notes-overlay');
+  var lv = document.getElementById('notes-list-view');
+  var ev = document.getElementById('notes-editor-view');
+  if (notesPanel) notesPanel.classList.add('open');
+  if (notesOverlay) notesOverlay.classList.add('open');
+  if (lv) lv.style.display = 'none';
+  if (ev) ev.style.display = 'flex';
+  editingId = 'new';
+
+  var guideKey = _bulbaNoteGuideKey();
+  var game = _bulbaNotePrimaryGame();
+  var keyLabel = mode === 'part'
+    ? ('part:' + key + ':' + title)
+    : mode === 'extra'
+      ? ('extra:' + key)
+      : ('section:' + key);
+  var noteTitle = title || (mode === 'part' ? ('Part ' + key) : key);
+  var guideLabel = guideKey === 'FRLG' ? 'FR/LG' : (guideKey === 'RS' ? 'R/S' : 'Emerald');
+  var linkLabel = guideLabel + ' — ' + noteTitle;
+  var content = '## Summary\n\n'
+    + '## Checklist\n\n'
+    + '[ ] \n\n'
+    + '## Guide Link\n\n'
+    + '[[bulba:' + guideKey + ':' + keyLabel + '|' + linkLabel + ']]\n';
+
+  var titleEl = document.getElementById('ne-title');
+  var contentField = document.getElementById('ne-content');
+  var gameEl = document.getElementById('ne-game');
+  var labelsEl = document.getElementById('ne-labels');
+  var presetsEl = document.getElementById('ne-label-presets');
+  var tmenu = document.getElementById('ne-template-menu');
+  if (titleEl) titleEl.value = noteTitle;
+  if (contentField) contentField.value = content;
+  if (gameEl) gameEl.value = game;
+  if (labelsEl) labelsEl.value = 'Guide, Story';
+  if (presetsEl) {
+    presetsEl.innerHTML = LABEL_PRESETS.map(function(l){
+      return '<button class="note-label-pill" onclick="neAddLabel(\'' + l + '\')" style="font-size:8px;padding:2px 7px;">' + l + '</button>';
+    }).join('');
+  }
+  if (tmenu) {
+    tmenu.innerHTML = TEMPLATES.map(function(t,i){
+      return '<div class="slash-item" onclick="applyTemplate(' + i + ')"><span class="slash-item-icon">' + t.name.split(' ')[0] + '</span><div style="font-size:12px;">' + esc(t.name.replace(/^[\S]+ /,'')) + '</div></div>';
+    }).join('');
+  }
+  document.querySelectorAll('.ne-color-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.color === 'green'); });
+  document.querySelectorAll('.ne-tag-btn').forEach(function(b){ b.classList.toggle('active', false); });
+  var pin = document.getElementById('ne-pin');
+  if (pin) {
+    pin.classList.remove('active');
+    pin.textContent = '📌 Pin';
+  }
+  if (contentField) {
+    initSlashCommands(contentField);
+    contentField.focus();
+    contentField.selectionStart = contentField.selectionEnd = 0;
+  }
+};
+
 function bulbaRenderGuideSections(ids) {
   var sections = bulbaGetGuideSections(ids);
   if (!sections.length) return '';
@@ -14401,9 +14517,10 @@ function bulbaRenderExtraCards(items) {
     return '<div class="bulba-index-card">'
       + '<div class="bulba-card-main" onclick="bulbaLoadExtra(\'' + item.key + '\',&apos;' + item.title.replace(/&/g,'&amp;').replace(/'/g,'&apos;') + '&apos;)">'
       + '<div class="bulba-index-card-num">Extra</div>'
-      + '<div><div class="bulba-index-card-text">' + item.title + '</div>'
+      + '<div style="flex:1;min-width:0;"><div class="bulba-index-card-text">' + item.title + '</div>'
       + '<div class="bulba-index-card-sub">' + item.sub + '</div></div>'
-      + '<div style="margin-left:auto;color:var(--muted);font-size:16px">›</div>'
+      + '<div style="width:96px;display:flex;justify-content:flex-end;align-items:center;flex-shrink:0;">' + _bulbaNoteActionHtml('extra', item.key, item.title) + '</div>'
+      + '<div style="width:18px;text-align:right;color:var(--muted);font-size:16px;flex-shrink:0;">›</div>'
       + '</div>'
       + '</div>';
   }).join('');
@@ -14489,8 +14606,9 @@ function bulbaHardenExtraStyles(container) {
 
 function bulbaLoadExtra(key, title) {
   BULBA_CURRENT = 'extra-' + key;
-  setPageHash('bulba', { extra: key });
+  setPageHash('bulba', { guide: BULBA_GAME, extra: key });
   bulbaSetActive('extra-' + key);
+  bulbaUpdateSidebarNoteButton('extra', key, title || 'Guide Extra');
   var bc = document.getElementById('bulba-breadcrumb');
   if (bc) bc.textContent = '— ' + (title || 'Guide Extra');
   var container = document.getElementById('bulba-content');
@@ -14596,9 +14714,10 @@ return parts.map(function(p) {
     + (done ? ' checked' : '') + (gk === 'all' ? ' style="display:none"' : '') + ' onclick="event.stopPropagation();bulbaToggleProgress(this)">'
     + '<div class="bulba-card-main" onclick="bulbaLoadPart(' + p.num + ',&apos;' + p.title.replace(/&/g,'&amp;').replace(/'/g,'&apos;') + '&apos;)">'
     + '<div class="bulba-index-card-num">Part ' + p.num + '</div>'
-    + '<div><div class="bulba-index-card-text">' + titleHtml + '</div>'
+    + '<div style="flex:1;min-width:0;"><div class="bulba-index-card-text">' + titleHtml + '</div>'
     + '<div class="bulba-index-card-sub">' + p.sub + '</div></div>'
-    + '<div style="margin-left:auto;color:var(--muted);font-size:16px">›</div>'
+    + '<div style="width:96px;display:flex;justify-content:flex-end;align-items:center;flex-shrink:0;">' + _bulbaNoteActionHtml('part', p.num, p.title) + '</div>'
+    + '<div style="width:18px;text-align:right;color:var(--muted);font-size:16px;flex-shrink:0;">›</div>'
     + '</div>'
     + '</div>';
 }).join('');
@@ -14606,8 +14725,9 @@ return parts.map(function(p) {
 
 function bulbaLoadIndex() {
   BULBA_CURRENT = 'index';
-  setPageHash('bulba', null);
+  setPageHash('bulba', BULBA_GAME ? { guide: BULBA_GAME } : null);
   bulbaSetActive('index');
+  bulbaUpdateSidebarNoteButton(null);
 
   var extLink = document.getElementById('bulba-ext-link');
   if (extLink) extLink.href = BULBA_BASE;
@@ -14700,8 +14820,9 @@ function bulbaWrapTables(container) {
 
 function bulbaLoadPart(num, title) {
   BULBA_CURRENT = num;
-  setPageHash('bulba', { part: num });
+  setPageHash('bulba', { guide: BULBA_GAME, part: num });
   bulbaSetActive(num);
+  bulbaUpdateSidebarNoteButton('part', num, title || ('Part ' + num));
   var partUrl = BULBA_BASE + '/Part_' + num;
   var extLink = document.getElementById('bulba-ext-link');
   if (extLink) extLink.href = partUrl;
@@ -17150,6 +17271,15 @@ var PAGE_LIST=[
   {id:'missables',icon:'⚠',label:'Missables'},
   {id:'berries',icon:'🫐',label:'Berry Farming'},
   {id:'rng',icon:'🎲',label:'RNG Guide'},
+  {id:'distributions',icon:'📦',label:'Distribution ROMs'},
+  {id:'distributionchecklist',icon:'✅',label:'Distribution Checklist'},
+  {id:'essentials',icon:'📘',label:'Essentials'},
+  {id:'safarizone',icon:'🎯',label:'Safari Zone Calc'},
+  {id:'statcalc',icon:'📏',label:'Stat Calculator'},
+  {id:'pokeblock',icon:'🍬',label:'Pokeblock Optimizer'},
+  {id:'e4ref',icon:'👑',label:'Elite Four & Champion'},
+  {id:'rematches',icon:'🔁',label:'Rematch Trainers'},
+  {id:'routebrowser',icon:'🗺',label:'Route Browser'},
 ];
 
 var BULBA_SECTIONS={
@@ -17439,16 +17569,20 @@ var NOTE_BTN_MAP={
   natures:'navNatures',catchcalc:'navCatchCalc',dexdash:'navDexDash',
   npctrades:'navNpcTrades',happiness:'navHappiness',typechart:'navTypeChart',
   safarizone:'navSafariZone',statcalc:'navStatCalc',
-  pokeblock:'navPokeblock',e4ref:'navE4Ref',rematches:'navRematches',routebrowser:'navRouteBrowser',
+  distributions:'navDistributions',distributionchecklist:'navDistributionChecklist',pokeblock:'navPokeblock',e4ref:'navE4Ref',rematches:'navRematches',routebrowser:'navRouteBrowser',
 };
 
-window.noteNavPage=function(pid){
-  closeNotesPanel();
+function openTopLevelPage(pid) {
   if(pid==='bulba'){showPage('bulba',document.getElementById('navBulba'));if(!window._bulbaBuilt){buildBulbaGuide();window._bulbaBuilt=true;}if(typeof bulbaAutoSelectGame==='function')bulbaAutoSelectGame();return;}
   if(pid==='tracker'){showPage('tracker',document.getElementById('navTracker'));if(!window._trackerBuilt){buildTracker();window._trackerBuilt=true;}return;}
   var navId=NOTE_BTN_MAP[pid];
   var btn=navId?document.getElementById(navId):null;
   if(btn){btn.click();}else{showPage(pid,null);}
+}
+
+window.noteNavPage=function(pid){
+  closeNotesPanel();
+  openTopLevelPage(pid);
 };
 
 window.noteNavBulba=function(game,key){
@@ -17463,12 +17597,14 @@ window.noteNavBulba=function(game,key){
     else{
       var pm=key.match(/^part:(\d+):(.+)$/);
       var em=key.match(/^extra:(.+)$/);
+      var sm=key.match(/^section:(.+)$/);
       if(pm&&typeof bulbaLoadPart==='function')bulbaLoadPart(parseInt(pm[1]),pm[2]);
       else if(em&&typeof bulbaLoadExtra==='function'){
         var secs=BULBA_SECTIONS[game]||[];
         var found=null;for(var i=0;i<secs.length;i++){if(secs[i].key===em[1]){found=secs[i];break;}}
         bulbaLoadExtra(em[1],found?found.label:em[1]);
       }
+      else if(sm&&typeof _openGuideSection==='function'){ _openGuideSection(sm[1]); }
     }
   },120);
 };
@@ -17769,6 +17905,10 @@ var _BADGES=[
   {icon:'🔵',label:'Rain Badge',   val:'Rain Badge',   sub:'Wallace / Juan · Sootopolis'},
 ];
 
+function _noteNorm(text){
+  return String(text || '').toLowerCase().replace(/[^a-z0-9]+/g,'');
+}
+
 function _sin(){
   var ta=document.getElementById('ne-content');if(!ta)return;
   var val=ta.value,pos=ta.selectionStart;
@@ -17778,11 +17918,18 @@ function _sin(){
   // (/badge before /b, /type before /t)
 
   // /p — link to a site page
-  var pm=seg.match(/\/p(\S*)$/);
+  var pm=seg.match(/^\/p(?:\s+(.*)|(\S*))?$/);
   if(pm){
     _ss=pos-pm[0].length; _sm='page';
-    var q=pm[1].toLowerCase();
-    _si=PAGE_LIST.filter(function(p){return !q||p.label.toLowerCase().indexOf(q)>=0;});
+    var q=((pm[1] || pm[2] || '') + '').trim().toLowerCase();
+    var qNorm=_noteNorm(q);
+    _si=PAGE_LIST.filter(function(p){
+      if(!q)return true;
+      return p.label.toLowerCase().indexOf(q)>=0
+        || p.id.toLowerCase().indexOf(q)>=0
+        || _noteNorm(p.label).indexOf(qNorm)>=0
+        || _noteNorm(p.id).indexOf(qNorm)>=0;
+    });
     _showSD(ta,_si.map(function(p){return{icon:p.icon,label:p.label,sub:null};}));
     return;
   }

@@ -43,6 +43,14 @@ window.PAGE_REGISTRY = window.PAGE_REGISTRY || {
   routebrowser: {
     script: 'assets/js/pages/routebrowser.js',
     init: function() { if (!window._routeBrowserBuilt) { buildRouteBrowserPage(); window._routeBrowserBuilt = true; } }
+  },
+  distributions: {
+    script: 'assets/js/pages/distributions.js',
+    init: function() { if (!window._distributionsBuilt) { buildDistributionsPage(); window._distributionsBuilt = true; } }
+  },
+  distributionchecklist: {
+    script: 'assets/js/pages/distributionchecklist.js',
+    init: function() { if (!window._distributionChecklistBuilt) { buildDistributionChecklistPage(); window._distributionChecklistBuilt = true; } else { buildDistributionChecklistPage(); } }
   }
 };
 
@@ -82,5 +90,6 @@ window.openPage = function(id, navId, dropdownId) {
   if (dropdownId && typeof closeNavDropdown === 'function') closeNavDropdown(dropdownId);
   var btn = navId ? document.getElementById(navId) : null;
   if (typeof showPage === 'function') showPage(id, btn);
+  if (typeof ensurePageReady === 'function') ensurePageReady(id);
   return false;
 };
