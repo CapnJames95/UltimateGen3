@@ -160,6 +160,7 @@ function resetHome() {
   var hp = document.getElementById('page-home');
   if (hp) { hp.classList.add('active'); buildHomePage(); try { localStorage.setItem('gen3-last-page','home'); } catch(e){} }
   setPageHash('home');
+  setBrowserPageTitle('home');
 }
 
 // REGION: HOME
@@ -1295,6 +1296,59 @@ function applyHashRoute(route) {
   }
 }
 
+function pageTitleLabel(id) {
+  var custom = {
+    home: 'Home',
+    dex: 'Pokedex',
+    bulba: 'Bulba Guide',
+    tracker: 'Tracker',
+    moves: 'Moves Dex',
+    items: 'Items Dex',
+    held: 'Held Items',
+    tmhm: 'TM/HM Locator',
+    excl: 'Exclusives',
+    tradeevo: 'Trade Evos',
+    npctrades: 'NPC Trades',
+    team: 'Team Builder',
+    calc: 'Damage Calculator',
+    compare: 'Pokemon Comparison',
+    opt: 'Optimizer',
+    ivev: 'IV / EV Calculator',
+    natures: 'Nature Chart',
+    expcalc: 'EXP Calculator',
+    breed: 'Breeding Calculator',
+    catchcalc: 'Catch Rate Calc',
+    happiness: 'Happiness Tracker',
+    dexdash: 'Dex Dashboard',
+    ribbons: 'Ribbon Tracker',
+    kantomapview: 'Kanto Map',
+    emeraldmapview: 'Emerald Map',
+    easydex: 'Easy Dex',
+    typechart: 'Type Chart',
+    speedtiers: 'Speed Tiers',
+    safarizone: 'Safari Zone Calculator',
+    statcalc: 'Stat Calculator',
+    e4ref: 'Elite Four & Champion',
+    routebrowser: 'Route Browser',
+    distributions: 'Distribution ROMs',
+    distributionchecklist: 'Distribution Checklist'
+  };
+  if (custom[id]) return custom[id];
+  var nav = document.getElementById('nav' + id.charAt(0).toUpperCase() + id.slice(1));
+  if (nav && nav.textContent) return nav.textContent.trim().replace(/\s+/g, ' ');
+  var page = document.getElementById('page-' + id);
+  if (page) {
+    var heading = page.querySelector('h1, h2, .page-title, .dexdash-title, .section-title');
+    if (heading && heading.textContent) return heading.textContent.trim().replace(/\s+/g, ' ');
+  }
+  return id ? id.charAt(0).toUpperCase() + id.slice(1) : 'Home';
+}
+
+function setBrowserPageTitle(id) {
+  var label = pageTitleLabel(id || 'home');
+  document.title = 'Gen3 eGuide - ' + label;
+}
+
 function showPage(id, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.page-nav-btn').forEach(b => b.classList.remove('active'));
@@ -1307,6 +1361,7 @@ function showPage(id, btn) {
     const navBtn = document.getElementById('nav' + id.charAt(0).toUpperCase() + id.slice(1));
     if (navBtn) navBtn.classList.add('active');
   }
+  setBrowserPageTitle(id);
   if (id === 'bulba' && !window._bulbaBuilt && typeof buildBulbaGuide === 'function') {
     buildBulbaGuide();
     window._bulbaBuilt = true;
