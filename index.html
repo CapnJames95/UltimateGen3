@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gen 3 Pokédex — FR/LG/R/S/E Catch Guide</title>
+<title>Gen3 eGuide</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/app.css">
 </head>
@@ -510,7 +510,7 @@
   <div class="page-nav" id="pageNav">
     <button class="page-nav-btn" id="navDex" onclick="showPage('dex',this)">POKÉDEX</button>
     <button class="page-nav-btn" id="navBulba" onclick="showPage('bulba',this);if(!window._bulbaBuilt){buildBulbaGuide();window._bulbaBuilt=true;} bulbaAutoSelectGame();">BULBA GUIDE</button>
-    <button class="page-nav-btn" id="navTracker" onclick="showPage('tracker',this);if(!window._trackerBuilt){buildTracker();window._trackerBuilt=true;}">TRACKER</button>
+    <button class="page-nav-btn" id="navTracker" onclick="showPage('tracker',this);buildTracker();window._trackerBuilt=true;">TRACKER</button>
 
     <div class="page-nav-dropdown" id="navPokeDropdown">
       <button class="page-nav-btn page-nav-dropdown-trigger" id="navPokeGroup" onclick="toggleNavDropdown(event,'navPokeDropdown')">POKÉMON ▾</button>
@@ -578,19 +578,19 @@
       <button class="page-nav-btn page-nav-dropdown-trigger" id="navProgressGroup" onclick="toggleNavDropdown(event,'navProgressDropdown')">PROGRESS ▾</button>
       <div class="page-nav-dropdown-menu" id="navProgressMenu">
         <button class="page-nav-dropdown-item" id="navDexDash" onclick="closeNavDropdown('navProgressDropdown');showPage('dexdash',document.getElementById('navDexDash'));buildDexDashPage();">Dex Dashboard</button>
-        <button class="page-nav-dropdown-item" id="navRibbons" onclick="closeNavDropdown('navProgressDropdown');showPage('ribbons',document.getElementById('navRibbons'));if(!window._ribbonsBuilt){buildRibbonPage();}">Ribbon Tracker</button>
+        <button class="page-nav-dropdown-item" id="navRibbons" onclick="closeNavDropdown('navProgressDropdown');showPage('ribbons',document.getElementById('navRibbons'));buildRibbonPage();window._ribbonsBuilt=true;">Ribbon Tracker</button>
       </div>
     </div>
 
     <div class="page-nav-dropdown" id="navGuidesDropdown">
       <button class="page-nav-btn page-nav-dropdown-trigger" id="navGuidesGroup" onclick="toggleNavDropdown(event,'navGuidesDropdown')">GUIDES ▾</button>
       <div class="page-nav-dropdown-menu" id="navGuidesMenu">
-        <button class="page-nav-dropdown-item" id="navEssentials" onclick="closeNavDropdown('navGuidesDropdown');showPage('essentials',document.getElementById('navEssentials'));if(!window._essentialsBuilt){buildEssentialsPage();window._essentialsBuilt=true;}">Essentials</button>
-        <button class="page-nav-dropdown-item" id="navContests" onclick="closeNavDropdown('navGuidesDropdown');showPage('contests',document.getElementById('navContests'));if(!window._contestsBuilt){buildContestsPage();window._contestsBuilt=true;}">Contests</button>
-        <button class="page-nav-dropdown-item" id="navFrontier" onclick="closeNavDropdown('navGuidesDropdown');showPage('frontier',document.getElementById('navFrontier'));if(!window._frontierBuilt){buildFrontierPage();window._frontierBuilt=true;}">Battle Frontier</button>
-        <button class="page-nav-dropdown-item" id="navMissables" onclick="closeNavDropdown('navGuidesDropdown');showPage('missables',document.getElementById('navMissables'));if(!window._missablesBuilt){buildMissablesPage();window._missablesBuilt=true;}">Missables</button>
-        <button class="page-nav-dropdown-item" id="navBerries" onclick="closeNavDropdown('navGuidesDropdown');showPage('berries',document.getElementById('navBerries'));if(!window._berriesBuilt){buildBerriesPage();window._berriesBuilt=true;}">Berry Farming</button>
-        <button class="page-nav-dropdown-item" id="navRng" onclick="closeNavDropdown('navGuidesDropdown');showPage('rng',document.getElementById('navRng'));if(!window._rngBuilt){buildRngPage();}">RNG Guide</button>
+        <button class="page-nav-dropdown-item" id="navEssentials" onclick="closeNavDropdown('navGuidesDropdown');showPage('essentials',document.getElementById('navEssentials'));buildEssentialsPage();window._essentialsBuilt=true;">Essentials</button>
+        <button class="page-nav-dropdown-item" id="navContests" onclick="closeNavDropdown('navGuidesDropdown');showPage('contests',document.getElementById('navContests'));buildContestsPage();window._contestsBuilt=true;">Contests</button>
+        <button class="page-nav-dropdown-item" id="navFrontier" onclick="closeNavDropdown('navGuidesDropdown');showPage('frontier',document.getElementById('navFrontier'));buildFrontierPage();window._frontierBuilt=true;">Battle Frontier</button>
+        <button class="page-nav-dropdown-item" id="navMissables" onclick="closeNavDropdown('navGuidesDropdown');showPage('missables',document.getElementById('navMissables'));buildMissablesPage();window._missablesBuilt=true;">Missables</button>
+        <button class="page-nav-dropdown-item" id="navBerries" onclick="closeNavDropdown('navGuidesDropdown');showPage('berries',document.getElementById('navBerries'));buildBerriesPage();window._berriesBuilt=true;">Berry Farming</button>
+        <button class="page-nav-dropdown-item" id="navRng" onclick="closeNavDropdown('navGuidesDropdown');showPage('rng',document.getElementById('navRng'));buildRngPage();window._rngBuilt=true;">RNG Guide</button>
         <button class="page-nav-dropdown-item" id="navDistributions" onclick="return openPage('distributions','navDistributions','navGuidesDropdown')">Distribution ROMs</button>
         <button class="page-nav-dropdown-item" id="navDistributionChecklist" onclick="return openPage('distributionchecklist','navDistributionChecklist','navGuidesDropdown')">Distribution Checklist</button>
         <button class="page-nav-dropdown-item" id="navPokeblock" onclick="return openPage('pokeblock','navPokeblock','navGuidesDropdown')">Pokéblock Optimizer</button>
@@ -2304,5 +2304,83 @@
 <script src="assets/data/bulba-data-e.js"></script>
 <script src="assets/js/core/page-registry.js"></script>
 <script src="assets/js/app.js"></script>
+<script src="assets/js/pages/tutors.js"></script>
+<script src="assets/js/pages/abilities.js"></script>
+<script src="assets/js/pages/learnsets.js"></script>
+<script src="assets/js/pages/encounters.js"></script>
+<script src="assets/js/pages/itemlocs.js"></script>
+<script src="assets/js/pages/safarizone.js"></script>
+<script src="assets/js/pages/statcalc.js"></script>
+<script src="assets/js/pages/pokeblock.js"></script>
+<script src="assets/js/pages/e4ref.js"></script>
+<script src="assets/js/pages/rematches.js"></script>
+<script src="assets/js/pages/routebrowser.js"></script>
+<script src="assets/js/pages/distributions.js"></script>
+<script src="assets/js/pages/distributionchecklist.js"></script>
+<script>
+(function() {
+  function bootFallback() {
+    var raw = (window.location.hash || '').replace(/^#/, '').trim();
+    var pageId = (raw.split('?')[0] || 'home').toLowerCase();
+    if (pageId.indexOf('page=') === 0) pageId = pageId.slice(5);
+    if (!pageId) pageId = 'home';
+
+    var pageEl = document.getElementById('page-' + pageId);
+    if (!pageEl) pageId = 'home';
+
+    if (pageId === 'home') {
+      var home = document.getElementById('page-home');
+      if (home && !home.classList.contains('active')) {
+        document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+        home.classList.add('active');
+      }
+      if (typeof buildHomePage === 'function') {
+        var homeContent = document.getElementById('home-content');
+        if (homeContent && !homeContent.innerHTML.trim()) buildHomePage();
+      }
+      return;
+    }
+
+    if (typeof window.openTopLevelPage === 'function') {
+      window.openTopLevelPage(pageId);
+      return;
+    }
+
+    var target = document.getElementById('page-' + pageId);
+    if (target && !target.classList.contains('active')) {
+      document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+      target.classList.add('active');
+    }
+
+    if (window.ensurePageReady) {
+      window.ensurePageReady(pageId);
+      return;
+    }
+
+    var directBuilders = {
+      routebrowser: window.buildRouteBrowserPage,
+      distributions: window.buildDistributionsPage,
+      distributionchecklist: window.buildDistributionChecklistPage,
+      rematches: window.buildRematchesPage,
+      e4ref: window.buildE4RefPage,
+      pokeblock: window.buildPokeblockPage,
+      statcalc: window.buildStatCalcPage,
+      safarizone: window.buildSafariZonePage,
+      tutors: window.buildTutorPage,
+      abilities: window.buildAbilitiesPage,
+      learnsets: window.buildLearnsetsPage,
+      encounters: window.buildEncountersPage,
+      itemlocs: window.buildItemLocsPage
+    };
+    if (typeof directBuilders[pageId] === 'function') directBuilders[pageId]();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootFallback, { once:true });
+  } else {
+    bootFallback();
+  }
+})();
+</script>
 </body>
 </html>

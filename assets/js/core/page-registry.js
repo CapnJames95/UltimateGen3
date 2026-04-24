@@ -42,7 +42,7 @@ window.PAGE_REGISTRY = window.PAGE_REGISTRY || {
   },
   routebrowser: {
     script: 'assets/js/pages/routebrowser.js',
-    init: function() { if (!window._routeBrowserBuilt) { buildRouteBrowserPage(); window._routeBrowserBuilt = true; } }
+    init: function() { buildRouteBrowserPage(); window._routeBrowserBuilt = true; }
   },
   distributions: {
     script: 'assets/js/pages/distributions.js',

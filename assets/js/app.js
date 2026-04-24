@@ -291,7 +291,7 @@ function buildHomePage() {
   var mobile = window.innerWidth <= 600;
 
   var html = '<div style="font-family:\'Press Start 2P\',monospace;font-size:11px;color:var(--gold);letter-spacing:2px;margin-bottom:6px;">GEN3 eGUIDE</div>'
-    + '<div style="font-size:12px;color:var(--muted);margin-bottom:24px;line-height:1.7;">FireRed · LeafGreen · Ruby · Sapphire · Emerald — 386 Pokémon, all 5 games in one place.</div>'
+    + '<div style="font-size:12px;color:var(--muted);margin-bottom:24px;line-height:1.7;">Everything you need for FireRed, LeafGreen, Ruby, Sapphire, and Emerald.</div>'
 
     // Top 3 big cards
     + '<div style="display:grid;grid-template-columns:' + (mobile ? '1fr' : 'repeat(3,1fr)') + ';gap:12px;margin-bottom:20px;">'
@@ -687,6 +687,64 @@ function getSortValue(p, key) {
 }
 
 window._shinyMode = false;
+
+function gen3FindPokemonNameByNum(num) {
+  try {
+    var mon = (typeof POKE !== 'undefined' ? POKE : []).find(function(p) { return p.num === num; });
+    return mon ? mon.name : '#' + num;
+  } catch (e) {
+    return '#' + num;
+  }
+}
+
+function gen3SpriteFallbackEl(kind, label, width, height) {
+  var span = document.createElement('span');
+  span.className = 'gen3-sprite-fallback gen3-sprite-fallback-' + kind;
+  span.textContent = label;
+  span.style.display = 'inline-flex';
+  span.style.alignItems = 'center';
+  span.style.justifyContent = 'center';
+  span.style.width = width + 'px';
+  span.style.height = height + 'px';
+  span.style.boxSizing = 'border-box';
+  span.style.border = '1px solid var(--border)';
+  span.style.borderRadius = '4px';
+  span.style.background = 'var(--card)';
+  span.style.color = 'var(--muted)';
+  span.style.fontSize = Math.max(8, Math.min(11, Math.floor(width / 3))) + 'px';
+  span.style.fontWeight = '700';
+  span.style.lineHeight = '1';
+  span.style.textAlign = 'center';
+  span.style.padding = '2px';
+  span.style.verticalAlign = 'middle';
+  span.title = label;
+  return span;
+}
+
+document.addEventListener('error', function(e) {
+  var img = e.target;
+  if (!img || img.tagName !== 'IMG' || img.dataset.gen3FallbackApplied === '1') return;
+  var src = img.currentSrc || img.src || '';
+  var width = img.width || parseInt(img.getAttribute('width') || '', 10) || 32;
+  var height = img.height || parseInt(img.getAttribute('height') || '', 10) || width;
+  var pokemonMatch = src.match(/\/pokemon\/(?:shiny\/)?(\d+)\.png/i);
+  var itemMatch = src.match(/\/items\/([a-z0-9-]+)\.png/i);
+  var replacement = null;
+
+  if (pokemonMatch) {
+    var num = parseInt(pokemonMatch[1], 10);
+    replacement = gen3SpriteFallbackEl('pokemon', String(num), width, height);
+    replacement.title = gen3FindPokemonNameByNum(num);
+  } else if (itemMatch) {
+    replacement = gen3SpriteFallbackEl('item', 'ITEM', width, height);
+    replacement.title = itemMatch[1].replace(/-/g, ' ');
+  }
+
+  if (!replacement || !img.parentNode) return;
+  img.dataset.gen3FallbackApplied = '1';
+  img.parentNode.replaceChild(replacement, img);
+}, true);
+
 window.toggleShinyMode = function(btn) {
   _shinyMode = !_shinyMode;
   btn.classList.toggle('active', _shinyMode);
@@ -1232,7 +1290,9 @@ function applyHashRoute(route) {
     return;
   }
 
-  openTopLevelPage(page);
+  if (typeof window.openTopLevelPage === 'function') {
+    window.openTopLevelPage(page);
+  }
 }
 
 function showPage(id, btn) {
@@ -9568,6 +9628,31 @@ function buildTracker() {
   renderTmChecklist();
 }
 
+// Auto-init: if the tracker page is already active on load, build it.
+(function() {
+  function initTrackerIfActive() {
+    var page = document.getElementById('page-tracker');
+    var count = document.getElementById('trk-count');
+    var grid = document.getElementById('trk-grid');
+    var looksEmpty = (!count || !count.textContent.trim()) && (!grid || !grid.innerHTML.trim());
+    if (page && page.classList.contains('active') && looksEmpty) {
+      buildTracker();
+      window._trackerBuilt = true;
+    }
+  }
+  function scheduleTrackerRecovery() {
+    initTrackerIfActive();
+    setTimeout(initTrackerIfActive, 60);
+    setTimeout(initTrackerIfActive, 180);
+    setTimeout(initTrackerIfActive, 420);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', scheduleTrackerRecovery, { once:true });
+  } else {
+    scheduleTrackerRecovery();
+  }
+})();
+
 // ══ TM/HM LOCATOR ═════════════════════════════════════════════
 var TMHM_REGION = 'frlg'; // 'frlg' or 'rse'
 var TMHM_GAME = 'FR';
@@ -10941,8 +11026,8 @@ function toggleTheme() {
         if (btn.onclick && btn.onclick.toString().includes("'" + saved + "'")) btn.click();
       });
     };
-    if (document.readyState === 'complete') trySet();
-    else window.addEventListener('load', trySet);
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', trySet, { once:true });
+    else trySet();
   }
 })();
 
@@ -10961,7 +11046,7 @@ function toggleTheme() {
     const pageMap = {
       dex:         { btn:'navDex',          init: function(){ buildTable(); } },
       bulba:       { btn:'navBulba',         init: function(){ if(!window._bulbaBuilt){buildBulbaGuide();window._bulbaBuilt=true;} bulbaAutoSelectGame(); } },
-      tracker:     { btn:'navTracker',       init: function(){ if(!window._trackerBuilt){buildTracker();window._trackerBuilt=true;} } },
+      tracker:     { btn:'navTracker',       init: function(){ buildTracker(); window._trackerBuilt = true; } },
       moves:       { btn:'navMoves',         init: function(){ if(!window._movesBuilt){buildMoveDex();window._movesBuilt=true;} } },
       tmhm:        { btn:'navTmhm',          init: null },
       tutors:      { btn:'navTutors',        init: function(){ if(window.ensurePageReady) window.ensurePageReady('tutors'); } },
@@ -10990,13 +11075,13 @@ function toggleTheme() {
       breed:       { btn:'navBreed',         init: null },
       catchcalc:   { btn:'navCatchCalc',     init: null },
       happiness:   { btn:'navHappiness',     init: null },
-      dexdash:     { btn:'navDexDash',       init: null },
-      ribbons:     { btn:'navRibbons',       init: null },
-      contests:    { btn:'navContests',      init: null },
-      frontier:    { btn:'navFrontier',      init: null },
-      missables:   { btn:'navMissables',     init: null },
-      berries:     { btn:'navBerries',       init: null },
-      rng:         { btn:'navRng',           init: null },
+      dexdash:     { btn:'navDexDash',       init: function(){ buildDexDashPage(); } },
+      ribbons:     { btn:'navRibbons',       init: function(){ if(!window._ribbonsBuilt){buildRibbonPage();window._ribbonsBuilt=true;} } },
+      contests:    { btn:'navContests',      init: function(){ if(!window._contestsBuilt){buildContestsPage();window._contestsBuilt=true;} } },
+      frontier:    { btn:'navFrontier',      init: function(){ if(!window._frontierBuilt){buildFrontierPage();window._frontierBuilt=true;} } },
+      missables:   { btn:'navMissables',     init: function(){ if(!window._missablesBuilt){buildMissablesPage();window._missablesBuilt=true;} } },
+      berries:     { btn:'navBerries',       init: function(){ if(!window._berriesBuilt){buildBerriesPage();window._berriesBuilt=true;} } },
+      rng:         { btn:'navRng',           init: function(){ if(!window._rngBuilt){buildRngPage();window._rngBuilt=true;} } },
       distributions:{ btn:'navDistributions', init: function(){ if(window.ensurePageReady) window.ensurePageReady('distributions'); } },
       distributionchecklist:{ btn:'navDistributionChecklist', init: function(){ if(window.ensurePageReady) window.ensurePageReady('distributionchecklist'); } },
       safarizone:  { btn:'navSafariZone',    init: function(){ if(window.ensurePageReady) window.ensurePageReady('safarizone'); } },
@@ -11014,8 +11099,107 @@ function toggleTheme() {
     showPage(pageId, btn);
     if (entry.init) entry.init();
   };
-  if (document.readyState === 'complete') openPage();
-  else window.addEventListener('load', openPage);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', openPage, { once:true });
+  else openPage();
+})();
+
+(function initStartupFallback() {
+  var fallbackBuilders = {
+    home: function() { resetHome(); },
+    tracker: function() { if (typeof window.openTopLevelPage === 'function') window.openTopLevelPage('tracker'); },
+    routebrowser: function() { if (typeof window.openTopLevelPage === 'function') window.openTopLevelPage('routebrowser'); },
+    easydex: function() { showPage('easydex', document.getElementById('navEasydex')); renderEasyDexPage(); window._easyDexBuilt = true; },
+    excl: function() { showPage('excl', document.getElementById('navExcl')); buildExcl(); window._exclBuilt = true; },
+    dexdash: function() { showPage('dexdash', document.getElementById('navDexDash')); buildDexDashPage(); },
+    ribbons: function() { showPage('ribbons', document.getElementById('navRibbons')); buildRibbonPage(); window._ribbonsBuilt = true; },
+    essentials: function() { showPage('essentials', document.getElementById('navEssentials')); buildEssentialsPage(); window._essentialsBuilt = true; },
+    contests: function() { showPage('contests', document.getElementById('navContests')); buildContestsPage(); window._contestsBuilt = true; },
+    frontier: function() { showPage('frontier', document.getElementById('navFrontier')); buildFrontierPage(); window._frontierBuilt = true; },
+    missables: function() { showPage('missables', document.getElementById('navMissables')); buildMissablesPage(); window._missablesBuilt = true; },
+    berries: function() { showPage('berries', document.getElementById('navBerries')); buildBerriesPage(); window._berriesBuilt = true; },
+    rng: function() { showPage('rng', document.getElementById('navRng')); buildRngPage(); window._rngBuilt = true; }
+  };
+
+  function pageLooksEmpty(pageId) {
+    if (pageId === 'home') {
+      var home = document.getElementById('home-content');
+      return !home || !home.innerHTML.trim();
+    }
+    if (pageId === 'routebrowser') {
+      var areaList = document.getElementById('rb-area-list');
+      var detail = document.getElementById('rb-detail');
+      return (!areaList || !areaList.innerHTML.trim()) && (!detail || !detail.innerHTML.trim());
+    }
+    if (pageId === 'tracker') {
+      var count = document.getElementById('trk-count');
+      var grid = document.getElementById('trk-grid');
+      return (!count || !count.textContent.trim()) && (!grid || !grid.innerHTML.trim());
+    }
+    if (pageId === 'easydex') {
+      var panel = document.getElementById('easydex-panel');
+      return !panel || !panel.innerHTML.trim();
+    }
+    if (pageId === 'excl') {
+      var exclPage = document.getElementById('page-excl');
+      return !exclPage || !/VERSION EXCLUSIVES|FR vs LG|R vs S|E UNIQUE/.test(exclPage.textContent || '');
+    }
+    var contentMap = {
+      dexdash: 'dexdash-content',
+      ribbons: 'ribbons-content',
+      essentials: 'essentials-content',
+      easydex: 'easydex-panel',
+      contests: 'contests-content',
+      frontier: 'frontier-content',
+      missables: 'missables-content',
+      berries: 'berries-content',
+      rng: 'rng-content'
+    };
+    var contentId = contentMap[pageId];
+    if (contentId) {
+      var box = document.getElementById(contentId);
+      return !box || !box.innerHTML.trim();
+    }
+    return false;
+  }
+
+  function ensureVisiblePageReady() {
+    var route = getHashRoute();
+    var pageId = route.page || localStorage.getItem('gen3-last-page') || 'home';
+    var active = document.querySelector('.page.active');
+    if (!active) {
+      if (pageId === 'home') {
+        resetHome();
+      } else {
+        applyHashRoute(route);
+      }
+      return;
+    }
+    if (pageId === 'home') {
+      if (pageLooksEmpty('home')) resetHome();
+      return;
+    }
+    if (pageLooksEmpty(pageId) || active.id !== 'page-' + pageId) {
+      if (fallbackBuilders[pageId]) {
+        fallbackBuilders[pageId]();
+        return;
+      }
+      if (typeof window.openTopLevelPage === 'function') window.openTopLevelPage(pageId);
+      return;
+    }
+    if (window.ensurePageReady) window.ensurePageReady(pageId);
+  }
+
+  function runFallback() {
+    ensureVisiblePageReady();
+    setTimeout(ensureVisiblePageReady, 0);
+    setTimeout(ensureVisiblePageReady, 60);
+    setTimeout(ensureVisiblePageReady, 180);
+    setTimeout(ensureVisiblePageReady, 420);
+    setTimeout(ensureVisiblePageReady, 800);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', runFallback, { once:true });
+  else runFallback();
 })();
 
 (function initDeferredPrefs() {
@@ -14957,6 +15141,21 @@ document.addEventListener('keydown', function(e) {
   // After showPage fires, highlight the correct dropdown trigger
   var _origShow = window.showPage;
   function ensurePageBuilt(id) {
+    var alwaysBuild = {
+      excl: function(){ buildExcl(); window._exclBuilt = true; },
+      dexdash: function(){ buildDexDashPage(); },
+      ribbons: function(){ buildRibbonPage(); window._ribbonsBuilt = true; },
+      essentials: function(){ buildEssentialsPage(); window._essentialsBuilt = true; },
+      contests: function(){ buildContestsPage(); window._contestsBuilt = true; },
+      frontier: function(){ buildFrontierPage(); window._frontierBuilt = true; },
+      missables: function(){ buildMissablesPage(); window._missablesBuilt = true; },
+      berries: function(){ buildBerriesPage(); window._berriesBuilt = true; },
+      rng: function(){ buildRngPage(); window._rngBuilt = true; }
+    };
+    if (alwaysBuild[id]) {
+      alwaysBuild[id]();
+      return;
+    }
     if (window.ensurePageReady) window.ensurePageReady(id);
   }
   window.showPage = function(id, btn) {
@@ -14979,10 +15178,37 @@ document.addEventListener('keydown', function(e) {
     }
   };
 
+  function scheduleHashRouteRecovery() {
+    if (_hashSyncMuted) return;
+    var route = getHashRoute();
+    if (!route || !route.page || route.page === 'home') return;
+
+    function enforceRoute() {
+      if (_hashSyncMuted) return;
+      var active = document.querySelector('.page.active');
+      if (!active || active.id !== 'page-' + route.page) {
+        applyHashRoute(route);
+      }
+    }
+
+    enforceRoute();
+    setTimeout(enforceRoute, 60);
+    setTimeout(enforceRoute, 180);
+    setTimeout(enforceRoute, 420);
+    setTimeout(enforceRoute, 800);
+  }
+
   window.addEventListener('hashchange', function() {
     if (_hashSyncMuted) return;
     applyHashRoute();
+    scheduleHashRouteRecovery();
   });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', scheduleHashRouteRecovery, { once:true });
+  } else {
+    scheduleHashRouteRecovery();
+  }
 })();
 
 // ══ NATURE CHART ═══════════════════════════════════════════════
@@ -16926,6 +17152,47 @@ function buildDexDashPage() {
   el.innerHTML = html;
 }
 
+(function() {
+  var builtInRecovery = {
+    easydex: { content:'easydex-panel', build:function(){ renderEasyDexPage(); window._easyDexBuilt = true; } },
+    excl: { content:'page-excl', build:function(){ buildExcl(); window._exclBuilt = true; } },
+    dexdash: { content:'dexdash-content', build:function(){ buildDexDashPage(); } },
+    ribbons: { content:'ribbon-content', build:function(){ buildRibbonPage(); window._ribbonsBuilt = true; } },
+    essentials: { content:'essentials-content', build:function(){ buildEssentialsPage(); window._essentialsBuilt = true; } },
+    contests: { content:'contests-content', build:function(){ buildContestsPage(); window._contestsBuilt = true; } },
+    frontier: { content:'frontier-content', build:function(){ buildFrontierPage(); window._frontierBuilt = true; } },
+    missables: { content:'missables-content', build:function(){ buildMissablesPage(); window._missablesBuilt = true; } },
+    berries: { content:'berries-content', build:function(){ buildBerriesPage(); window._berriesBuilt = true; } },
+    rng: { content:'rng-content', build:function(){ buildRngPage(); window._rngBuilt = true; } }
+  };
+
+  function recoverBuiltInPage() {
+    var route = getHashRoute();
+    var pageId = route.page || '';
+    var spec = builtInRecovery[pageId];
+    if (!spec) return;
+    var page = document.getElementById('page-' + pageId);
+    var content = document.getElementById(spec.content);
+    if (page && page.classList.contains('active') && (!content || !content.innerHTML.trim())) {
+      spec.build();
+    }
+  }
+
+  function scheduleBuiltInRecovery() {
+    recoverBuiltInPage();
+    setTimeout(recoverBuiltInPage, 60);
+    setTimeout(recoverBuiltInPage, 180);
+    setTimeout(recoverBuiltInPage, 420);
+    setTimeout(recoverBuiltInPage, 800);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', scheduleBuiltInRecovery, { once:true });
+  } else {
+    scheduleBuiltInRecovery();
+  }
+})();
+
 // ══ NPC IN-GAME TRADES ═════════════════════════════════════════
 function buildNpcTradesPage() {
   var el = document.getElementById('npctrades-content');
@@ -17572,17 +17839,40 @@ var NOTE_BTN_MAP={
   distributions:'navDistributions',distributionchecklist:'navDistributionChecklist',pokeblock:'navPokeblock',e4ref:'navE4Ref',rematches:'navRematches',routebrowser:'navRouteBrowser',
 };
 
-function openTopLevelPage(pid) {
+window.openTopLevelPage = function(pid) {
   if(pid==='bulba'){showPage('bulba',document.getElementById('navBulba'));if(!window._bulbaBuilt){buildBulbaGuide();window._bulbaBuilt=true;}if(typeof bulbaAutoSelectGame==='function')bulbaAutoSelectGame();return;}
-  if(pid==='tracker'){showPage('tracker',document.getElementById('navTracker'));if(!window._trackerBuilt){buildTracker();window._trackerBuilt=true;}return;}
+  if(pid==='tracker'){showPage('tracker',document.getElementById('navTracker'));buildTracker();window._trackerBuilt=true;return;}
+  var directBuilders = {
+    excl: function(){ buildExcl(); window._exclBuilt = true; },
+    dexdash: function(){ buildDexDashPage(); },
+    ribbons: function(){ if(!window._ribbonsBuilt){ buildRibbonPage(); window._ribbonsBuilt=true; } },
+    essentials: function(){ if(!window._essentialsBuilt){ buildEssentialsPage(); window._essentialsBuilt=true; } },
+    contests: function(){ if(!window._contestsBuilt){ buildContestsPage(); window._contestsBuilt=true; } },
+    frontier: function(){ if(!window._frontierBuilt){ buildFrontierPage(); window._frontierBuilt=true; } },
+    missables: function(){ if(!window._missablesBuilt){ buildMissablesPage(); window._missablesBuilt=true; } },
+    berries: function(){ if(!window._berriesBuilt){ buildBerriesPage(); window._berriesBuilt=true; } },
+    rng: function(){ if(!window._rngBuilt){ buildRngPage(); window._rngBuilt=true; } }
+  };
   var navId=NOTE_BTN_MAP[pid];
   var btn=navId?document.getElementById(navId):null;
+  if (window.PAGE_REGISTRY && window.PAGE_REGISTRY[pid]) {
+    showPage(pid, btn);
+    if (window.ensurePageReady) window.ensurePageReady(pid);
+    return;
+  }
+  if (directBuilders[pid]) {
+    showPage(pid, btn);
+    directBuilders[pid]();
+    return;
+  }
   if(btn){btn.click();}else{showPage(pid,null);}
-}
+};
 
 window.noteNavPage=function(pid){
   closeNotesPanel();
-  openTopLevelPage(pid);
+  if (typeof window.openTopLevelPage === 'function') {
+    window.openTopLevelPage(pid);
+  }
 };
 
 window.noteNavBulba=function(game,key){
