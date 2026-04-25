@@ -2724,6 +2724,8 @@ body { padding-bottom: 24px; }
 .home-mast-tagline.tl-visible { opacity: 1; }
 /* 768px — show mascot, hide first two stats, reduce padding */
 @media (max-width: 768px) {
+  .notes-panel-tab { top: 38%; }
+  .map-panel-tab   { top: calc(38% + 60px); }
   .home-mast-inner { padding: 10px 130px 10px 18px; overflow: visible; }
   .home-mast-tagline { display: none; }
   .home-mast-sep { display: none; }
@@ -2739,6 +2741,9 @@ body { padding-bottom: 24px; }
 
 /* 480px — compact single-row + scrollable contents strip */
 @media (max-width: 480px) {
+  .notes-panel-tab { top: 42%; }
+  .map-panel-tab   { top: calc(42% + 60px); }
+  .home-mast-mascot { display: none; }
   .home-mast-inner {
     flex-wrap: nowrap;
     padding: 10px 14px;
@@ -2755,7 +2760,6 @@ body { padding-bottom: 24px; }
     padding: 0 10px;
     min-width: 0;
   }
-  .home-mast-now-playing { display: none; }
   .home-mast-game-name { font-size: 9px; letter-spacing: 1px; }
   .home-mast-issue { display: none; }
   .home-mast-stats { padding-left: 0; gap: 10px; flex-shrink: 0; }
