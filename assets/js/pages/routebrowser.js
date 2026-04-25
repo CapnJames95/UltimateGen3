@@ -1,5 +1,6 @@
 function buildRouteBrowserPage() {
-  var RB_GAME = 'FR';
+  var _rbMap = {FR:'FR',LG:'LG',R:'R',S:'S',E:'E'};
+  var RB_GAME = (typeof GAME !== 'undefined' && GAME !== 'all' && _rbMap[GAME]) ? _rbMap[GAME] : 'FR';
   var RB_GAMES = ['FR','LG','R','S','E'];
   var RB_GAME_LABELS = {FR:'🔥 FireRed',LG:'🌿 LeafGreen',R:'💎 Ruby',S:'🔷 Sapphire',E:'💚 Emerald'};
   var RB_GAME_COLORS = {FR:'var(--fire)',LG:'var(--leaf)',R:'#FF5555',S:'#5599FF',E:'#44DD88'};
@@ -171,16 +172,16 @@ function buildRouteBrowserPage() {
         var active = a === rbSelectedArea;
         return '<div onclick="rbSelectArea(\''+a.replace(/'/g,"\\'")+'\')"'
           +' style="padding:8px 14px 8px 22px;cursor:pointer;font-size:12px;font-weight:'+(active?'700':'400')+';'
-          +'color:'+(active?'var(--gold)':'var(--text)')+';'
-          +'background:'+(active?'rgba(255,215,0,.08)':'transparent')+';'
-          +'border-left:3px solid '+(active?'var(--gold)':'transparent')+';"'
-          +' onmouseover="if(this.style.background!==\'rgba(255,215,0,.08)\')this.style.background=\'rgba(255,255,255,.04)\'"'
+          +'color:'+(active?'var(--game-color,var(--gold))':'var(--text)')+';'
+          +'background:'+(active?'color-mix(in srgb,var(--game-color,var(--gold)) 8%,transparent)':'transparent')+';'
+          +'border-left:3px solid '+(active?'var(--game-color,var(--gold))':'transparent')+';"'
+          +' onmouseover="if(this.style.borderLeftColor===\'transparent\')this.style.background=\'rgba(255,255,255,.04)\'"'
           +' onmouseout="if(\''+a+'\'!==window._rbSel)this.style.background=\'\'">'
           +a+'<span style="float:right;font-size:10px;color:var(--muted);">'+idx[a].length+'</span>'
           +'</div>';
       }).join('') : '';
       return '<div style="border-bottom:1px solid rgba(255,255,255,.04);">'
-        + '<div onclick="rbToggleGroup(\''+group+'\')" style="padding:9px 12px;cursor:pointer;font-size:11px;font-weight:800;color:var(--gold);background:rgba(255,255,255,.03);letter-spacing:.2px;">'
+        + '<div onclick="rbToggleGroup(\''+group+'\')" style="padding:9px 12px;cursor:pointer;font-size:11px;font-weight:800;color:var(--game-color,var(--gold));background:rgba(255,255,255,.03);letter-spacing:.2px;">'
         + (isOpen ? '▾ ' : '▸ ') + group
         + '<span style="float:right;font-size:10px;color:var(--muted);">' + grouped[group].length + '</span>'
         + '</div>'
@@ -225,7 +226,7 @@ function buildRouteBrowserPage() {
 
     var spreadHtml = '<div class="rb-detail-spread">'
       + '<div class="rb-area-splash" style="position:relative;overflow:hidden;">'
-      + '<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--gold);letter-spacing:1px;margin-bottom:6px;">'+areaGroup2+'</div>'
+      + '<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--game-color,var(--gold));letter-spacing:1px;margin-bottom:6px;">'+areaGroup2+'</div>'
       + '<div style="font-family:\'Press Start 2P\',monospace;font-size:clamp(10px,2vw,15px);color:var(--text);line-height:1.4;padding-right:80px;">'+areaIcon+' '+rbSelectedArea.toUpperCase()+'</div>'
       + '<div style="margin-top:6px;font-size:10px;color:var(--muted);">'+entries.length+' Pokémon available</div>'
       + splashSprite
@@ -259,8 +260,8 @@ function buildRouteBrowserPage() {
               tradeDetail = tradeDetail.replace(/^with\s+/i, 'With ');
               tradeDetail = tradeDetail.replace(/^for\s+/i, 'For ');
             }
-            tradeNote = '<div style="margin:3px 0 1px 0;"><span style="display:inline-block;font-size:8px;font-weight:800;padding:1px 5px;border-radius:999px;background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.35);color:var(--gold);">TRADE</span></div>'
-              + '<div style="font-size:9px;color:var(--gold);'
+            tradeNote = '<div style="margin:3px 0 1px 0;"><span style="display:inline-block;font-size:8px;font-weight:800;padding:1px 5px;border-radius:999px;background:color-mix(in srgb,var(--game-color,var(--gold)) 12%,transparent);border:1px solid color-mix(in srgb,var(--game-color,var(--gold)) 35%,transparent);color:var(--game-color,var(--gold));">TRADE</span></div>'
+              + '<div style="font-size:9px;color:var(--game-color,var(--gold));'
               + (isTradeArea ? 'white-space:normal;overflow:visible;max-width:none;' : 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;')
               + '">'
               + (tradeDetail ? tradeDetail : 'Available here via in-game trade')
@@ -298,7 +299,7 @@ function buildRouteBrowserPage() {
           var typeBadgeHtml = (e.types||[]).map(function(t){
             return '<span style="font-size:7px;font-weight:800;padding:1px 5px;border-radius:2px;text-transform:uppercase;background:'+(TYPE_BG[t]||'#666')+';color:#fff;">'+t+'</span>';
           }).join(' ');
-          var methodBadge = isTrade ? '<span style="font-size:7px;padding:1px 5px;border-radius:99px;background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.4);color:var(--gold);">TRADE</span>'
+          var methodBadge = isTrade ? '<span style="font-size:7px;padding:1px 5px;border-radius:99px;background:color-mix(in srgb,var(--game-color,var(--gold)) 15%,transparent);border:1px solid color-mix(in srgb,var(--game-color,var(--gold)) 40%,transparent);color:var(--game-color,var(--gold));">TRADE</span>'
             : isEvent  ? '<span style="font-size:7px;padding:1px 5px;border-radius:99px;background:rgba(100,180,255,.15);border:1px solid rgba(100,180,255,.4);color:#8fc8ff;">EVENT</span>'
             : isFossil ? '<span style="font-size:7px;padding:1px 5px;border-radius:99px;background:rgba(205,170,106,.15);border:1px solid rgba(205,170,106,.4);color:#d7b36c;">FOSSIL</span>'
             : isEvolve ? '<span style="font-size:7px;padding:1px 5px;border-radius:99px;background:rgba(154,210,122,.15);border:1px solid rgba(154,210,122,.4);color:#9ad27a;">EVOLVE</span>'
@@ -335,6 +336,11 @@ function buildRouteBrowserPage() {
     }).join('');
   }
 
+  function rbUpdateTitleColor(g) {
+    var t = document.getElementById('rb-page-title');
+    if (t) t.style.setProperty('color', RB_GAME_COLORS[g] || 'var(--gold)');
+  }
+
   window.rbSetGame = function(g) {
     RB_GAME=g;
     rbIndex=buildIndex(g);
@@ -347,6 +353,7 @@ function buildRouteBrowserPage() {
       b.style.color=active?'#000':'var(--text)';
       b.style.borderColor=active?RB_GAME_COLORS[x]:'var(--border)';
     });
+    rbUpdateTitleColor(g);
     rbRender();
   };
   window.rbSelectArea = function(a) { rbSelectedArea=a; window._rbSel=a; if(rbIndex) { renderAreaList(rbIndex); renderDetail(rbIndex); } };
@@ -361,5 +368,6 @@ function buildRouteBrowserPage() {
     if(rbIndex) renderAreaList(rbIndex);
   };
 
+  rbUpdateTitleColor(RB_GAME);
   rbRender();
 }

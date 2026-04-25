@@ -41,7 +41,7 @@ function abRender() {
       var p = POKE.find(function(p) { return p.num === n; });
       if (!p) return '';
       var typeColor = typeColors[(p.types[0]||'').charAt(0).toUpperCase()+(p.types[0]||'').slice(1)] || '#888';
-      return '<span onclick="_openDexSearch(\''+p.name+'\','+n+')" style="display:inline-flex;align-items:center;gap:4px;background:var(--card);border:1px solid var(--border);border-radius:4px;padding:3px 7px;font-size:11px;cursor:pointer;margin:2px;transition:border-color 0.12s;" onmouseover="this.style.borderColor=\'var(--gold)\'" onmouseout="this.style.borderColor=\'var(--border)\'">'
+      return '<span onclick="_openDexSearch(\''+p.name+'\','+n+')" style="display:inline-flex;align-items:center;gap:4px;background:var(--card);border:1px solid var(--border);border-radius:4px;padding:3px 7px;font-size:11px;cursor:pointer;margin:2px;transition:border-color 0.12s;" onmouseover="this.style.borderColor=gameColor()" onmouseout="this.style.borderColor=\'var(--border)\'">'
         +'<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+n+'.png" style="width:20px;height:20px;image-rendering:pixelated;">'
         +'<span style="color:var(--muted);font-size:10px;">#'+String(n).padStart(3,'0')+'</span>'
         +p.name+'</span>';
@@ -49,7 +49,7 @@ function abRender() {
 
     return '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:12px;">'
       +'<div style="display:flex;align-items:baseline;gap:10px;margin-bottom:6px;">'
-      +'<span style="font-family:\'Press Start 2P\',monospace;font-size:8px;color:var(--gold);">'+name+'</span>'
+      +'<span style="font-family:\'Press Start 2P\',monospace;font-size:8px;color:var(--game-color,var(--gold));">'+name+'</span>'
       +'<span style="font-size:10px;color:var(--muted);">'+pokeNums.length+' Pokémon</span>'
       +'</div>'
       +(desc ? '<div style="font-size:12px;color:var(--text);margin-bottom:10px;line-height:1.6;">'+desc+'</div>' : '')

@@ -32,7 +32,7 @@ function buildSafariZonePage() {
       ]
     },
     rse: {
-      label: '💎 R/S / 💚 E — Lilycove City (Route 121)',
+      label: '🔴 R/S / 💚 E — Lilycove City (Route 121)',
       color: '#44DD88',
       steps: 500,
       balls: 30,
@@ -53,7 +53,8 @@ function buildSafariZonePage() {
     }
   };
 
-  var curGame = 'frlg';
+  var _szGameMap = {FR:'frlg', LG:'frlg', R:'rse', S:'rse', E:'rse'};
+  var curGame = (typeof GAME !== 'undefined' && GAME !== 'all' && _szGameMap[GAME]) ? _szGameMap[GAME] : 'frlg';
   var steps = 500, balls = 30;
   var selectedPoke = null;
 
@@ -110,17 +111,17 @@ function buildSafariZonePage() {
     var game = SAFARI_GAMES[curGame];
     return game.areas.map(function(area){
       return '<div style="margin-bottom:16px;">'
-        +'<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--muted);letter-spacing:0.5px;margin-bottom:8px;">'+area.name+'</div>'
+        +'<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--game-color,var(--gold));letter-spacing:0.5px;margin-bottom:8px;">'+area.name+'</div>'
         +'<div style="display:flex;flex-wrap:wrap;gap:6px;">'
         + area.pokemon.map(function(p){
             var isSelected = selectedPoke && selectedPoke.num === p.num && selectedPoke.name === p.name;
             return '<div onclick="szSelectPoke('+p.num+',\''+p.name.replace(/'/g,"\\'")
               +'\','+p.cr+','+p.flee+')" style="display:flex;align-items:center;gap:6px;'
-              +'padding:5px 10px;background:var(--card);border:1px solid '+(isSelected?'var(--gold)':'var(--border)')
+              +'padding:5px 10px;background:var(--card);border:1px solid '+(isSelected?'var(--game-color,var(--gold))':'var(--border)')
               +';border-radius:6px;cursor:pointer;transition:border-color .12s;">'
               +'<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+p.num+'.png"'
               +' width="28" height="28" style="image-rendering:pixelated;">'
-              +'<div><div style="font-size:11px;font-weight:800;color:'+(isSelected?'var(--gold)':'var(--text)')+'">'+p.name+'</div>'
+              +'<div><div style="font-size:11px;font-weight:800;color:'+(isSelected?'var(--game-color,var(--gold))':'var(--text)')+'">'+p.name+'</div>'
               +'<div style="font-size:9px;color:var(--muted);">CR '+p.cr+' &nbsp; '+p.rate+'</div></div></div>';
           }).join('')
         +'</div></div>';
@@ -132,7 +133,7 @@ function buildSafariZonePage() {
     var stepPct = steps / game.steps * 100;
     var ballPct = balls / game.balls * 100;
     return '<div class="panel" style="padding:14px 16px;margin-bottom:14px;">'
-      +'<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--gold);letter-spacing:0.5px;margin-bottom:12px;">SESSION TRACKER</div>'
+      +'<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--game-color,var(--gold));letter-spacing:0.5px;margin-bottom:12px;">SESSION TRACKER</div>'
       +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">'
       +'<div><div style="font-size:10px;color:var(--muted);margin-bottom:4px;">STEPS REMAINING</div>'
       +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'
@@ -159,7 +160,7 @@ function buildSafariZonePage() {
   function render() {
     var game = SAFARI_GAMES[curGame];
     el.innerHTML = ''
-      +'<div style="display:flex;gap:6px;margin-bottom:14px;">'
+      +'<div id="sz-game-btns" style="display:flex;gap:6px;margin-bottom:14px;">'
       +Object.keys(SAFARI_GAMES).map(function(k){
         var g=SAFARI_GAMES[k];
         var active=k===curGame;

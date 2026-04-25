@@ -6,7 +6,7 @@ function buildItemLocsPage() {
   var games = [
     { id:'FR', label:'🔥 FR', color:'var(--fire)' },
     { id:'LG', label:'🌿 LG', color:'var(--leaf)' },
-    { id:'R', label:'💎 R', color:'#FF5555' },
+    { id:'R', label:'🔴 R', color:'#FF5555' },
     { id:'S', label:'🔷 S', color:'#5599FF' },
     { id:'E', label:'🟢 E', color:'var(--emerald)' }
   ];
@@ -35,7 +35,10 @@ function ilocRender() {
   var isRSE = (g === 'R' || g === 'S' || g === 'E');
   var rawItem = (document.getElementById('iloc-search') || {}).value || '';
   var q = _norm(rawItem);
-  if (typeof setPageHash === 'function') setPageHash('itemlocs', { item: rawItem, game: g });
+  var _ilocPage = document.getElementById('page-itemlocs');
+  if (typeof setPageHash === 'function' && _ilocPage && _ilocPage.classList.contains('active')) {
+    setPageHash('itemlocs', { item: rawItem, game: g });
+  }
   var sections = [];
 
   Object.keys(GUIDE_DATA).forEach(function(sectionId) {
@@ -75,8 +78,8 @@ function ilocRender() {
       +'<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--text);padding:10px 14px;border-bottom:1px solid var(--border);background:var(--panel);">'+sec.label+'</div>'
       +'<table style="width:100%;border-collapse:collapse;">'
       +'<thead><tr style="border-bottom:1px solid var(--border);">'
-      +'<th style="padding:5px 12px;font-size:9px;color:var(--muted);text-align:left;width:35%;">Item</th>'
-      +'<th style="padding:5px 12px;font-size:9px;color:var(--muted);text-align:left;">Location</th>'
+      +'<th style="padding:5px 12px;font-size:9px;color:var(--game-color,var(--gold));text-align:left;width:35%;">Item</th>'
+      +'<th style="padding:5px 12px;font-size:9px;color:var(--game-color,var(--gold));text-align:left;">Location</th>'
       +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
   }).join('');
 

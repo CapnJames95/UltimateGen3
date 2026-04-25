@@ -51,7 +51,7 @@ function buildStatCalcPage() {
     }).join('')
     +'<div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px;display:flex;justify-content:space-between;font-size:11px;">'
     +'<span style="color:var(--muted);">Total</span>'
-    +'<span style="font-weight:800;color:var(--gold);">'+stats.reduce(function(a,b){return a+b;},0)+'</span></div>';
+    +'<span style="font-weight:800;color:var(--game-color,var(--gold));">'+stats.reduce(function(a,b){return a+b;},0)+'</span></div>';
   }
 
   function renderEVInputs() {
@@ -83,7 +83,7 @@ function buildStatCalcPage() {
 
   el.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">'
     +'<div class="panel" style="padding:16px;">'
-    +'<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--gold);margin-bottom:12px;">INPUTS</div>'
+    +'<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--game-color,var(--gold));margin-bottom:12px;">INPUTS</div>'
     +'<label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Pokémon</label>'
     +'<div style="position:relative;margin-bottom:12px;">'
     +'<input id="sc-poke-inp" type="text" placeholder="Search name or #…" autocomplete="off"'
@@ -113,7 +113,7 @@ function buildStatCalcPage() {
     +'<div id="sc-ev-inputs">'+ renderEVInputs() +'</div>'
     +'</div>'
     +'<div class="panel" style="padding:16px;">'
-    +'<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--gold);margin-bottom:12px;">FINAL STATS</div>'
+    +'<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--game-color,var(--gold));margin-bottom:12px;">FINAL STATS</div>'
     +'<div id="sc-result">'+renderResult()+'</div>'
     +'</div></div>';
 

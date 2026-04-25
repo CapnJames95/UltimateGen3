@@ -6,7 +6,7 @@ function buildEncountersPage() {
   var games = [
     { id:'FR', label:'🔥 FR', color:'var(--fire)' },
     { id:'LG', label:'🌿 LG', color:'var(--leaf)' },
-    { id:'R', label:'💎 R', color:'#FF5555' },
+    { id:'R', label:'🔴 R', color:'#FF5555' },
     { id:'S', label:'🔷 S', color:'#5599FF' },
     { id:'E', label:'🟢 E', color:'var(--emerald)' }
   ];
@@ -35,7 +35,10 @@ function encRender() {
   var isRSE = (g === 'R' || g === 'S' || g === 'E');
   var rawLoc = (document.getElementById('enc-loc-search') || {}).value || '';
   var locQ = _norm(rawLoc);
-  if (typeof setPageHash === 'function') setPageHash('encounters', { route: rawLoc, game: g });
+  var _encPage = document.getElementById('page-encounters');
+  if (typeof setPageHash === 'function' && _encPage && _encPage.classList.contains('active')) {
+    setPageHash('encounters', { route: rawLoc, game: g });
+  }
   var methodLabels = {
     grass:'🌿 Grass', cave:'🕳 Cave', surf:'🏄 Surf', water:'🏄 Surf',
     'old rod':'🎣 Old Rod', 'good rod':'🎣 Good Rod', 'super rod':'🎣 Super Rod',
@@ -83,12 +86,12 @@ function encRender() {
         var pokeObj = POKE.find(function(p) { return p.name === e.name; });
         var sprite = pokeObj ? '<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+pokeObj.num+'.png" style="width:24px;height:24px;image-rendering:pixelated;vertical-align:middle;margin-right:4px;">' : '';
         var nameHtml = pokeObj
-          ? '<span style="cursor:pointer;color:var(--text);" onclick="_openDexSearch(\''+e.name+'\','+pokeObj.num+')" onmouseover="this.style.color=\'var(--gold)\'" onmouseout="this.style.color=\'var(--text)\'">'+sprite+e.name+'</span>'
+          ? '<span style="cursor:pointer;color:var(--text);" onclick="_openDexSearch(\''+e.name+'\','+pokeObj.num+')" onmouseover="this.style.color=gameColor()" onmouseout="this.style.color=\'var(--text)\'">'+sprite+e.name+'</span>'
           : e.name;
         return '<tr style="border-bottom:1px solid rgba(255,255,255,0.04);">'
           +'<td style="padding:5px 10px;">'+nameHtml+noteHtml+'</td>'
           +'<td style="padding:5px 10px;font-size:11px;color:var(--muted);">'+e.levels+'</td>'
-          +'<td style="padding:5px 10px;font-size:11px;color:var(--gold);text-align:right;font-weight:700;">'+e.rate+'</td>'
+          +'<td style="padding:5px 10px;font-size:11px;color:var(--game-color,var(--gold));text-align:right;font-weight:700;">'+e.rate+'</td>'
           +'</tr>';
       }).join('');
       return '<div style="margin-bottom:10px;">'

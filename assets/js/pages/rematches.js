@@ -37,7 +37,8 @@ function buildRematchesPage() {
 
   var EV_COLORS = {Spd:'#FFD700',Atk:'#FF6B35',SpA:'#64b4ff','SpA+SpD':'#81C784','Atk+Spd':'#FFA040',mixed:'var(--muted)',HP:'#ef5350',Def:'#9E9E9E',SpD:'#4CAF50'};
 
-  var selGame = 'FR/LG';
+  var _rmGameMap = {FR:'FR/LG', LG:'FR/LG', R:'FR/LG', S:'FR/LG', E:'Emerald'};
+  var selGame = (typeof GAME !== 'undefined' && GAME !== 'all' && _rmGameMap[GAME]) ? _rmGameMap[GAME] : 'FR/LG';
   var searchQ = '';
 
   function renderTable() {
@@ -49,10 +50,10 @@ function buildRematchesPage() {
     if (!rows.length) return '<div style="color:var(--muted);font-size:12px;padding:24px;text-align:center;">No results.</div>';
     return '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">'
       +'<thead><tr style="border-bottom:2px solid var(--border);">'
-      +'<th style="text-align:left;padding:8px 10px;font-size:10px;font-weight:800;text-transform:uppercase;color:var(--muted);">Location</th>'
-      +'<th style="text-align:left;padding:8px 10px;font-size:10px;font-weight:800;text-transform:uppercase;color:var(--muted);">Trainer</th>'
-      +'<th style="text-align:left;padding:8px 10px;font-size:10px;font-weight:800;text-transform:uppercase;color:var(--muted);">EV Yield</th>'
-      +'<th style="text-align:left;padding:8px 10px;font-size:10px;font-weight:800;text-transform:uppercase;color:var(--muted);">Notes</th>'
+      +'<th style="text-align:left;padding:8px 10px;font-size:10px;font-weight:800;text-transform:uppercase;color:var(--game-color,var(--gold));">Location</th>'
+      +'<th style="text-align:left;padding:8px 10px;font-size:10px;font-weight:800;text-transform:uppercase;color:var(--game-color,var(--gold));">Trainer</th>'
+      +'<th style="text-align:left;padding:8px 10px;font-size:10px;font-weight:800;text-transform:uppercase;color:var(--game-color,var(--gold));">EV Yield</th>'
+      +'<th style="text-align:left;padding:8px 10px;font-size:10px;font-weight:800;text-transform:uppercase;color:var(--game-color,var(--gold));">Notes</th>'
       +'</tr></thead><tbody>'
       + rows.map(function(r){
           var evColor = r.ev ? (EV_COLORS[r.ev]||'var(--text)') : 'var(--gold)';
@@ -69,18 +70,20 @@ function buildRematchesPage() {
 
   function render() {
     el.innerHTML = '<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">'
+      +'<div id="rm-game-btns" style="display:contents;">'
       + GAMES_LIST.map(function(g){
           var active=g===selGame;
           var color = g==='FR/LG'?'var(--fire)':'#44DD88';
           return '<button onclick="rmSetGame(\''+g+'\')" style="padding:6px 14px;font-size:11px;font-weight:700;background:'+(active?color:'var(--panel)')+';color:'+(active?'#000':'var(--text)')+';border:1px solid '+(active?color:'var(--border)')+';border-radius:5px;cursor:pointer;">'+g+'</button>';
         }).join('')
+      +'</div>'
       +'<input id="rm-search" type="text" placeholder="Search location, trainer…" oninput="rmSearch(this.value)"'
       +' style="flex:1;min-width:160px;max-width:280px;padding:6px 10px;background:var(--card);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:12px;font-family:\'Nunito\',sans-serif;"'
       +' value="'+searchQ.replace(/"/g,'&quot;')+'">'
       +'</div>'
       +'<div style="font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.7;">'
-      +(selGame==='FR/LG'?'<strong style="color:var(--text);">VS Seeker</strong> — re-challenge trainers anywhere in Kanto after obtaining it in Route 5. Trainers must be in sight range. Levels increase with your Badge count.'
-        :'<strong style="color:var(--text);">VS Seeker + Trainer\'s Eye</strong> — Emerald\'s PokéNav Trainer\'s Eye lets you rematch registered trainers. Many have notably stronger rematches.')
+      +(selGame==='FR/LG'?'<strong style="color:var(--game-color,var(--gold));">VS Seeker</strong> — re-challenge trainers anywhere in Kanto after obtaining it in Route 5. Trainers must be in sight range. Levels increase with your Badge count.'
+        :'<strong style="color:var(--game-color,var(--gold));">VS Seeker + Trainer\'s Eye</strong> — Emerald\'s PokéNav Trainer\'s Eye lets you rematch registered trainers. Many have notably stronger rematches.')
       +'</div>'
       + renderTable();
   }

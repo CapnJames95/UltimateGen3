@@ -48,7 +48,7 @@ function lsRender(num) {
   function moveRow(moveName, extra) {
     var md = moveTypeMap[moveName] || {};
     return '<tr style="border-bottom:1px solid rgba(255,255,255,0.04);">'
-      +(extra !== undefined ? '<td style="padding:5px 10px;font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--gold);text-align:center;">'+extra+'</td>' : '')
+      +(extra !== undefined ? '<td style="padding:5px 10px;font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--game-color,var(--gold));text-align:center;">'+extra+'</td>' : '')
       +'<td style="padding:5px 10px;font-size:12px;font-weight:600;color:var(--text);">'+moveName+'</td>'
       +(md.type ? '<td style="padding:5px 8px;">'+typeSprite(md.type.toLowerCase())+'</td>' : '<td></td>')
       +'<td style="padding:5px 8px;font-size:11px;color:var(--muted);">'+(md.cat === 'P' ? '⚔' : md.cat === 'S' ? '✨' : md.cat ? '●' : '')+'</td>'
@@ -118,7 +118,7 @@ function lsRender(num) {
 
     var md = moveTypeMap[moveName] || {};
     var parentChips = parents.map(function(pp) {
-      return '<span onclick="_openDexSearch(\''+pp.name+'\','+pp.num+')" style="display:inline-flex;align-items:center;gap:3px;background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:10px;cursor:pointer;margin:1px;" onmouseover="this.style.borderColor=\'var(--gold)\'" onmouseout="this.style.borderColor=\'var(--border)\'">'
+      return '<span onclick="_openDexSearch(\''+pp.name+'\','+pp.num+')" style="display:inline-flex;align-items:center;gap:3px;background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:10px;cursor:pointer;margin:1px;" onmouseover="this.style.borderColor=gameColor()" onmouseout="this.style.borderColor=\'var(--border)\'">'
         +'<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+pp.num+'.png" style="width:16px;height:16px;image-rendering:pixelated;">'+pp.name+'</span>';
     }).join('');
 

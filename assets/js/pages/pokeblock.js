@@ -103,16 +103,16 @@ function buildPokeblockPage() {
       + renderBestBerries(selCond)
       +'</div>'
       +'<div class="panel" style="padding:14px 16px;margin-bottom:16px;">'
-      +'<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--gold);margin-bottom:12px;">POKÉBLOCK MECHANICS</div>'
+      +'<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--game-color,var(--gold));margin-bottom:12px;">POKÉBLOCK MECHANICS</div>'
       +'<div style="font-size:12px;color:var(--text);line-height:1.8;">'
-      +'<strong style="color:var(--gold);">Blending:</strong> Blend 2–4 berries at a Berry Blender (Contest Hall). RPM during blending determines Pokéblock Level (quality). Higher RPM = better Pokéblock.<br>'
-      +'<strong style="color:var(--gold);">Level:</strong> Normal → Super → Hyper → Ultra → Master Pokéblock. Higher-level blocks raise stats more.<br>'
-      +'<strong style="color:var(--gold);">Smoothness:</strong> Each berry has a smoothness value. Low smoothness = Pokémon gets "full" faster. Aim for berries with low smoothness to feed more blocks.<br>'
-      +'<strong style="color:var(--gold);">Stat cap:</strong> Each contest condition maxes out at 255. You cannot exceed this even with perfect feeding.<br>'
-      +'<strong style="color:var(--gold);">Tip:</strong> Use 4 players (link with friends or multiple copies) for highest RPM and best Pokéblock levels.'
+      +'<strong style="color:var(--game-color,var(--gold));">Blending:</strong> Blend 2–4 berries at a Berry Blender (Contest Hall). RPM during blending determines Pokéblock Level (quality). Higher RPM = better Pokéblock.<br>'
+      +'<strong style="color:var(--game-color,var(--gold));">Level:</strong> Normal → Super → Hyper → Ultra → Master Pokéblock. Higher-level blocks raise stats more.<br>'
+      +'<strong style="color:var(--game-color,var(--gold));">Smoothness:</strong> Each berry has a smoothness value. Low smoothness = Pokémon gets "full" faster. Aim for berries with low smoothness to feed more blocks.<br>'
+      +'<strong style="color:var(--game-color,var(--gold));">Stat cap:</strong> Each contest condition maxes out at 255. You cannot exceed this even with perfect feeding.<br>'
+      +'<strong style="color:var(--game-color,var(--gold));">Tip:</strong> Use 4 players (link with friends or multiple copies) for highest RPM and best Pokéblock levels.'
       +'</div></div>'
       +'<div class="panel" style="padding:14px 16px;margin-bottom:16px;">'
-      +'<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--gold);margin-bottom:12px;">NATURE FLAVOR PREFERENCES</div>'
+      +'<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--game-color,var(--gold));margin-bottom:12px;">NATURE FLAVOR PREFERENCES</div>'
       +'<div style="display:flex;flex-wrap:wrap;gap:8px;font-size:11px;">'
       + NATURE_PREFS.map(function(np){
           var likes=np.likes>=0?CONDITIONS[np.likes].name:'None';
@@ -126,7 +126,7 @@ function buildPokeblockPage() {
         }).join('')
       +'</div></div>'
       +'<div class="panel" style="padding:14px 16px;">'
-      +'<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--gold);margin-bottom:12px;">ALL BERRY FLAVORS</div>'
+      +'<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--game-color,var(--gold));margin-bottom:12px;">ALL BERRY FLAVORS</div>'
       + renderAllBerries()
       +'</div>';
   }

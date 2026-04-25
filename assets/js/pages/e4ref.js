@@ -64,7 +64,7 @@ function buildE4RefPage() {
       ]
     },
     rse: {
-      label:'💎 Ruby / 🔷 Sapphire', color:'#5599FF',
+      label:'🔴 Ruby / 🔷 Sapphire', color:'#5599FF',
       trainers:[
         {name:'Sidney',class:'Elite Four',type:'Dark',weak:['fighting','bug','fairy'],
          team:[{num:262,name:'Mightyena',lv:46,types:['dark']},{num:275,name:'Shiftry',lv:48,types:['grass','dark']},
@@ -115,11 +115,12 @@ function buildE4RefPage() {
     }
   };
 
-  var selGame = 'frlg';
+  var _e4GameMap = {FR:'frlg', LG:'frlg', R:'rse', S:'rse', E:'emerald'};
+  var selGame = (typeof GAME !== 'undefined' && GAME !== 'all' && _e4GameMap[GAME]) ? _e4GameMap[GAME] : 'frlg';
 
   function render() {
     var game = GAMES[selGame];
-    el.innerHTML = '<div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;">'
+    el.innerHTML = '<div id="e4-game-btns" style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;">'
       + Object.keys(GAMES).map(function(k){
           var g=GAMES[k]; var active=k===selGame;
           return '<button onclick="e4SetGame(\''+k+'\')" style="padding:7px 16px;font-size:11px;font-weight:700;background:'+(active?g.color:'var(--panel)')+';color:'+(active?'#000':'var(--text)')+';border:1px solid '+(active?g.color:'var(--border)')+';border-radius:5px;cursor:pointer;">'+g.label+'</button>';
