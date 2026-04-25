@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gen3 eGuide</title>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Press+Start+2P&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/app.css">
 </head>
 <body>
@@ -22,6 +22,7 @@
     <button class="gbadge gbadge-s" id="hbadge-s" onclick="setGameFromHeader('S',this)" title="Sapphire">S</button>
     <button class="gbadge gbadge-e" id="hbadge-e" onclick="setGameFromHeader('E',this)" title="Emerald">E</button>
   </div>
+  <div id="header-sprites"></div>
   <div style="display:flex;align-items:center;gap:6px;margin-left:auto;flex-shrink:0">
     <button id="searchTrigger" onclick="openSearch()" title="Search everything (/)">
       🔍 <span class="search-label">Search</span> <kbd class="search-label">/</kbd>
@@ -511,6 +512,7 @@
     <button class="page-nav-btn" id="navDex" onclick="showPage('dex',this)">POKÉDEX</button>
     <button class="page-nav-btn" id="navBulba" onclick="showPage('bulba',this);if(!window._bulbaBuilt){buildBulbaGuide();window._bulbaBuilt=true;} bulbaAutoSelectGame();">BULBA GUIDE</button>
     <button class="page-nav-btn" id="navTracker" onclick="showPage('tracker',this);buildTracker();window._trackerBuilt=true;">TRACKER</button>
+    <button class="page-nav-btn" id="navNotes" onclick="showPage('notes',this)">NOTES</button>
 
     <div class="page-nav-dropdown" id="navPokeDropdown">
       <button class="page-nav-btn page-nav-dropdown-trigger" id="navPokeGroup" onclick="toggleNavDropdown(event,'navPokeDropdown')">POKÉMON ▾</button>
@@ -600,9 +602,13 @@
 </div>
 
 <div id="page-home" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
-    <div id="home-content" style="max-width:1000px;margin:0 auto;padding:28px 24px;"></div>
+  <div class="home-scroll">
+    <div id="home-content" class="home-content-shell"></div>
   </div>
+</div>
+
+<div id="page-notes" class="page main">
+  <div id="notes-page-host" class="notes-page-host"></div>
 </div>
 
 <div id="page-dex" class="page main">
@@ -2101,6 +2107,7 @@
 </div>
 
 <!-- ══ NOTES PANEL ══ -->
+<div id="notes-side-host">
 <div id="notes-overlay" class="notes-overlay"></div>
 <div id="notes-panel" class="notes-panel">
 
@@ -2214,6 +2221,7 @@
   </div>
 
 </div><!-- end notes-panel -->
+</div><!-- end notes-side-host -->
 
 
 
@@ -2380,6 +2388,114 @@
   } else {
     bootFallback();
   }
+})();
+</script>
+
+<!-- ── Type battle flash overlay ───────────────────────────── -->
+<div id="type-battle-flash" style="position:fixed;inset:0;z-index:9990;pointer-events:none;display:none;"></div>
+
+<!-- ── Bottom ticker ────────────────────────────────────────── -->
+<div id="bottom-ticker">
+  <div id="ticker-track">
+    <span>⚡ TIP: Paralysis halves Speed and gives a 25% chance to not move</span>
+    <span>🔥 TIP: Fire-type moves thaw frozen Pokémon</span>
+    <span>💧 TIP: Rain doubles Water power &amp; halves Fire power</span>
+    <span>☀️ TIP: Sunny Day doubles Fire power &amp; halves Water power</span>
+    <span>🌿 TIP: Sleep Powder has 75% accuracy — combine with Dream Eater</span>
+    <span>💎 TIP: Steel is immune to Poison status</span>
+    <span>👻 TIP: Ghost-types can't be hit by Normal or Fighting moves</span>
+    <span>🐉 TIP: Dragon-types resist Fire, Water, Grass, and Electric</span>
+    <span>⚠️ Watch Out: Sandstorm chips 1/16 HP per turn for non-Rock/Steel/Ground</span>
+    <span>⚠️ Watch Out: Pursuit deals double damage if you switch out</span>
+    <span>⭐ LEGEND: Rayquaza is at Sky Pillar — bring a Mach Bike for the cracked floors</span>
+    <span>⭐ LEGEND: Mewtwo is in Cerulean Cave after becoming Champion</span>
+    <span>🦴 FOSSIL: Dome Fossil → Kabuto | Helix Fossil → Omanyte | Old Amber → Aerodactyl</span>
+    <span>🌟 STARTER TIP: Bulbasaur clears the first two gyms with ease in FRLG</span>
+    <span>💡 PRO TIP: Use the Exp. Share to level up your whole party efficiently</span>
+    <span>💡 PRO TIP: Synchronize in your lead slot sets wild Pokémon's nature</span>
+    <span>🎯 TIP: Geodude and Graveler can be found in most caves — great for early Strength</span>
+    <span>🏆 ELITE FOUR: Carry 20+ Full Restores and an Antidote for Agatha</span>
+    <span>💡 PRO TIP: Pickup Meowth/Linoone can farm rare items in RSE</span>
+    <span>🌊 TIP: Surf + Thunderbolt covers most of the game — great attacking combo</span>
+  </div>
+</div>
+<script>
+// Duplicate ticker content for seamless infinite scroll
+(function() {
+  var track = document.getElementById('ticker-track');
+  if (!track) return;
+  track.innerHTML = track.innerHTML + track.innerHTML;
+})();
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   Header Pokémon Sprites — magazine decoration
+   ══════════════════════════════════════════════════════════ */
+(function(){
+  var SPRITE_BASE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/';
+
+  // Curated pools per game — recognisable Gen 3 era Pokémon
+  var POOLS = {
+    all: [25,133,150,94,6,130,143,59,282,376],   // Pikachu, Eevee, Mewtwo, Gengar, Charizard…
+    FR:  [6,59,38,131,143,94,39,76],              // Charizard, Arcanine, Ninetales, Lapras…
+    LG:  [3,71,36,134,130,113,45,149],            // Venusaur, Victreebel, Clefable, Vaporeon…
+    R:   [257,383,373,306,277,323,302,288],        // Blaziken, Groudon, Salamence, Aggron…
+    S:   [260,382,350,321,365,349,370,226],        // Swampert, Kyogre, Milotic, Wailord…
+    E:   [254,384,376,282,330,334,354,286]         // Sceptile, Rayquaza, Metagross, Gardevoir…
+  };
+
+  function shuffle(arr) {
+    return arr.slice().sort(function(){ return Math.random() - 0.5; });
+  }
+
+  window.updateHeaderSprites = function(game, animate) {
+    var el = document.getElementById('header-sprites');
+    if (!el) return;
+    var pool = POOLS[game] || POOLS.all;
+    var chosen = shuffle(pool).slice(0, 4);
+
+    // Fade out existing
+    Array.from(el.children).forEach(function(img) {
+      img.classList.remove('loaded','sprite-popin');
+      img.style.opacity = '0';
+    });
+
+    setTimeout(function() {
+      el.innerHTML = '';
+      chosen.forEach(function(num, i) {
+        var img = document.createElement('img');
+        img.src = SPRITE_BASE + num + '.png';
+        img.alt = '';
+        img.loading = 'lazy';
+        img.title = '';
+        img.style.animationDelay = (i * 0.07) + 's,' + (i * 0.07 + 0.45) + 's';
+        img.onerror = function(){ this.style.display = 'none'; };
+        img.onload = function(){
+          if (animate !== false) {
+            this.classList.add('sprite-popin');
+          } else {
+            this.classList.add('loaded');
+          }
+        };
+        el.appendChild(img);
+      });
+    }, animate !== false ? 120 : 0);
+  };
+
+  // Apply game class to body + update sprites
+  window._applyGameClass = function(g) {
+    document.body.classList.remove('game-all','game-FR','game-LG','game-R','game-S','game-E');
+    document.body.classList.add('game-' + g);
+    if (window.updateHeaderSprites) window.updateHeaderSprites(g, true);
+  };
+
+  // Initialise on load
+  document.addEventListener('DOMContentLoaded', function() {
+    var saved = (function(){ try{ return localStorage.getItem('gen3-game') || 'all'; }catch(e){ return 'all'; } })();
+    window._applyGameClass(saved);
+    window.updateHeaderSprites(saved, false);
+  });
 })();
 </script>
 </body>

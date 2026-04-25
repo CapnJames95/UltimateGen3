@@ -163,6 +163,20 @@ function resetHome() {
   setBrowserPageTitle('home');
 }
 
+function homeIntroCollapsed() {
+  try { return localStorage.getItem('gen3-home-hide-intro') === '1'; } catch (e) { return false; }
+}
+
+function setHomeIntroCollapsed(next) {
+  try { localStorage.setItem('gen3-home-hide-intro', next ? '1' : '0'); } catch (e) {}
+}
+
+function toggleHomeIntro() {
+  var next = !homeIntroCollapsed();
+  setHomeIntroCollapsed(next);
+  buildHomePage();
+}
+
 // REGION: HOME
 function buildHomePage() {
   var el = document.getElementById('home-content');
@@ -247,6 +261,7 @@ function buildHomePage() {
       items:[
         { icon:'📊', label:'Dex Dashboard',   desc:'Seen / caught / shiny bars per game', action:"closeNavDropdown('navProgressDropdown');showPage('dexdash',document.getElementById('navDexDash'));buildDexDashPage();" },
         { icon:'🎀', label:'Ribbon Tracker',  desc:'All Gen 3 ribbons, per-game progress', action:"closeNavDropdown('navProgressDropdown');showPage('ribbons',document.getElementById('navRibbons'));if(!window._ribbonsBuilt){buildRibbonPage();}" },
+        { icon:'📝', label:'Notes',           desc:'Full-screen notes workspace for plans, reminders, and route logs', action:"showPage('notes',document.getElementById('navNotes'))" },
       ]
     },
     {
@@ -266,8 +281,8 @@ function buildHomePage() {
   ];
 
   function bigCard(s) {
-    return '<div onclick="' + s.action.replace(/"/g, '&quot;') + '" style="cursor:pointer;padding:18px 20px;background:var(--panel);border:1px solid var(--border);border-radius:8px;transition:border-color .15s,background .15s;" onmouseover="this.style.borderColor=\'' + s.color + '\'" onmouseout="this.style.borderColor=\'var(--border)\'">'
-      + '<div style="font-family:\'Press Start 2P\',monospace;font-size:9px;color:' + s.color + ';letter-spacing:1px;margin-bottom:6px;">' + s.label + '</div>'
+    return '<div class="home-big-card" onclick="' + s.action.replace(/"/g, '&quot;') + '" style="cursor:pointer;padding:18px 20px;background:var(--panel);border:2px solid var(--border);border-radius:8px;transition:border-color .15s,background .15s;" onmouseover="this.style.borderColor=\'' + s.color + '\'" onmouseout="this.style.borderColor=\'var(--border)\'">'
+      + '<div style="font-family:\'Press Start 2P\',monospace;font-size:9px;color:' + s.color + ';letter-spacing:1px;margin-bottom:6px;">' + s.icon + '  ' + s.label + '</div>'
       + '<div style="font-size:11px;color:var(--muted);line-height:1.6;">' + s.desc + '</div>'
       + '</div>';
   }
@@ -275,14 +290,15 @@ function buildHomePage() {
   function groupSection(s) {
     var items = s.items.map(function(it) {
       return '<div onclick="' + it.action.replace(/"/g, '&quot;') + '" style="cursor:pointer;display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:6px;transition:background .12s;" onmouseover="this.style.background=\'rgba(255,255,255,.05)\'" onmouseout="this.style.background=\'\'">'
+        + '<span style="font-size:15px;flex-shrink:0;margin-top:1px;">' + it.icon + '</span>'
         + '<div style="min-width:0;">'
         + '<div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:1px;">' + it.label + '</div>'
         + '<div style="font-size:10px;color:var(--muted);">' + it.desc + '</div>'
         + '</div>'
         + '</div>';
     }).join('');
-    return '<div style="background:var(--panel);border:1px solid var(--border);border-radius:8px;overflow:hidden;">'
-      + '<div style="padding:10px 14px;border-bottom:1px solid var(--border);font-family:\'Press Start 2P\',monospace;font-size:7px;color:' + s.color + ';letter-spacing:1px;">' + s.label + '</div>'
+    return '<div class="home-group-card" style="background:var(--panel);border:2px solid var(--border);border-radius:8px;overflow:hidden;">'
+      + '<div class="home-group-header" style="padding:10px 14px;border-bottom:1px solid var(--border);font-family:\'Press Start 2P\',monospace;font-size:7px;color:' + s.color + ';letter-spacing:1px;">' + s.icon + '  ' + s.label + '</div>'
       + '<div style="display:grid;grid-template-columns:' + (mobile ? '1fr' : '1fr 1fr') + ';gap:0;">' + items + '</div>'
       + '</div>';
   }
@@ -290,17 +306,77 @@ function buildHomePage() {
   var topCards = SECTIONS.filter(function(s){ return s && !s.group; });
   var groups   = SECTIONS.filter(function(s){ return s && s.group; });
   var mobile = window.innerWidth <= 600;
+  var introCollapsed = homeIntroCollapsed();
+  var activeGameMeta = {
+    all: { label: 'ALL GAMES', focus: 'ALL GAMES', issue: 'Issue 1: Kanto · Issue 2: Hoenn', glow: 'glow-all', note: 'One cartridge-era field guide for every Gen 3 run.' },
+    FR: { label: 'FIRERED', focus: 'FIRERED', issue: 'Issue 1: Kanto', glow: 'glow-fr', note: 'Gym order, route flow, and clean early-game momentum.' },
+    LG: { label: 'LEAFGREEN', focus: 'LEAFGREEN', issue: 'Issue 1: Kanto', glow: 'glow-lg', note: 'Version picks, encounter choices, and island extras.' },
+    R: { label: 'RUBY', focus: 'RUBY', issue: 'Issue 2: Hoenn', glow: 'glow-r', note: 'Fast route planning for the classic Ruby path.' },
+    S: { label: 'SAPPHIRE', focus: 'SAPPHIRE', issue: 'Issue 2: Hoenn', glow: 'glow-s', note: 'Water-heavy planning, coverage checks, and surf-ready notes.' },
+    E: { label: 'EMERALD', focus: 'EMERALD', issue: 'Issue 2: Hoenn', glow: 'glow-e', note: 'Best all-round Hoenn issue with Frontier extras.' }
+  }[GAME] || { label: 'ALL GAMES', focus: 'ALL GAMES', issue: 'Issue 1: Kanto · Issue 2: Hoenn', glow: 'glow-all', note: 'One cartridge-era field guide for every Gen 3 run.' };
+
+  var coverLines = [
+    'Walkthrough magazine energy with route maps, boss prep, and collector-style guide pages.',
+    'Every major tool in one cartridge-era issue: encounter rates, maps, planners, calculators, and tracking.',
+    activeGameMeta.note
+  ];
+
+  var quickLaunch = [
+    { kicker:'Start Here', title:'Open the Dex', blurb:'Search 386 Pokemon by route, method, or version.', action:"showPage('dex',document.getElementById('navDex'))" },
+    { kicker:'Tracker', title:'Open Tracker', blurb:'Jump into caught, shiny, and checklist progress for the current game.', action:"showPage('tracker',document.getElementById('navTracker'));if(!window._trackerBuilt){buildTracker();window._trackerBuilt=true;}" },
+    { kicker:'Story Mode', title:'Open Guide', blurb:'Use the full walkthrough hub without losing your game filter.', action:"showPage('bulba',document.getElementById('navBulba'));if(!window._bulbaBuilt){buildBulbaGuide();window._bulbaBuilt=true;}bulbaAutoSelectGame();" },
+    { kicker:'Notes', title:'Open Notes', blurb:'Jump straight into the notes panel for route plans, reminders, and run ideas.', action:"if(typeof toggleNotesPanel==='function'){var panel=document.getElementById('notesPanel');if(!panel||!panel.classList.contains('open')) toggleNotesPanel();}" }
+  ];
+  var coverLinesHtml = coverLines.map(function(line){
+    return '<div class="home-cover-line">' + line + '</div>';
+  }).join('');
+  var quickLaunchHtml = quickLaunch.map(function(item){
+    return '<button class="home-quicklink" onclick="' + item.action.replace(/"/g, '&quot;') + '">'
+      + '<span class="home-quicklink-kicker">' + item.kicker + '</span>'
+      + '<span class="home-quicklink-title">' + item.title + '</span>'
+      + '<span class="home-quicklink-blurb">' + item.blurb + '</span>'
+      + '</button>';
+  }).join('');
+  var introToggleLabel = introCollapsed ? 'Show Intro' : 'Hide Intro';
 
   var html = '<div style="font-family:\'Press Start 2P\',monospace;font-size:11px;color:var(--gold);letter-spacing:2px;margin-bottom:6px;">GEN3 eGUIDE</div>'
-    + '<div style="font-size:12px;color:var(--muted);margin-bottom:24px;line-height:1.7;">Everything you need for FireRed, LeafGreen, Ruby, Sapphire, and Emerald.</div>'
-
-    // Top 3 big cards
-    + '<div style="display:grid;grid-template-columns:' + (mobile ? '1fr' : 'repeat(3,1fr)') + ';gap:12px;margin-bottom:20px;">'
+    + '<div class="home-intro-block' + (introCollapsed ? ' collapsed' : '') + '">'
+    + '<section class="home-cover">'
+    +   '<div class="home-cover-grid">'
+    +     '<div class="home-cover-main ' + activeGameMeta.glow + '">'
+    +       '<div class="home-cover-kicker">Gen 3 Strategy Guide Special</div>'
+    +       '<div class="home-cover-logo">GEN3 eGUIDE</div>'
+    +       '<div class="home-cover-subhead">A louder, magazine-style field guide for FireRed, LeafGreen, Ruby, Sapphire, and Emerald.</div>'
+    +       '<div class="home-cover-meta-row">'
+    +         '<span class="home-cover-chip">Issue: ' + activeGameMeta.issue + '</span>'
+    +         '<span class="home-cover-chip">Focus: ' + activeGameMeta.focus + '</span>'
+    +       '</div>'
+    +       '<div class="home-cover-lines">' + coverLinesHtml + '</div>'
+    +       '<div class="home-cover-actions">'
+    +         '<button class="home-cover-btn" onclick="showPage(\'dex\',document.getElementById(\'navDex\'))">Open Pokedex</button>'
+    +         '<button class="home-cover-btn alt" onclick="closeNavDropdown(\'navMapsDropdown\');showPage(\'routebrowser\',document.getElementById(\'navRouteBrowser\'));return false;">Open Route Browser</button>'
+    +       '</div>'
+    +     '</div>'
+    +     '<aside class="home-cover-sidebar">'
+    +       '<div class="home-sidebar-sticker">HOT ROUTES</div>'
+    +       '<div class="home-sidebar-title">Quick Launch</div>'
+    +       '<div class="home-sidebar-list">' + quickLaunchHtml + '</div>'
+    +     '</aside>'
+    +   '</div>'
+    + '</section>'
+    + '</div>'
+    + '<section class="home-section-band">'
+    +   '<div class="home-section-divider"><button class="home-section-toggle" onclick="toggleHomeIntro()">' + introToggleLabel + '</button></div>'
+    + '</section>'
+    + '<div class="home-top-grid" style="display:grid;grid-template-columns:' + (mobile ? '1fr' : 'repeat(3,1fr)') + ';gap:12px;margin-bottom:20px;">'
     + topCards.map(bigCard).join('')
     + '</div>'
 
-    // Group sections in a 2-col masonry-style grid
-    + '<div style="display:grid;grid-template-columns:' + (mobile ? '1fr' : '1fr 1fr') + ';gap:12px;">'
+    + '<section class="home-section-band">'
+    +   '<div class="home-section-divider routes"><span>Departments</span></div>'
+    + '</section>'
+    + '<div class="home-groups-grid" style="display:grid;grid-template-columns:' + (mobile ? '1fr' : '1fr 1fr') + ';gap:12px;">'
     + groups.map(groupSection).join('')
     + '</div>';
 
@@ -759,6 +835,11 @@ window.toggleShinyMode = function(btn) {
   });
 };
 
+// ── Foil badge sets ──────────────────────────────────────────────
+var _LEGENDARY_NUMS = new Set([144,145,146,150,151,243,244,245,249,250,251,377,378,379,380,381,382,383,384,385,386]);
+var _STARTER_NUMS   = new Set([1,4,7,252,255,258]);
+var _FOSSIL_NUMS    = new Set([138,139,140,141,142,345,346,347,348]);
+
 function buildRow(p) {
   var spriteBase = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + (window._shinyMode ? 'shiny/' : '');
   const sprite = `<img src="${spriteBase}${p.num}.png" alt="${p.name}" loading="lazy" onerror="this.style.opacity=0.15">`;
@@ -770,12 +851,19 @@ function buildRow(p) {
     ? `<span style="font-size:9px;color:var(--muted);margin-left:5px;opacity:0.6" title="Click to show evolution chain, stats &amp; moves">⬡</span>`
     : `<span style="font-size:9px;color:var(--muted);margin-left:5px;opacity:0.4" title="Click to show stats &amp; moves">◈</span>`;
   const evoRow = `<tr class="evo-chain-row" id="evo-row-${p.num}"><td colspan="8"><div class="evo-panel"></div></td></tr>`;
+  const badge = _LEGENDARY_NUMS.has(p.num)
+    ? `<span class="poke-badge poke-badge-legendary">&#9733; LEGEND</span>`
+    : _STARTER_NUMS.has(p.num)
+    ? `<span class="poke-badge poke-badge-starter">&#9650; STARTER</span>`
+    : _FOSSIL_NUMS.has(p.num)
+    ? `<span class="poke-badge poke-badge-fossil">&#9672; FOSSIL</span>`
+    : '';
   if (GAME === 'all') {
-    return `<tr class="poke-row" id="poke-row-${p.num}"${clickAttr}><td class="col-num">${num}</td><td class="col-sprite">${sprite}</td><td class="col-name">${p.name}${chainIcon}${teamBtn}</td><td class="col-type">${typeBadges(p.types)}</td><td colspan="4">${renderAllGamesCell(p)}</td></tr>${evoRow}`;
+    return `<tr class="poke-row" id="poke-row-${p.num}"${clickAttr}><td class="col-num">${num}</td><td class="col-sprite">${sprite}</td><td class="col-name">${p.name}${badge}${chainIcon}${teamBtn}</td><td class="col-type">${typeBadges(p.types)}</td><td colspan="4">${renderAllGamesCell(p)}</td></tr>${evoRow}`;
   } else {
     const txt = p.games[GAME]||'';
     const [mth,loc,lvl,rate,mobile] = renderSingleGameCells(txt);
-    return `<tr class="poke-row" id="poke-row-${p.num}"${clickAttr}><td class="col-num">${num}</td><td class="col-sprite">${sprite}</td><td class="col-name">${p.name}${chainIcon}${teamBtn}</td><td class="col-type">${typeBadges(p.types)}</td><td class="col-method">${mth || '<span style="color:#3a4a6a;font-style:italic">—</span>'}</td><td class="col-location"><div class="dex-desktop-loc">${loc || '<span style="color:#3a4a6a;font-style:italic">—</span>'}</div><div class="dex-mobile-loc">${mobile || '<span style="color:#3a4a6a;font-style:italic">—</span>'}</div></td><td class="col-level">${lvl || ''}</td><td class="col-rate">${rate || ''}</td></tr>${evoRow}`;
+    return `<tr class="poke-row" id="poke-row-${p.num}"${clickAttr}><td class="col-num">${num}</td><td class="col-sprite">${sprite}</td><td class="col-name">${p.name}${badge}${chainIcon}${teamBtn}</td><td class="col-type">${typeBadges(p.types)}</td><td class="col-method">${mth || '<span style="color:#3a4a6a;font-style:italic">—</span>'}</td><td class="col-location"><div class="dex-desktop-loc">${loc || '<span style="color:#3a4a6a;font-style:italic">—</span>'}</div><div class="dex-mobile-loc">${mobile || '<span style="color:#3a4a6a;font-style:italic">—</span>'}</div></td><td class="col-level">${lvl || ''}</td><td class="col-rate">${rate || ''}</td></tr>${evoRow}`;
   }
 }
 
@@ -988,7 +1076,62 @@ function syncHeaderBadges(g) {
   if (el) el.classList.add('active-game-badge');
 }
 
+function motionReduced() {
+  try {
+    return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  } catch (e) {
+    return false;
+  }
+}
+
+function pulseElement(el, cls, ms) {
+  if (!el || motionReduced()) return;
+  el.classList.remove(cls);
+  void el.offsetWidth;
+  el.classList.add(cls);
+  setTimeout(function() { el.classList.remove(cls); }, ms || 700);
+}
+
+function flashDexRow(num) {
+  var row = document.getElementById('poke-row-' + num);
+  if (!row) return;
+  if (motionReduced()) {
+    row.classList.add('dex-row-flash');
+    setTimeout(function(){ row.classList.remove('dex-row-flash'); }, 220);
+    return;
+  }
+  row.classList.remove('dex-row-flash');
+  void row.offsetWidth;
+  row.classList.add('dex-row-flash');
+  row.addEventListener('animationend', function(){ row.classList.remove('dex-row-flash'); }, { once:true });
+}
+
+function animateSearchResults() {
+  if (motionReduced()) return;
+  document.querySelectorAll('.sr-item').forEach(function(item, idx) {
+    item.style.setProperty('--sr-delay', (idx * 26) + 'ms');
+    item.classList.remove('sr-enter');
+    void item.offsetWidth;
+    item.classList.add('sr-enter');
+  });
+}
+
+function pulseGameTabs(g) {
+  if (motionReduced()) return;
+  var selector = ".game-tab[onclick*=\"'" + g + "'\"], #headerGameBadges .gbadge[onclick*=\"'" + g + "'\"]";
+  document.querySelectorAll(selector).forEach(function(el) {
+    pulseElement(el, 'game-tab-pulse', 560);
+  });
+}
+
+document.addEventListener('click', function(e) {
+  var target = e.target && e.target.closest ? e.target.closest('.home-cover-btn,.home-quicklink,.filter-btn,.page-nav-btn,.page-nav-dropdown-item') : null;
+  if (!target) return;
+  pulseElement(target, 'btn-click-flash', 360);
+}, true);
+
 function setGameFromHeader(g, btn) {
+  if (window._applyGameClass) window._applyGameClass(g);
   // If the bulba guide is currently visible, auto-switch after GAME variable has updated
   var bulbaPage = document.getElementById('page-bulba');
   if (bulbaPage && bulbaPage.classList.contains('active')) {
@@ -1006,6 +1149,8 @@ function setGameFromHeader(g, btn) {
   syncHeaderBadges(g);
   // Sync the game-tab row in Pokédex
   GAME = g; SORT_KEY = null; SORT_DIR = 1;
+  var homePage = document.getElementById('page-home');
+  if (homePage && homePage.classList.contains('active')) buildHomePage();
   const clsMap = {all:'active-all',FR:'active-fr',LG:'active-lg',R:'active-r',S:'active-s',E:'active-e'};
   document.querySelectorAll('.game-tab').forEach(b => { b.className = 'game-tab'; });
   const tab = document.querySelector(`.game-tab[onclick*="'${g}'"]`);
@@ -1015,6 +1160,7 @@ function setGameFromHeader(g, btn) {
   if (window._itemsBuilt) { itOpenId = null; renderItemDex(); }
   if (window._movesBuilt) { buildMoveDex(); }
   if (window._easyDexBuilt) { renderEasyDexPage(); }
+  pulseGameTabs(g);
   if (window._tmhmBuilt) { tmhmSyncFromGame(g); }
   var distPage = document.getElementById('page-distributions');
   if (distPage && distPage.classList.contains('active') && typeof buildDistributionsPage === 'function') {
@@ -1085,12 +1231,14 @@ function updateDiveFilterVisibility(g) {
 function setGame(g, btn) {
   GAME = g; SORT_KEY = null; SORT_DIR = 1;
   localStorage.setItem('gen3-game', g);
+  if (window._applyGameClass) window._applyGameClass(g);
   document.querySelectorAll('.game-tab').forEach(b => { b.className = 'game-tab'; });
   const clsMap = {all:'active-all',FR:'active-fr',LG:'active-lg',R:'active-r',S:'active-s',E:'active-e'};
   btn.className = 'game-tab ' + (clsMap[g]||'active-all');
   syncHeaderBadges(g);
   updateDiveFilterVisibility(g);
   buildTable();
+  pulseGameTabs(g);
   // Refresh Item Dex if it has been built and is visible
   if (window._itemsBuilt) { itOpenId = null; renderItemDex(); }
   if (window._movesBuilt) { buildMoveDex(); }
@@ -1350,9 +1498,19 @@ function setBrowserPageTitle(id) {
 }
 
 function showPage(id, btn) {
+  if (id === 'notes' && typeof window.enterNotesFullPage === 'function') {
+    window.enterNotesFullPage();
+  } else if (typeof window.exitNotesFullPage === 'function') {
+    window.exitNotesFullPage(false);
+  }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.page-nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
+  var targetPage = document.getElementById('page-' + id);
+  if (targetPage) {
+    // Trigger CSS fade-in via toggling 'active' after a micro-tick so animation re-fires
+    void targetPage.offsetWidth; // force reflow
+    targetPage.classList.add('active');
+  }
   try { localStorage.setItem('gen3-last-page', id); } catch(e) {}
   var currentRoute = getHashRoute();
   if (currentRoute.page !== id || !window.location.hash) setPageHash(id);
@@ -3207,18 +3365,27 @@ function renderStatsPanel(num) {
   const total = stats.reduce((a, b) => a + b, 0);
   const maxStat = 255; // HP cap
 
+  function _statTier(v) {
+    if (v >= 140) return ['GODLIKE','st-godlike'];
+    if (v >= 100) return ['GREAT','st-great'];
+    if (v >= 60)  return ['AVERAGE','st-average'];
+    if (v >= 35)  return ['BAD','st-bad'];
+    return ['WEAK','st-weak'];
+  }
   let html = '<div class="stats-panel"><div class="stats-title">BASE STATS</div>';
   stats.forEach((val, i) => {
     const pct = Math.round((val / maxStat) * 100);
     const col = STAT_COLORS[i];
     const barCol = statBarColor(val);
     const valCol = val >= 110 ? '#4CAF50' : val <= 40 ? '#F44336' : 'var(--text)';
+    const [tierLabel, tierClass] = _statTier(val);
     html += `<div class="stat-row">
       <div class="stat-label" style="color:${col}">${STAT_LABELS[i]}</div>
       <div class="stat-bar-wrap">
         <div class="stat-bar" style="width:${pct}%;background:${barCol}"></div>
       </div>
       <div class="stat-val" style="color:${valCol}">${val}</div>
+      <div class="stat-tier ${tierClass}">${tierLabel}</div>
     </div>`;
   });
   html += `<div class="stat-total-row">
@@ -3508,6 +3675,7 @@ function guideDex(name) {
     var pokeRow = document.getElementById('poke-row-' + num);
     if (pokeRow) {
       if (openEvoNum !== num) toggleEvoRow(num);
+      flashDexRow(num);
       // Scroll the tablePanel so the poke-row sits at the very top
       var panel = document.getElementById('tablePanel');
       if (panel) {
@@ -3527,10 +3695,70 @@ function toggleEvoRow(num) {
   const chainRow = document.getElementById('evo-row-' + num);
   const pokeRow = document.getElementById('poke-row-' + num);
   if (!chainRow || !pokeRow) return;
+  const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  function stopPanelAnimation(panel) {
+    if (!panel) return;
+    if (panel._evoTimer) {
+      clearTimeout(panel._evoTimer);
+      panel._evoTimer = null;
+    }
+    if (panel._evoDone) {
+      panel.removeEventListener('transitionend', panel._evoDone);
+      panel._evoDone = null;
+    }
+  }
+
+  function closePanel(row, panel) {
+    if (!row || !panel) return;
+    stopPanelAnimation(panel);
+    if (reduceMotion) {
+      row.classList.remove('open');
+      panel.style.height = '0px';
+      return;
+    }
+    var current = panel.scrollHeight;
+    panel.style.height = current + 'px';
+    panel.offsetHeight;
+    row.classList.remove('open');
+    requestAnimationFrame(function() {
+      panel.style.height = '0px';
+    });
+  }
+
+  function openPanel(row, panel) {
+    if (!row || !panel) return;
+    stopPanelAnimation(panel);
+    if (reduceMotion) {
+      row.classList.add('open');
+      panel.style.height = 'auto';
+      return;
+    }
+    row.classList.add('open');
+    panel.style.height = '0px';
+    panel.offsetHeight;
+    var target = panel.scrollHeight;
+    panel.style.height = target + 'px';
+    panel._evoDone = function(ev) {
+      if (ev.propertyName !== 'height') return;
+      panel.style.height = 'auto';
+      panel.removeEventListener('transitionend', panel._evoDone);
+      panel._evoDone = null;
+    };
+    panel.addEventListener('transitionend', panel._evoDone);
+    panel._evoTimer = setTimeout(function() {
+      if (panel._evoDone) {
+        panel.style.height = 'auto';
+        panel.removeEventListener('transitionend', panel._evoDone);
+        panel._evoDone = null;
+      }
+      panel._evoTimer = null;
+    }, 420);
+  }
 
   if (openEvoNum === num) {
     // Close
-    chainRow.classList.remove('open');
+    closePanel(chainRow, chainRow.querySelector('.evo-panel'));
     pokeRow.classList.remove('evo-open');
     openEvoNum = null;
     setPageHash('dex', SEARCH ? { q: SEARCH } : null);
@@ -3539,7 +3767,7 @@ function toggleEvoRow(num) {
     if (openEvoNum !== null) {
       const prevChain = document.getElementById('evo-row-' + openEvoNum);
       const prevPoke = document.getElementById('poke-row-' + openEvoNum);
-      if (prevChain) prevChain.classList.remove('open');
+      if (prevChain) closePanel(prevChain, prevChain.querySelector('.evo-panel'));
       if (prevPoke) prevPoke.classList.remove('evo-open');
     }
     // Open this one — lazy render content
@@ -3552,7 +3780,7 @@ function toggleEvoRow(num) {
       }
       panel.dataset.rendered = '1';
     }
-    chainRow.classList.add('open');
+    openPanel(chainRow, panel);
     pokeRow.classList.add('evo-open');
     openEvoNum = num;
     setPageHash('dex', { pokemon: num });
@@ -9306,17 +9534,51 @@ function trkIsCaught(num) {
   return trkGetCaught().indexOf(num) !== -1;
 }
 
+function _spawnConfetti(sourceEl) {
+  var colors = ['#ffd700','#ff6b35','#44dd88','#64a0ff','#ff69b4','#fff'];
+  var rect = sourceEl ? sourceEl.getBoundingClientRect() : {left: window.innerWidth/2, top: window.innerHeight/2, width:0, height:0};
+  var cx = rect.left + rect.width/2;
+  var cy = rect.top + rect.height/2;
+  for (var i = 0; i < 18; i++) {
+    var p = document.createElement('div');
+    p.className = 'confetti-particle';
+    var col = colors[Math.floor(Math.random()*colors.length)];
+    var size = 5 + Math.random()*6;
+    var angle = (Math.random()*360);
+    var dist = 40 + Math.random()*80;
+    var tx = Math.cos(angle * Math.PI/180) * dist;
+    var ty = Math.sin(angle * Math.PI/180) * dist - 30;
+    var dur = 0.5 + Math.random()*0.4;
+    p.style.cssText = 'left:'+cx+'px;top:'+cy+'px;width:'+size+'px;height:'+size+'px;background:'+col+';border-radius:'+(Math.random()>0.5?'50%':'2px')+';--tx:'+tx+'px;--ty:'+ty+'px;--cd:'+dur+'s;';
+    document.body.appendChild(p);
+    setTimeout(function(el){ el.remove(); }, (dur+0.1)*1000, p);
+  }
+}
+
 function trkToggle(num) {
+  var card = document.getElementById('trk-card-' + num);
   if (TRK_MARK_MODE === 'caught') {
     var caught = trkLoad(TRK_SAVE);
     var idx = caught.indexOf(num);
-    if (idx === -1) caught.push(num);
-    else caught.splice(idx, 1);
+    if (idx === -1) {
+      caught.push(num);
+      // Confetti burst + bounce on the card
+      if (card) {
+        card.classList.add('just-caught');
+        card.addEventListener('animationend', function(){ card.classList.remove('just-caught'); }, {once:true});
+        _spawnConfetti(card);
+      }
+    } else {
+      caught.splice(idx, 1);
+      if (card && !motionReduced()) pulseElement(card, 'trk-mark-pop', 420);
+    }
     trkSave(TRK_SAVE, caught);
   } else if (TRK_MARK_MODE === 'seen') {
     trkToggleCompletion('seen', num, TRK_SAVE);
+    if (card && !motionReduced()) pulseElement(card, 'trk-stamp-seen', 520);
   } else {
     trkToggleCompletion(TRK_MARK_MODE, num, TRK_SAVE);
+    if (card && !motionReduced()) pulseElement(card, 'trk-stamp-gold', 520);
   }
   trkRenderGrid();
   trkRenderSidebar();
@@ -9618,7 +9880,7 @@ function trkRenderGrid() {
 
     var safeTitle = tooltipText.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     var fallbackSrc = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + p.num + '.png';
-    return '<div class="' + cls + '" data-trk-num="' + p.num + '" onclick="trkToggle(' + p.num + ')" oncontextmenu="' + contextHandler + '" title="' + safeTitle + '">'
+    return '<div class="' + cls + '" id="trk-card-' + p.num + '" data-trk-num="' + p.num + '" onclick="trkToggle(' + p.num + ')" oncontextmenu="' + contextHandler + '" title="' + safeTitle + '">'
       + '<div class="trk-card-check">' + (isShiny ? '✨' : '✓') + '</div>'
       + '<span class="trk-shiny-badge">✨</span>'
       + '<span class="trk-trade-badge">TRADE</span>'
@@ -11230,7 +11492,7 @@ function toggleTheme() {
       return;
     }
     if (pageId === 'home') {
-      if (pageLooksEmpty('home')) resetHome();
+      if (active.id !== 'page-home' || pageLooksEmpty('home')) resetHome();
       return;
     }
     if (pageLooksEmpty(pageId) || active.id !== 'page-' + pageId) {
@@ -12239,6 +12501,7 @@ function _openDexSearch(query, openNum) {
       }
       if (row) {
         if (openEvoNum !== openNum) toggleEvoRow(openNum);
+        flashDexRow(openNum);
         if (container) {
           var rowTop = row.getBoundingClientRect().top;
           var containerTop = container.getBoundingClientRect().top;
@@ -12799,6 +13062,7 @@ function runSearch(q) {
   window._srActions = actionList;
   _srIdx = -1;
   results.innerHTML = html;
+  animateSearchResults();
 }
 
 // ── PRINT: show print button on guide page ─────────────────
@@ -15078,10 +15342,20 @@ function bulbaLoadPart(num, title) {
   var sd = BULBA_GAME==='rs' ? (typeof BULBA_STATIC_RS!=='undefined'?BULBA_STATIC_RS:null)
        : BULBA_GAME==='e'  ? (typeof BULBA_STATIC_E !=='undefined'?BULBA_STATIC_E :null)
        : (typeof BULBA_STATIC!=='undefined'?BULBA_STATIC:null);
+  // Chapter splash header
+  var gameLabel = {frlg:'FIRE RED & LEAF GREEN',rs:'RUBY & SAPPHIRE',e:'EMERALD'}[BULBA_GAME] || 'GEN 3';
+  var splashSprite = ({frlg:6,rs:257,e:254}[BULBA_GAME]||25);
+  var splashNum = num;
+  var splash = '<div class="bulba-part-splash">'
+    + '<div class="bps-eyebrow">'+gameLabel+' WALKTHROUGH</div>'
+    + '<div class="bps-title">PART '+splashNum+(title?': '+title.toUpperCase():'')+' </div>'
+    + '<img class="bps-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+splashSprite+'.png" alt="" width="80" height="80" style="image-rendering:pixelated;">'
+    + '</div>';
   if (sd && sd[key]) {
+    container.innerHTML = splash;
     bulbaRenderContent(container, sd[key]);
   } else {
-    container.innerHTML = '<div style="padding:40px;text-align:center;">'
+    container.innerHTML = splash + '<div style="padding:40px;text-align:center;">'
       + '<p style="color:#666;">Part ' + num + ' not embedded.</p>'
       + '<p><a href="' + partUrl + '" target="_blank" style="color:#5D9C00;">Open on Bulbapedia \u2197</a></p>'
       + '</div>';
@@ -15441,6 +15715,49 @@ function buildTypePage() {
   // Reset page state
   selectedDefendTypesPage = [];
   window._typeChartBuilt = true;
+
+  // Battle flash on type chart cell click
+  var tcFull = document.getElementById('tcp-full');
+  if (tcFull) {
+    tcFull.addEventListener('click', function(e) {
+      var td = e.target.closest('td');
+      if (!td) return;
+      var msg, sub, col;
+      if      (td.classList.contains('tc-cell-2'))  { msg = 'SUPER EFFECTIVE!';      sub = '×2 DAMAGE';   col = '#2e8b34'; }
+      else if (td.classList.contains('tc-cell-05')) { msg = 'NOT VERY EFFECTIVE...'; sub = '×½ DAMAGE';   col = '#8b2020'; }
+      else if (td.classList.contains('tc-cell-0'))  { msg = 'IT HAD NO EFFECT!';     sub = '×0  IMMUNE';  col = '#222';    }
+      else                                           { msg = 'NORMAL HIT';            sub = '×1 DAMAGE';   col = '#1a3a6e'; }
+      _showTypeBattleFlash(msg, sub, col, td.title || '');
+    });
+  }
+}
+
+function _showTypeBattleFlash(msg, sub, col, matchup) {
+  var el = document.getElementById('type-battle-flash');
+  if (!el) return;
+  // Parse matchup title into attacking/defending labels
+  var parts = matchup ? matchup.split(/\s*[→:]\s*/) : [];
+  var atkLabel = parts[0] || '';
+  var defLabel = (parts[1] || '').split(':')[0].trim();
+  var matchupHtml = (atkLabel && defLabel)
+    ? '<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;letter-spacing:1px;color:rgba(255,255,255,0.9);background:rgba(0,0,0,0.55);padding:5px 12px;border-radius:4px;animation:page-fade-in 0.15s ease both;">'
+      + atkLabel.toUpperCase() + ' <span style="opacity:0.55">VS</span> ' + defLabel.toUpperCase()
+      + '</div>'
+    : '';
+  el.innerHTML = '<div style="position:absolute;inset:0;background:rgba(0,0,0,0.72);"></div>'
+    + '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;">'
+    + matchupHtml
+    + '<div class="tbf-text1" style="font-family:\'Press Start 2P\',monospace;font-size:clamp(13px,2.8vw,26px);'
+      + 'color:#fff;background:'+col+';padding:10px 22px;border-radius:6px;'
+      + 'box-shadow:0 0 30px '+col+',0 4px 12px rgba(0,0,0,0.6);'
+      + 'text-shadow:0 1px 3px rgba(0,0,0,0.8);letter-spacing:1px;white-space:nowrap;">'+msg+'</div>'
+    + '<div class="tbf-text1" style="font-family:\'Press Start 2P\',monospace;font-size:11px;'
+      + 'color:#fff;background:rgba(0,0,0,0.6);padding:4px 14px;border-radius:4px;'
+      + 'animation-delay:0.05s;letter-spacing:2px;">'+sub+'</div>'
+    + '</div>';
+  el.style.display = 'block';
+  clearTimeout(el._hideTimer);
+  el._hideTimer = setTimeout(function(){ el.style.display = 'none'; el.innerHTML = ''; }, 1000);
 }
 
 // ══ PROGRESS MODAL ════════════════════════════════════════════
@@ -17145,6 +17462,7 @@ function buildCatchCalcPage() {
 function buildDexDashPage() {
   var el = document.getElementById('dexdash-content');
   if (!el) return;
+  var badgePulse = window._dexdashBadgePulse || null;
 
   var GAMES = [
     { id:'FR', label:'FireRed',   color:'var(--fire)',    emoji:'🔥' },
@@ -17154,9 +17472,136 @@ function buildDexDashPage() {
     { id:'E',  label:'Emerald',   color:'#00CC88',        emoji:'💚' }
   ];
   var TOTAL = 386;
+  var GYM_SETS = {
+    FR: [
+      { id:'boulder', label:'Boulder' },
+      { id:'cascade', label:'Cascade' },
+      { id:'thunder', label:'Thunder' },
+      { id:'rainbow', label:'Rainbow' },
+      { id:'soul', label:'Soul' },
+      { id:'marsh', label:'Marsh' },
+      { id:'volcano', label:'Volcano' },
+      { id:'earth', label:'Earth' },
+      { id:'elite4', label:'Elite 4' }
+    ],
+    LG: [
+      { id:'boulder', label:'Boulder' },
+      { id:'cascade', label:'Cascade' },
+      { id:'thunder', label:'Thunder' },
+      { id:'rainbow', label:'Rainbow' },
+      { id:'soul', label:'Soul' },
+      { id:'marsh', label:'Marsh' },
+      { id:'volcano', label:'Volcano' },
+      { id:'earth', label:'Earth' },
+      { id:'elite4', label:'Elite 4' }
+    ],
+    R: [
+      { id:'stone', label:'Stone' },
+      { id:'knuckle', label:'Knuckle' },
+      { id:'dynamo', label:'Dynamo' },
+      { id:'heat', label:'Heat' },
+      { id:'balance', label:'Balance' },
+      { id:'feather', label:'Feather' },
+      { id:'mind', label:'Mind' },
+      { id:'rain', label:'Rain' },
+      { id:'elite4', label:'Elite 4' }
+    ],
+    S: [
+      { id:'stone', label:'Stone' },
+      { id:'knuckle', label:'Knuckle' },
+      { id:'dynamo', label:'Dynamo' },
+      { id:'heat', label:'Heat' },
+      { id:'balance', label:'Balance' },
+      { id:'feather', label:'Feather' },
+      { id:'mind', label:'Mind' },
+      { id:'rain', label:'Rain' },
+      { id:'elite4', label:'Elite 4' }
+    ],
+    E: [
+      { id:'stone', label:'Stone' },
+      { id:'knuckle', label:'Knuckle' },
+      { id:'dynamo', label:'Dynamo' },
+      { id:'heat', label:'Heat' },
+      { id:'balance', label:'Balance' },
+      { id:'feather', label:'Feather' },
+      { id:'mind', label:'Mind' },
+      { id:'rain', label:'Rain' },
+      { id:'elite4', label:'Elite 4' }
+    ]
+  };
 
   function loadNums(key) {
-    try { var r = localStorage.getItem(key); return r ? JSON.parse(r) : []; } catch(e) { return []; }
+    try {
+      var r = localStorage.getItem(key);
+      if (!r) return [];
+      var parsed = JSON.parse(r);
+      if (Array.isArray(parsed)) return parsed;
+      if (parsed && typeof parsed === 'object') {
+        return Object.keys(parsed).filter(function(k) { return parsed[k]; }).map(function(k) { return Number(k); }).filter(function(n) { return !isNaN(n); });
+      }
+      return [];
+    } catch(e) { return []; }
+  }
+  function gymKey(gameId) {
+    return 'dexdash_gym_' + gameId;
+  }
+  function safeLabel(text) {
+    return String(text)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+  function loadGymProgress(gameId) {
+    try {
+      var raw = localStorage.getItem(gymKey(gameId));
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch(e) { return []; }
+  }
+  function badgeSvg(id) {
+    var svgs = {
+      boulder:'<svg viewBox="0 0 32 32" aria-hidden="true"><polygon points="8,4 24,4 29,14 20,28 8,28 3,14" fill="#9a8b74" stroke="#dfd2b4" stroke-width="2"/></svg>',
+      cascade:'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 C23 10 25 14 25 19 a9 9 0 1 1 -18 0 c0-5 2-9 9-16z" fill="#58b9ff" stroke="#d8f4ff" stroke-width="2"/></svg>',
+      thunder:'<svg viewBox="0 0 32 32" aria-hidden="true"><polygon points="18,2 8,17 15,17 11,30 24,13 17,13" fill="#ffd24a" stroke="#fff5bb" stroke-width="2"/></svg>',
+      rainbow:'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 22 a10 10 0 0 1 20 0" fill="none" stroke="#ff5e5e" stroke-width="4"/><path d="M9 22 a7 7 0 0 1 14 0" fill="none" stroke="#ffd84f" stroke-width="4"/><path d="M12 22 a4 4 0 0 1 8 0" fill="none" stroke="#63d56d" stroke-width="4"/></svg>',
+      soul:'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 27 C7 22 5 16 5 12 a6 6 0 0 1 11-3 a6 6 0 0 1 11 3 c0 4-2 10-11 15z" fill="#ff7fb9" stroke="#ffe1ef" stroke-width="2"/></svg>',
+      marsh:'<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="10" fill="#b67aff" stroke="#f0dbff" stroke-width="2"/><circle cx="16" cy="16" r="4" fill="#efe3ff"/></svg>',
+      volcano:'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 26 L13 13 L16 18 L19 11 L25 26 Z" fill="#cc4630" stroke="#ffd0b2" stroke-width="2"/><path d="M14 10 C15 7 17 7 18 10 C17 13 15 13 14 10 Z" fill="#ffc14a"/></svg>',
+      earth:'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 L27 10 V22 L16 29 L5 22 V10 Z" fill="#6ab56d" stroke="#e3f5d9" stroke-width="2"/><path d="M16 3 V29 M5 10 L27 22 M27 10 L5 22" stroke="#dff0d8" stroke-width="1.5" opacity="0.75"/></svg>',
+      stone:'<svg viewBox="0 0 32 32" aria-hidden="true"><rect x="7" y="5" width="18" height="22" rx="4" fill="#b8ac95" stroke="#f0e6d2" stroke-width="2"/><rect x="12" y="10" width="8" height="12" rx="2" fill="#8f826c"/></svg>',
+      knuckle:'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M10 12 h3 v-3 h3 v3 h3 v-3 h3 v8 a7 7 0 0 1 -7 7 h-5 a5 5 0 0 1 -5 -5 v-4 a3 3 0 0 1 5 -3z" fill="#f2a886" stroke="#fff1e8" stroke-width="2"/></svg>',
+      dynamo:'<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="10" fill="#ffc94a" stroke="#fff2b9" stroke-width="2"/><polygon points="17,7 11,17 16,17 14,25 22,14 17,14" fill="#7a4d00"/></svg>',
+      heat:'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4 C20 9 24 12 24 18 a8 8 0 1 1 -16 0 c0-4 2-7 8-14z" fill="#ff7a45" stroke="#ffe2ba" stroke-width="2"/><path d="M16 12 c2 2 3 4 3 6 a3 3 0 1 1 -6 0 c0-2 1-4 3-6z" fill="#ffd35a"/></svg>',
+      balance:'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 6 V25" stroke="#f0e8ff" stroke-width="2.5"/><path d="M8 10 H24" stroke="#f0e8ff" stroke-width="2.5"/><path d="M10 11 L6 18 H14 Z" fill="#9c84ff" stroke="#efe9ff" stroke-width="2"/><path d="M22 11 L18 18 H26 Z" fill="#9c84ff" stroke="#efe9ff" stroke-width="2"/></svg>',
+      feather:'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M25 7 C18 7 10 13 9 22 c5 1 11-1 14-6 c3-4 3-7 2-9z" fill="#f6f8ff" stroke="#d8e8ff" stroke-width="2"/><path d="M11 21 C14 19 17 16 22 10" stroke="#95b8ff" stroke-width="2"/></svg>',
+      mind:'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 5 a8 8 0 0 1 8 8 c0 3-1 4-3 6 c-1 1-1 2-1 4 h-8 c0-2 0-3-1-4 c-2-2-3-3-3-6 a8 8 0 0 1 8-8z" fill="#ff77bf" stroke="#ffe3f4" stroke-width="2"/><path d="M12 24 h8" stroke="#ffe3f4" stroke-width="2"/></svg>',
+      rain:'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M10 20 a6 6 0 0 1 1-12 a8 8 0 0 1 15 3 a5 5 0 1 1 0 9z" fill="#6fb8ff" stroke="#e1f2ff" stroke-width="2"/><path d="M11 24 l-2 4 M17 24 l-2 4 M23 24 l-2 4" stroke="#dff4ff" stroke-width="2.5" stroke-linecap="round"/></svg>',
+      elite4:'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 24 h18 l-2 4 H9 Z" fill="#d0a33d"/><path d="M9 22 V9 l4 4 l3-6 l3 6 l4-4 v13z" fill="#f1c34e" stroke="#fff0b6" stroke-width="2"/></svg>'
+    };
+    return svgs[id] || svgs.elite4;
+  }
+  function badgeGrid(gameId) {
+    var badges = GYM_SETS[gameId] || [];
+    var done = {};
+    loadGymProgress(gameId).forEach(function(id){ done[id] = 1; });
+    return '<div class="dexdash-badge-block">'
+      + '<div class="dexdash-badge-title">GYM PROGRESS</div>'
+      + '<div class="dexdash-badge-grid">'
+      + badges.map(function(badge) {
+          var active = done[badge.id] ? ' active' : '';
+          var pulse = '';
+          if (badgePulse && badgePulse.gameId === gameId && badgePulse.badgeId === badge.id) {
+            pulse = badgePulse.active ? ' just-earned' : ' just-lost';
+          }
+          return '<button class="dexdash-badge-btn' + active + pulse + '" onclick="dexDashToggleGymBadge(\'' + gameId + '\',\'' + badge.id + '\')" title="' + safeLabel(badge.label) + '">'
+            + '<span class="dexdash-badge-icon">' + badgeSvg(badge.id) + '</span>'
+            + '<span class="dexdash-badge-label">' + safeLabel(badge.label) + '</span>'
+            + '</button>';
+        }).join('')
+      + '</div>'
+      + '<div class="dexdash-badge-note">Click badges to mark gyms and the Elite 4 complete for this save.</div>'
+      + '</div>';
   }
 
   var html = '<div style="display:flex;flex-direction:column;gap:20px;">';
@@ -17174,28 +17619,29 @@ function buildDexDashPage() {
     caught.forEach(function(n){ seenSet[n] = 1; });
     var nSeen = Object.keys(seenSet).length;
 
-    function bar(n, color) {
+    function bar(n, color, label) {
       var pct = Math.round(n / TOTAL * 100);
-      return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">'
-        + '<div style="flex:1;height:10px;background:rgba(255,255,255,.08);border-radius:5px;overflow:hidden;">'
-        + '<div style="width:' + pct + '%;height:100%;background:' + color + ';border-radius:5px;transition:width .3s;"></div>'
+      return '<div class="dexdash-bar-row">'
+        + '<div class="dexdash-bar-wrap">'
+        + '<div class="dexdash-bar-fill" data-pct="' + pct + '" style="--fill-color:' + color + ';"></div>'
         + '</div>'
-        + '<span style="width:60px;font-size:10px;text-align:right;color:var(--text);">' + n + ' / ' + TOTAL + '</span>'
-        + '<span style="width:34px;font-size:10px;text-align:right;color:var(--muted);">' + pct + '%</span>'
+        + '<span class="dexdash-bar-count" data-target="' + n + '">' + n + ' / ' + TOTAL + '</span>'
+        + '<span class="dexdash-bar-percent" data-target="' + pct + '">' + pct + '%</span>'
         + '</div>';
     }
 
-    html += '<div class="panel" style="padding:16px;">'
-      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">'
-      + '<span style="font-size:18px;">' + g.emoji + '</span>'
-      + '<span style="font-family:\'Press Start 2P\',monospace;font-size:8px;color:' + g.color + ';">' + g.label + '</span>'
+    html += '<div class="panel dexdash-game-card" style="padding:16px;--dexdash-accent:' + g.color + ';--enter-delay:' + (GAMES.indexOf(g) * 55) + 'ms;">'
+      + '<div class="dexdash-game-head">'
+      + '<span class="dexdash-game-emoji">' + g.emoji + '</span>'
+      + '<span class="dexdash-game-title" style="color:' + g.color + ';">' + g.label + '</span>'
       + '</div>'
-      + '<div style="font-size:11px;color:var(--muted);margin-bottom:4px;">👁️ Seen</div>'
-      + bar(nSeen, 'rgba(255,255,255,.35)')
-      + '<div style="font-size:11px;color:var(--muted);margin-bottom:4px;">🏆 Caught</div>'
-      + bar(nCaught, g.color)
-      + '<div style="font-size:11px;color:var(--muted);margin-bottom:4px;">✨ Shiny</div>'
-      + bar(nShiny, '#FFD700')
+      + '<div class="dexdash-stat-label">👁️ Seen</div>'
+      + bar(nSeen, 'rgba(255,255,255,.35)', 'Seen')
+      + '<div class="dexdash-stat-label">🏆 Caught</div>'
+      + bar(nCaught, g.color, 'Caught')
+      + '<div class="dexdash-stat-label">✨ Shiny</div>'
+      + bar(nShiny, '#FFD700', 'Shiny')
+      + badgeGrid(g.id)
       + '</div>';
   });
 
@@ -17205,7 +17651,94 @@ function buildDexDashPage() {
     + '</div>';
 
   el.innerHTML = html;
+  animateDexDashMotion(el);
 }
+
+function animateDexDashMotion(root) {
+  if (!root) return;
+  var total = 386;
+  var reduceMotion = false;
+  try {
+    reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  } catch(e) {}
+
+  var fills = root.querySelectorAll('.dexdash-bar-fill');
+  var counts = root.querySelectorAll('.dexdash-bar-count, .dexdash-bar-percent');
+  var cards = root.querySelectorAll('.dexdash-game-card');
+
+  cards.forEach(function(card) {
+    card.classList.remove('motion-in');
+    if (!reduceMotion) {
+      requestAnimationFrame(function() {
+        card.classList.add('motion-in');
+      });
+    } else {
+      card.classList.add('motion-in');
+    }
+  });
+
+  fills.forEach(function(fill, index) {
+    var pct = Number(fill.getAttribute('data-pct') || 0);
+    fill.style.width = '0%';
+    if (reduceMotion) {
+      fill.style.width = pct + '%';
+      return;
+    }
+    setTimeout(function() {
+      fill.style.width = pct + '%';
+    }, 100 + (index * 45));
+  });
+
+  counts.forEach(function(node, index) {
+    var target = Number(node.getAttribute('data-target') || 0);
+    var isPercent = node.classList.contains('dexdash-bar-percent');
+    if (reduceMotion) {
+      node.textContent = isPercent ? (target + '%') : (target + ' / ' + total);
+      return;
+    }
+    var startTime = 0;
+    var duration = 520;
+    function step(ts) {
+      if (!startTime) startTime = ts;
+      var elapsed = Math.min((ts - startTime) / duration, 1);
+      var eased = 1 - Math.pow(1 - elapsed, 3);
+      var value = Math.round(target * eased);
+      node.textContent = isPercent ? (value + '%') : (value + ' / ' + total);
+      if (elapsed < 1) requestAnimationFrame(step);
+    }
+    setTimeout(function() {
+      requestAnimationFrame(step);
+    }, 80 + (index * 35));
+  });
+}
+
+window.dexDashToggleGymBadge = function(gameId, badgeId) {
+  var key = 'dexdash_gym_' + gameId;
+  var arr = [];
+  try {
+    var raw = localStorage.getItem(key);
+    arr = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(arr)) arr = [];
+  } catch(e) { arr = []; }
+  var idx = arr.indexOf(badgeId);
+  var active;
+  if (idx === -1) {
+    arr.push(badgeId);
+    active = true;
+  } else {
+    arr.splice(idx, 1);
+    active = false;
+  }
+  try { localStorage.setItem(key, JSON.stringify(arr)); } catch(e) {}
+  window._dexdashBadgePulse = { gameId: gameId, badgeId: badgeId, active: active };
+  buildDexDashPage();
+  setTimeout(function() {
+    var pulse = window._dexdashBadgePulse;
+    if (pulse && pulse.gameId === gameId && pulse.badgeId === badgeId) {
+      window._dexdashBadgePulse = null;
+    }
+  }, 900);
+};
 
 (function() {
   var builtInRecovery = {
@@ -17542,6 +18075,7 @@ function closeExportModal() {
 'use strict';
 
 var STORAGE_KEY='g3notes_v2';
+var NOTES_PREV_PAGE='home';
 var GAME_COLORS={ALL:'var(--gold)',FR:'var(--fire)',LG:'#4CAF50',R:'#FF5555',S:'#5599FF',E:'#00CC88'};
 var GAME_LABELS={ALL:'🌐 All',FR:'🔥 FR',LG:'🌿 LG',R:'💎 R',S:'🔷 S',E:'💚 E'};
 var COLOR_ACCENT={none:'var(--border)',red:'#FF5555',orange:'#FF9800',gold:'#FFD700',green:'#4CAF50',blue:'#64b4ff',purple:'#AA88FF'};
@@ -17560,6 +18094,7 @@ var PAGE_LIST=[
   {id:'dex',icon:'📖',label:'Pokédex'},
   {id:'bulba',icon:'🌿',label:'Bulba Guide'},
   {id:'tracker',icon:'📋',label:'Tracker'},
+  {id:'notes',icon:'📝',label:'Notes'},
   {id:'easydex',icon:'🗺',label:'Easy Dex'},
   {id:'excl',icon:'🔀',label:'Version Exclusives'},
   {id:'tradeevo',icon:'🔗',label:'Trade Evolutions'},
@@ -17695,7 +18230,14 @@ var notes=[], currentGame='ALL', currentLabel=null, searchQuery='', editingId=nu
 
 /* ── Storage ── */
 function loadNotes(){try{var r=localStorage.getItem(STORAGE_KEY);notes=r?JSON.parse(r):[];if(!Array.isArray(notes))notes=[];}catch(e){notes=[];}}
-function saveNotes(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(notes));}catch(e){}updateBadge();}
+function saveNotes(){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(notes));}catch(e){}
+  updateBadge();
+  var panel=document.getElementById('notes-panel');
+  var tab=document.getElementById('notesPanelTab');
+  if(panel) pulseElement(panel,'notes-saved',700);
+  if(tab) pulseElement(tab,'notes-tab-saved',700);
+}
 function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
 
 /* ── Badge ── */
@@ -17734,10 +18276,43 @@ window.closeMapPanel = function() {
 
 window.toggleNotesPanel=function(){
   var p=document.getElementById('notes-panel'),o=document.getElementById('notes-overlay');
+  if (p.classList.contains('fullpage')) { closeNotesPanel(); return; }
   if(p.classList.contains('open')){p.classList.remove('open');o.classList.remove('open');}
   else{p.classList.add('open');o.classList.add('open');renderNotesList();renderLabelBar();}
 };
-window.closeNotesPanel=function(){document.getElementById('notes-panel').classList.remove('open');document.getElementById('notes-overlay').classList.remove('open');destroySlashDropdown();};
+window.enterNotesFullPage=function(){
+  var panel=document.getElementById('notes-panel');
+  var overlay=document.getElementById('notes-overlay');
+  var host=document.getElementById('notes-page-host');
+  if(!panel||!host)return;
+  var currentPage=getPageHashId() || 'home';
+  if(currentPage && currentPage !== 'notes') NOTES_PREV_PAGE=currentPage;
+  if(panel.parentElement !== host) host.appendChild(panel);
+  panel.classList.add('fullpage','open');
+  if(overlay) overlay.classList.remove('open');
+  renderNotesList();
+  renderLabelBar();
+};
+window.exitNotesFullPage=function(restorePage){
+  var panel=document.getElementById('notes-panel');
+  var sideHost=document.getElementById('notes-side-host');
+  if(!panel||!sideHost||!panel.classList.contains('fullpage')) return;
+  sideHost.appendChild(panel);
+  panel.classList.remove('fullpage','open');
+  if(restorePage){
+    var target=NOTES_PREV_PAGE || 'home';
+    if(target === 'home') resetHome();
+    else showPage(target, document.getElementById('nav' + target.charAt(0).toUpperCase() + target.slice(1)));
+  }
+};
+window.closeNotesPanel=function(){
+  var panel=document.getElementById('notes-panel');
+  var overlay=document.getElementById('notes-overlay');
+  if(panel && panel.classList.contains('fullpage')){window.exitNotesFullPage(true);destroySlashDropdown();return;}
+  if(panel) panel.classList.remove('open');
+  if(overlay) overlay.classList.remove('open');
+  destroySlashDropdown();
+};
 
 /* ── HTML escape ── */
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -17978,6 +18553,7 @@ function noteLinkPoke(name){
       var pk=POKE.find(function(p){return p.name.toLowerCase()===name.toLowerCase();});
       if(pk){
         toggleEvoRow(pk.num);
+        flashDexRow(pk.num);
         var row=document.getElementById('poke-row-'+pk.num);
         if(row)setTimeout(function(){row.scrollIntoView({behavior:'smooth',block:'start'});},60);
       }

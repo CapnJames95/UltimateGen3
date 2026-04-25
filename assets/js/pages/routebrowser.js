@@ -190,6 +190,9 @@ function buildRouteBrowserPage() {
     window._rbSel = rbSelectedArea;
   }
 
+  // Magazine-style type badge helper
+  var TYPE_BG = {normal:'#9E9E9E',fire:'#E8501A',water:'#1B8FE8',grass:'#3DA83D',electric:'#D4A800',ice:'#60C8C8',fighting:'#B83020',poison:'#8B3099',ground:'#8B6840',flying:'#6850C0',psychic:'#D01868',bug:'#78A810',rock:'#807840',ghost:'#4030A0',dragon:'#5038E8',dark:'#403030',steel:'#9898A8'};
+
   function renderDetail(idx) {
     var detail = document.getElementById('rb-detail');
     if (!detail) return;
@@ -202,8 +205,32 @@ function buildRouteBrowserPage() {
     var isEventArea = rbSelectedArea === 'Event';
     var isEvolveArea = rbSelectedArea === 'Evolve';
     var isFossilArea = rbSelectedArea === 'Fossil';
-    detail.innerHTML = '<div style="font-family:\'Press Start 2P\',monospace;font-size:8px;color:var(--gold);margin-bottom:16px;">'+rbSelectedArea+'</div>'
-      +'<div style="display:flex;flex-wrap:wrap;gap:8px;">'
+
+    // ── Magazine spread header ───────────────────────────────────
+    var areaIcon = isTradeArea ? '🔄' : isEventArea ? '🎪' : isFossilArea ? '🦴' : isEvolveArea ? '🔄' : '📍';
+    var areaGroup2 = (function(a) {
+      if (/route|road|path/i.test(a)) return 'ROUTES';
+      if (/cave|tunnel|dungeon|underground/i.test(a)) return 'CAVES & DUNGEONS';
+      if (/safari/i.test(a)) return 'SAFARI ZONE';
+      if (/tower|mansion|gym|lab/i.test(a)) return 'FACILITIES';
+      if (/city|town|village/i.test(a)) return 'TOWNS & CITIES';
+      if (/island/i.test(a)) return 'ISLANDS';
+      if (/sea|ocean|water|lake|river/i.test(a)) return 'WATER ROUTES';
+      if (/forest|woods/i.test(a)) return 'FORESTS';
+      return 'LOCATIONS';
+    })(rbSelectedArea);
+
+    // Pick a representative sprite for the splash (first Pokémon)
+    var splashSprite = entries.length ? ('<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+entries[0].num+'.png" style="width:64px;height:64px;image-rendering:pixelated;filter:drop-shadow(0 3px 6px rgba(0,0,0,0.5));position:absolute;right:20px;bottom:0;" alt="" onerror="this.style.display=\'none\'">') : '';
+
+    var spreadHtml = '<div class="rb-detail-spread">'
+      + '<div class="rb-area-splash" style="position:relative;overflow:hidden;">'
+      + '<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--gold);letter-spacing:1px;margin-bottom:6px;">'+areaGroup2+'</div>'
+      + '<div style="font-family:\'Press Start 2P\',monospace;font-size:clamp(10px,2vw,15px);color:var(--text);line-height:1.4;padding-right:80px;">'+areaIcon+' '+rbSelectedArea.toUpperCase()+'</div>'
+      + '<div style="margin-top:6px;font-size:10px;color:var(--muted);">'+entries.length+' Pokémon available</div>'
+      + splashSprite
+      + '</div>'
+      + '<div class="rb-poke-grid">'
       + entries.map(function(e){
           var isTrade = /\bTrade\b/i.test(e.line);
           var isEvent = /^Event\b/i.test(e.line);
@@ -267,19 +294,28 @@ function buildRouteBrowserPage() {
               + '</div>';
           }
           displayLine = displayLine.replace(/Special\s*\(Celadon Game Corner,\s*Purchase for\s*\d+C/i, 'Game Corner');
-          return '<div onclick="_openDexSearch(\''+e.name+'\','+e.num+')" style="display:flex;align-items:flex-start;gap:8px;padding:8px 12px;background:var(--card);border:1px solid var(--border);border-radius:7px;cursor:pointer;min-width:'+((isTradeArea||isEventArea||isEvolveArea||isFossilArea)?'240px':'180px')+';max-width:'+((isTradeArea||isEventArea||isEvolveArea||isFossilArea)?'340px':'260px')+';transition:border-color .12s;" onmouseover="this.style.borderColor=\'var(--fire)\'" onmouseout="this.style.borderColor=\'var(--border)\'">'
-            +'<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+e.num+'.png" width="36" height="36" style="image-rendering:pixelated;flex-shrink:0;">'
-            +'<div style="min-width:0;">'
-            +'<div style="font-size:12px;font-weight:800;color:var(--text);">'+e.name+'</div>'
-            +'<div style="margin:2px 0;">'+types+'</div>'
-            + tradeNote
-            + eventNote
-            + evolveNote
-            + fossilNote
-            +'<div style="font-size:9px;color:var(--muted);'+((isTradeArea||isEventArea||isEvolveArea||isFossilArea)?'white-space:normal;max-width:260px;':'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;')+'" title="'+displayLine.replace(/"/g,'&quot;')+'">'+displayLine+'</div>'
-            +'</div></div>';
+          // Magazine-style card
+          var typeBadgeHtml = (e.types||[]).map(function(t){
+            return '<span style="font-size:7px;font-weight:800;padding:1px 5px;border-radius:2px;text-transform:uppercase;background:'+(TYPE_BG[t]||'#666')+';color:#fff;">'+t+'</span>';
+          }).join(' ');
+          var methodBadge = isTrade ? '<span style="font-size:7px;padding:1px 5px;border-radius:99px;background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.4);color:var(--gold);">TRADE</span>'
+            : isEvent  ? '<span style="font-size:7px;padding:1px 5px;border-radius:99px;background:rgba(100,180,255,.15);border:1px solid rgba(100,180,255,.4);color:#8fc8ff;">EVENT</span>'
+            : isFossil ? '<span style="font-size:7px;padding:1px 5px;border-radius:99px;background:rgba(205,170,106,.15);border:1px solid rgba(205,170,106,.4);color:#d7b36c;">FOSSIL</span>'
+            : isEvolve ? '<span style="font-size:7px;padding:1px 5px;border-radius:99px;background:rgba(154,210,122,.15);border:1px solid rgba(154,210,122,.4);color:#9ad27a;">EVOLVE</span>'
+            : '';
+          var shortLine = displayLine.length > 36 ? displayLine.slice(0,36)+'…' : displayLine;
+          return '<div class="rb-poke-card" onclick="_openDexSearch(\''+e.name+'\','+e.num+')" title="'+displayLine.replace(/"/g,'&quot;')+'">'
+            + '<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+e.num+'.png" class="rb-poke-sprite" alt="'+e.name+'" onerror="this.style.opacity=\'0.2\'">'
+            + '<div class="rb-poke-info">'
+            + '<div class="rb-poke-name">'+e.name+'</div>'
+            + '<div class="rb-poke-types">'+typeBadgeHtml+'</div>'
+            + (methodBadge ? '<div style="margin-top:3px;">'+methodBadge+'</div>' : '')
+            + '<div class="rb-poke-line" title="'+displayLine.replace(/"/g,'&quot;')+'">'+shortLine+'</div>'
+            + '</div>'
+            + '</div>';
         }).join('')
-      +'</div>';
+      + '</div></div>';
+    detail.innerHTML = spreadHtml;
   }
 
   function rbRender() {
