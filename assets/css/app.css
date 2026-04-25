@@ -387,8 +387,20 @@ tr.evo-chain-row.open .evo-panel{
 .note-card{background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden;border-left-width:3px;transition:transform .12s ease,box-shadow .12s ease;}
 .note-card:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(0,0,0,.16);}
 .note-card.pinned{border-top-color:var(--gold);}
+.note-card.completed{opacity:.9;}
 .note-card-header{display:flex;align-items:center;gap:6px;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.05);flex-wrap:wrap;}
 .note-card-body{padding:10px 12px;font-size:12px;line-height:1.75;color:var(--text);}
+.note-card-body.collapsed{max-height:180px;overflow:hidden;position:relative;}
+.note-card-body.collapsed::after{content:'';position:absolute;left:0;right:0;bottom:0;height:48px;background:linear-gradient(180deg,rgba(12,14,25,0),var(--card));pointer-events:none;}
+.note-card-footer{padding:0 12px 12px;}
+.note-linked-row{display:flex;gap:6px;flex-wrap:wrap;padding:8px 12px 0;}
+.note-meta-chip,.note-pinned-chip,.note-progress-chip{font-size:9px;padding:3px 8px;border-radius:999px;border:1px solid var(--border);background:var(--panel);color:var(--muted);cursor:pointer;white-space:nowrap;}
+.note-meta-chip.route{color:var(--gold);}
+.note-meta-chip.pokemon{color:#64b4ff;}
+.note-pinned-chip{margin:0 6px 6px 0;color:var(--text);}
+.note-progress-chip{cursor:default;}
+.note-progress-chip.completed{color:#4CAF50;border-color:#4CAF50;}
+.note-progress-chip.archived{color:#AA88FF;border-color:#AA88FF;}
 .note-h1{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--gold);margin:10px 0 5px;letter-spacing:.5px;}
 .note-h2{font-family:'Press Start 2P',monospace;font-size:7px;color:var(--muted);margin:8px 0 4px;letter-spacing:.5px;}
 .note-ul{margin:3px 0;padding-left:16px;}
@@ -881,7 +893,7 @@ th.sort-desc::after{content:' ▼';color:var(--fire);}
 .trk-mini-action:hover{color:var(--text);border-color:var(--gold)}
 .tmcheck-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.76);z-index:10001;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
 .tmcheck-overlay.open{display:flex}
-.tmcheck-modal{background:var(--bg);border:2px solid var(--border);border-radius:var(--radius-lg);width:100%;max-width:920px;box-shadow:0 16px 60px rgba(0,0,0,0.6);overflow:hidden}
+.tmcheck-modal{background:var(--darker);border:2px solid var(--border);border-radius:var(--radius-lg);width:100%;max-width:920px;box-shadow:0 16px 60px rgba(0,0,0,0.6);overflow:hidden}
 .tmcheck-header{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:16px 20px;background:linear-gradient(180deg,var(--panel) 0%,rgba(20,24,40,0.95) 100%);border-bottom:2px solid var(--border);border-radius:var(--radius-lg) var(--radius-lg) 0 0}
 .tmcheck-title{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--gold)}
 .tmcheck-body{padding:18px 20px;max-height:75vh;overflow-y:auto}
@@ -1125,7 +1137,7 @@ th.sort-desc::after{content:' ▼';color:var(--fire);}
 
 /* ── Light theme ── */
 body.light-theme {
-  --darker:#f6f1e7;--panel:#ebe3d3;--card:#fffdfa;--border:#d7cbb6;
+  --darker:#e2d8c4;--panel:#faf7f1;--card:#ffffff;--border:#c8b99a;
   --text:#231c12;--muted:#6f6251;--gold:#9b6b00;
   --fire:#c84d16;--leaf:#2f7a4e;--ruby:#b33624;--sapphire:#2354aa;--emerald:#1f8a57;
   --shadow-sm:0 1px 2px rgba(67,46,19,0.08),0 6px 18px rgba(67,46,19,0.04);
@@ -1136,7 +1148,7 @@ body.light-theme{
   background:
     radial-gradient(circle at top left, rgba(200,77,22,0.08), transparent 28%),
     radial-gradient(circle at top right, rgba(47,122,78,0.08), transparent 24%),
-    linear-gradient(180deg, #fbf7ee 0%, var(--darker) 100%);
+    linear-gradient(180deg, #ede3cc 0%, var(--darker) 100%);
 }
 body.light-theme::before{
   background-image:
@@ -1397,7 +1409,7 @@ body.light-theme .ag-none{color:#726554;}
 #featuresBtn:hover,#settingsBtn:hover{border-color:var(--gold);color:var(--gold);}
 .features-overlay{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.72);backdrop-filter:blur(3px);overflow-y:auto;padding:40px 16px;}
 .features-overlay.open{display:flex;align-items:flex-start;justify-content:center;}
-.features-modal{background:var(--bg);border:2px solid var(--border);border-radius:var(--radius-lg);width:100%;max-width:760px;box-shadow:0 16px 60px rgba(0,0,0,0.6);overflow:hidden;}
+.features-modal{background:var(--darker);border:2px solid var(--border);border-radius:var(--radius-lg);width:100%;max-width:760px;box-shadow:0 16px 60px rgba(0,0,0,0.6);overflow:hidden;}
 .features-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:linear-gradient(180deg,var(--panel) 0%,rgba(20,24,40,0.95) 100%);border-bottom:2px solid var(--border);border-radius:var(--radius-lg) var(--radius-lg) 0 0;}
 .features-title{font-family:'Press Start 2P',monospace;font-size:10px;letter-spacing:1px;color:var(--gold);}
 .features-close{background:none;border:1px solid var(--border);color:var(--muted);font-size:13px;padding:3px 8px;cursor:pointer;border-radius:3px;transition:border-color 0.12s,color 0.12s;}
@@ -1414,7 +1426,7 @@ body.light-theme .ag-none{color:#726554;}
 .feature-shortcuts-btn:hover{border-color:var(--gold);color:var(--gold);}
 .shortcuts-overlay{display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.78);backdrop-filter:blur(3px);padding:40px 16px;overflow-y:auto;}
 .shortcuts-overlay.open{display:flex;align-items:flex-start;justify-content:center;}
-.shortcuts-modal{background:var(--bg);border:2px solid var(--border);border-radius:var(--radius-lg);width:100%;max-width:860px;box-shadow:0 16px 60px rgba(0,0,0,0.6);overflow:hidden;}
+.shortcuts-modal{background:var(--darker);border:2px solid var(--border);border-radius:var(--radius-lg);width:100%;max-width:860px;box-shadow:0 16px 60px rgba(0,0,0,0.6);overflow:hidden;}
 .shortcuts-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;background:linear-gradient(180deg,var(--panel) 0%,rgba(20,24,40,0.95) 100%);border-bottom:2px solid var(--border);border-radius:var(--radius-lg) var(--radius-lg) 0 0;}
 .shortcuts-title{font-family:'Press Start 2P',monospace;font-size:10px;letter-spacing:1px;color:var(--gold);}
 .shortcuts-header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
@@ -1430,12 +1442,17 @@ body.light-theme .ag-none{color:#726554;}
 .shortcuts-desc{font-size:11px;color:var(--text);line-height:1.55;opacity:0.92;}
 .settings-overlay{display:none;position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,0.76);backdrop-filter:blur(3px);padding:40px 16px;overflow-y:auto;}
 .settings-overlay.open{display:flex;align-items:flex-start;justify-content:center;}
-.settings-modal{background:var(--bg);border:2px solid var(--border);border-radius:var(--radius-lg);width:100%;max-width:680px;box-shadow:0 16px 60px rgba(0,0,0,0.6);overflow:hidden;}
+.settings-modal{background:var(--darker);border:2px solid var(--border);border-radius:var(--radius-lg);width:100%;max-width:680px;box-shadow:0 16px 60px rgba(0,0,0,0.6);overflow:hidden;}
 .settings-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:linear-gradient(180deg,var(--panel) 0%,rgba(20,24,40,0.95) 100%);border-bottom:2px solid var(--border);border-radius:var(--radius-lg) var(--radius-lg) 0 0;}
 .settings-title{font-family:'Press Start 2P',monospace;font-size:10px;letter-spacing:1px;color:var(--gold);}
 .settings-body{padding:20px;display:flex;flex-direction:column;gap:18px;max-height:76vh;overflow-y:auto;}
 .settings-section{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px 16px;box-shadow:var(--shadow-sm);}
-.settings-section-title{font-family:'Press Start 2P',monospace;font-size:7.5px;letter-spacing:0.8px;color:var(--gold);margin-bottom:10px;}
+.settings-section-title{font-family:'Press Start 2P',monospace;font-size:7.5px;letter-spacing:0.8px;color:var(--gold);margin-bottom:0;cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:center;}
+.settings-section-title::after{content:'▶';font-size:7px;color:var(--muted);transition:transform 0.2s ease;flex-shrink:0;margin-left:8px;}
+.settings-section.ss-open .settings-section-title{margin-bottom:12px;}
+.settings-section.ss-open .settings-section-title::after{transform:rotate(90deg);}
+.settings-section-body{overflow:hidden;max-height:0;transition:max-height 0.28s ease;}
+.settings-section.ss-open .settings-section-body{max-height:2000px;}
 .settings-copy{font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:12px;}
 .settings-actions{display:flex;flex-direction:column;gap:8px;}
 .settings-action-btn{background:none;border:1px solid var(--border);color:var(--muted);font-size:11px;font-family:'Nunito',sans-serif;font-weight:700;padding:5px 10px;cursor:pointer;border-radius:3px;transition:border-color 0.12s,color 0.12s;text-align:left;}
@@ -1648,7 +1665,43 @@ body.strong-focus :focus-visible{outline:2px solid var(--gold)!important;outline
   .page-nav-btn{font-size:8px;padding:10px 10px;}
 }
 
+/* mobile game switcher select — hidden by default, shown on mobile */
+.game-switcher-mobile {
+  display: none;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 6px;
+  padding: 4px 20px 4px 7px;
+  background: var(--card);
+  border: 1px solid var(--mast-accent, var(--gold));
+  border-radius: 5px;
+  color: var(--mast-accent, var(--gold));
+  cursor: pointer;
+  outline: none;
+  flex-shrink: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23888'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  background-color: var(--card);
+  line-height: 1;
+  height: 26px;
+}
+
 /* ── 2. Header — hide non-essentials ── */
+@media(max-width:768px){
+  .game-badges{display:none;}
+  .game-switcher-mobile{display:block;}
+  header{flex-wrap:nowrap;}
+  .search-label{display:none;}
+  .settings-label{display:none;}
+  #featuresBtn{display:none;}
+  #header-sprites{display:none;}
+  #searchTrigger{background:none;border:none;padding:0 4px;font-size:20px;}
+  #settingsBtn{background:none;border:none;padding:0 4px;font-size:20px;line-height:1;display:flex;align-items:center;height:30px;}
+  #settingsBtn .cog-icon{display:inline-block;font-size:24px;transform:translateY(-2px);}
+  #themeToggle{display:none;}
+}
 @media(max-width:600px){
   .header-title{display:none;}
   .font-size-ctrl{display:none;}
@@ -1660,8 +1713,6 @@ body.strong-focus :focus-visible{outline:2px solid var(--gold)!important;outline
   #settingsBtn .cog-icon{display:inline-block;transform:translateY(-3px);font-size:26px;}
   .evo-toggle,.dex-toggle{display:none;}
   #featuresBtn,#printBtn{display:none;}
-  .game-badges{gap:3px;}
-  .gbadge{font-size:8px;padding:5px 7px;}
 }
 
 /* ── 3. Sidebars — auto-hide on small screens ── */
@@ -2464,111 +2515,321 @@ body { padding-bottom: 24px; }
    MAGAZINE BATCH 3 — features 1,2,3,4,5,6,7,9,10,11,12
    ═══════════════════════════════════════════════════════════════ */
 
+/* ── Page header titles (masthead accent language) ───────────── */
+.page-hd-title {
+  color: var(--mast-accent, var(--gold)) !important;
+  border-left: 2px solid var(--mast-accent, var(--gold));
+  padding-left: 10px;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+
 /* ── #2 Magazine masthead ─────────────────────────────────────── */
+/* ── #2 Magazine masthead ────────────────────────────────────── */
 .home-masthead {
-  text-align: center;
-  padding: 14px 0 18px;
-  border-bottom: 3px double var(--accent);
-  margin-bottom: 22px;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 20px;
   position: relative;
 }
-.masthead-logo {
+.home-masthead::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 5px;
+  background: var(--mast-accent, var(--gold));
+  border-radius: 8px 0 0 8px;
+  animation: mast-pulse 2.5s ease-in-out infinite;
+  z-index: 2;
+}
+@keyframes mast-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+.home-mast-inner {
+  display: flex;
+  align-items: stretch;
+  padding: 16px 130px 16px 24px;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.home-mast-pub {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-right: 20px;
+}
+.home-mast-logo {
   font-family: 'Press Start 2P', monospace;
-  font-size: clamp(13px, 3vw, 22px);
-  background: linear-gradient(135deg, var(--gold) 0%, var(--accent) 50%, var(--gold) 100%);
+  font-size: 15px;
+  line-height: 1.4;
+  letter-spacing: 1px;
+  background: linear-gradient(90deg, var(--mast-accent, var(--gold)) 0%, #fff 38%, var(--mast-accent, var(--gold)) 55%, #fff 75%, var(--mast-accent, var(--gold)) 100%);
+  background-size: 200% 100%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  background-size: 200% 100%;
-  animation: badge-foil 5s linear infinite;
-  letter-spacing: 4px;
-  line-height: 1.3;
+  animation: badge-foil 4s linear infinite;
 }
-.masthead-sub {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 6px;
-  color: var(--muted);
-  letter-spacing: 3px;
-  margin-top: 8px;
-}
-.masthead-meta {
-  font-size: 10px;
-  color: var(--muted);
-  margin-top: 6px;
-  font-style: italic;
-  opacity: 0.7;
-}
-.masthead-lines {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
-}
-.masthead-line {
-  font-size: 9px;
-  color: var(--accent);
-  font-weight: 700;
-  padding: 2px 8px;
-  border: 1px solid var(--accent);
-  border-radius: 3px;
-  opacity: 0.8;
-}
-
-/* ── #1 Pokémon of the Day ──────────────────────────────────── */
-.home-potd {
-  background: linear-gradient(135deg, var(--accent-dim) 0%, var(--panel) 65%);
-  border: 2px solid var(--accent);
-  border-radius: 10px;
-  padding: 14px 18px 14px;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
-  margin-bottom: 18px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  cursor: pointer;
-  transition: transform 0.12s;
-}
-.home-potd:hover { transform: translate(-2px,-2px); }
-.home-potd::before {
-  content: '⭐ POKÉMON OF THE DAY';
+.home-mast-pub-sub {
   font-family: 'Press Start 2P', monospace;
   font-size: 5px;
-  color: var(--gold);
-  letter-spacing: 2px;
-  position: absolute;
-  top: 7px;
-  left: 14px;
-  opacity: 0.9;
+  color: var(--muted);
+  letter-spacing: 1.5px;
+  line-height: 2;
+  margin-top: 7px;
+  text-transform: uppercase;
 }
-.home-potd-sprite {
-  width: 76px; height: 76px;
-  image-rendering: pixelated;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
-  margin-top: 8px;
+.home-mast-sep {
+  width: 1px;
+  background: var(--border);
+  margin: 0 20px;
   flex-shrink: 0;
+  align-self: stretch;
+}
+.home-mast-game {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+.home-mast-potd-slot {
+  flex: 1;
+  min-width: 160px;
+  display: flex;
+  align-items: center;
+}
+.home-mast-now-playing {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 5px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+.home-mast-game-name {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(10px, 2vw, 16px);
+  color: var(--mast-accent, var(--gold));
+  letter-spacing: 2px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.home-mast-issue {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 5px;
+  color: var(--muted);
+  letter-spacing: 1.5px;
+  margin-top: 8px;
+  text-transform: uppercase;
+}
+.home-mast-stats {
+  flex-shrink: 0;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding-left: 20px;
+}
+.home-mast-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.home-mast-stat-num {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1;
+}
+.home-mast-stat-lbl {
+  font-size: 8px;
+  color: var(--muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.home-mast-contents {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  flex-wrap: wrap;
+}
+.home-mast-contents-hd {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 5px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  flex-shrink: 0;
+  margin-right: 6px;
+  text-transform: uppercase;
+}
+.home-mast-contents-btn {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 3px 8px;
+  border-radius: 4px;
+  transition: background 0.12s, color 0.12s;
+  font-family: 'Nunito', sans-serif;
+}
+.home-mast-contents-btn:hover {
+  background: var(--mast-accent, var(--gold));
+  color: #000;
+}
+.home-mast-contents-sep {
+  color: var(--border);
+  font-size: 12px;
+  user-select: none;
+}
+.home-mast-mascot {
+  position: absolute;
+  right: 14px;
+  bottom: 32px;
+  height: 108px;
+  width: auto;
+  image-rendering: pixelated;
+  opacity: 0.88;
+  filter: drop-shadow(0 0 10px var(--mast-accent, var(--gold)));
+  pointer-events: none;
+  z-index: 10;
+  animation: mast-mascot-bob 3s ease-in-out infinite;
+}
+@keyframes mast-mascot-bob {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+.home-mast-tagline {
+  margin-left: auto;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 5px;
+  color: var(--mast-accent, var(--gold));
+  letter-spacing: 1px;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  white-space: nowrap;
+  padding-left: 12px;
+  flex-shrink: 0;
+}
+.home-mast-tagline.tl-visible { opacity: 1; }
+/* 768px — show mascot, hide first two stats, reduce padding */
+@media (max-width: 768px) {
+  .home-mast-inner { padding: 10px 130px 10px 18px; overflow: visible; }
+  .home-mast-tagline { display: none; }
+  .home-mast-sep { display: none; }
+  .home-mast-now-playing { margin-bottom: 3px; }
+  .home-mast-issue { margin-top: 3px; }
+  .home-mast-potd-slot { flex: 0 0 auto; padding-left: 16px; }
+  .home-mast-stats { padding-left: 16px; }
+  .home-mast-stat:nth-child(1) { display: none; }
+  .home-mast-stat:nth-child(2) { display: none; }
+  .home-mast-potd-bst { display: none; }
+  .home-mast-mascot { bottom: 48px; }
+}
+
+/* 480px — compact single-row + scrollable contents strip */
+@media (max-width: 480px) {
+  .home-mast-inner {
+    flex-wrap: nowrap;
+    padding: 10px 14px;
+    gap: 0;
+    align-items: center;
+    border-bottom-color: transparent;
+  }
+  .home-mast-sep { display: none; }
+  .home-mast-pub { padding-right: 0; flex-shrink: 0; }
+  .home-mast-logo { font-size: 9px; line-height: 1.35; }
+  .home-mast-pub-sub { display: none; }
+  .home-mast-game {
+    flex: 1;
+    padding: 0 10px;
+    min-width: 0;
+  }
+  .home-mast-now-playing { display: none; }
+  .home-mast-game-name { font-size: 9px; letter-spacing: 1px; }
+  .home-mast-issue { display: none; }
+  .home-mast-stats { padding-left: 0; gap: 10px; flex-shrink: 0; }
+  .home-mast-stat-num { font-size: 9px; }
+  .home-mast-stat-lbl { font-size: 5px; letter-spacing: 0; }
+  .home-mast-contents {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 7px 14px;
+    gap: 2px;
+    border-top: 1px solid var(--border);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .home-mast-contents::-webkit-scrollbar { display: none; }
+  .home-mast-contents-hd { display: none; }
+  .home-mast-contents-btn { white-space: nowrap; font-size: 9px; padding: 3px 6px; }
+  .home-mast-contents-sep { flex-shrink: 0; }
+}
+
+/* ── Pokémon of the Day (masthead-native) ───────────────────── */
+.home-mast-potd {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  transition: opacity 0.12s;
+}
+.home-mast-potd:hover { opacity: 0.78; }
+.home-mast-potd-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+.home-mast-potd-sprite {
+  width: 52px;
+  height: 52px;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
   animation: hsprite-float 3s ease-in-out infinite;
 }
-.home-potd-info { flex: 1; min-width: 0; margin-top: 10px; }
-.home-potd-name {
+.home-mast-potd-detail { flex: 1; min-width: 0; }
+.home-mast-potd-name {
   font-family: 'Press Start 2P', monospace;
-  font-size: 11px;
-  color: var(--text);
+  font-size: clamp(7px, 1.4vw, 10px);
+  color: var(--mast-accent, var(--gold));
+  letter-spacing: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   margin-bottom: 4px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
 }
-.home-potd-types { margin-bottom: 5px; }
-.home-potd-bst {
+.home-mast-potd-num {
   font-family: 'Press Start 2P', monospace;
-  font-size: 7px;
-  color: var(--gold);
-}
-.home-potd-fact {
-  font-size: 10px;
+  font-size: 5px;
   color: var(--muted);
-  line-height: 1.6;
-  margin-top: 4px;
+  letter-spacing: 1px;
+  font-weight: 400;
+}
+.home-mast-potd-types { margin-bottom: 4px; }
+.home-mast-potd-bst {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 5px;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ── #3 Animated type images ──────────────────────────────────── */
@@ -2585,6 +2846,15 @@ body { padding-bottom: 24px; }
 .type-img-dark:hover    { filter: brightness(1.5) drop-shadow(0 0 7px #a07060); }
 .type-img-steel:hover   { filter: brightness(1.3) drop-shadow(0 0 7px #9898A8); }
 .type-badge:hover { filter: brightness(1.3); cursor: default; }
+.dex-name-wrap{display:flex;flex-direction:column;gap:4px;}
+.dex-name-main{display:flex;align-items:center;flex-wrap:wrap;}
+.dex-note-links{display:flex;gap:4px;flex-wrap:wrap;align-items:center;}
+.dex-note-btn{font-size:9px;padding:2px 7px;border-radius:999px;border:1px solid var(--border);background:var(--panel);color:var(--muted);cursor:pointer;line-height:1.2;transition:background .12s,color .12s,border-color .12s;}
+.dex-note-btn:hover{color:var(--gold);border-color:var(--gold);}
+.dex-note-btn.add{color:#64b4ff;border-color:rgba(100,180,255,.4);}
+.dex-note-btn.existing{color:#16310f;background:rgba(125,220,110,.9);border-color:#7ddc6e;font-weight:700;}
+.dex-note-btn.existing:hover{color:#0d1f08;border-color:#b7f0ad;background:#b7f0ad;}
+.dex-note-count{font-size:9px;color:var(--muted);}
 .dex-row-flash td{animation:dex-row-flash .72s ease;}
 
 /* ── #4 HOT/NEW sticker labels ──────────────────────────────── */
@@ -3201,7 +3471,6 @@ body { padding-bottom: 24px; }
   transition: none !important;
   animation: stat-scan 0.5s cubic-bezier(0.2, 0.8, 0.4, 1) both;
   animation-delay: var(--bar-delay, 0s);
-  width: var(--bar-w, 0%) !important;
 }
 
 /* ── #9 Boot screen ──────────────────────────────────────────── */

@@ -261,6 +261,8 @@ function buildHomePage() {
       items:[
         { icon:'📊', label:'Dex Dashboard',   desc:'Seen / caught / shiny bars per game', action:"closeNavDropdown('navProgressDropdown');showPage('dexdash',document.getElementById('navDexDash'));buildDexDashPage();" },
         { icon:'🎀', label:'Ribbon Tracker',  desc:'All Gen 3 ribbons, per-game progress', action:"closeNavDropdown('navProgressDropdown');showPage('ribbons',document.getElementById('navRibbons'));if(!window._ribbonsBuilt){buildRibbonPage();}" },
+        { icon:'⚠',  label:'Missables',      desc:'Interactive checklist of one-time events', action:"closeNavDropdown('navProgressDropdown');showPage('missables',document.getElementById('navMissables'));if(!window._missablesBuilt){buildMissablesPage();window._missablesBuilt=true;}" },
+        { icon:'📦', label:'Distributions',  desc:'Event carts, patches, and the full reward checklist on one page', action:"return openPage('distributions','navDistributions','navProgressDropdown')" },
         { icon:'📝', label:'Notes',           desc:'Full-screen notes workspace for plans, reminders, and route logs', action:"showPage('notes',document.getElementById('navNotes'))" },
       ]
     },
@@ -270,11 +272,8 @@ function buildHomePage() {
         { icon:'🧭', label:'Essentials',     desc:'Beginner basics: grass, fishing, surfing, status, money, and flow', action:"closeNavDropdown('navGuidesDropdown');showPage('essentials',document.getElementById('navEssentials'));if(!window._essentialsBuilt){buildEssentialsPage();window._essentialsBuilt=true;}" },
         { icon:'🎀', label:'Contests',       desc:'Pokéblocks, conditions, appeal & jamming', action:"closeNavDropdown('navGuidesDropdown');showPage('contests',document.getElementById('navContests'));if(!window._contestsBuilt){buildContestsPage();window._contestsBuilt=true;}" },
         { icon:'🏆', label:'Battle Frontier',desc:'All 7 facilities, Brains & streaks',       action:"closeNavDropdown('navGuidesDropdown');showPage('frontier',document.getElementById('navFrontier'));if(!window._frontierBuilt){buildFrontierPage();window._frontierBuilt=true;}" },
-        { icon:'⚠',  label:'Missables',     desc:'Interactive checklist of one-time events', action:"closeNavDropdown('navGuidesDropdown');showPage('missables',document.getElementById('navMissables'));if(!window._missablesBuilt){buildMissablesPage();window._missablesBuilt=true;}" },
         { icon:'🫐', label:'Berry Farming',  desc:'Growth cycles, mutations, Berry Master',   action:"closeNavDropdown('navGuidesDropdown');showPage('berries',document.getElementById('navBerries'));if(!window._berriesBuilt){buildBerriesPage();window._berriesBuilt=true;}" },
         { icon:'🎲', label:'RNG Guide',      desc:'TID/SID, Methods 1/2/4, shiny & IV abuse', action:"closeNavDropdown('navGuidesDropdown');showPage('rng',document.getElementById('navRng'));if(!window._rngBuilt){buildRngPage();}" },
-        { icon:'📦', label:'Distribution ROMs', desc:'Event carts, eggs, tickets, and patch-based distro catalog', action:"return openPage('distributions','navDistributions','navGuidesDropdown')" },
-        { icon:'✅', label:'Distribution Checklist', desc:'Track every distribution ROM and patch with saved progress', action:"return openPage('distributionchecklist','navDistributionChecklist','navGuidesDropdown')" },
         { icon:'🍬', label:'Pokéblock Optimizer', desc:'Best berries and contest-feeding reference', action:"return openPage('pokeblock','navPokeblock','navGuidesDropdown')" },
       ]
     },
@@ -282,7 +281,7 @@ function buildHomePage() {
 
   function bigCard(s) {
     return '<div class="home-big-card" onclick="' + s.action.replace(/"/g, '&quot;') + '" style="cursor:pointer;padding:18px 20px;background:var(--panel);border:2px solid var(--border);border-radius:8px;transition:border-color .15s,background .15s;" onmouseover="this.style.borderColor=\'' + s.color + '\'" onmouseout="this.style.borderColor=\'var(--border)\'">'
-      + '<div style="font-family:\'Press Start 2P\',monospace;font-size:9px;color:' + s.color + ';letter-spacing:1px;margin-bottom:6px;">' + s.icon + '  ' + s.label + '</div>'
+      + '<div style="font-family:\'Press Start 2P\',monospace;font-size:9px;color:' + s.color + ';letter-spacing:1px;margin-bottom:6px;">' + s.label + '</div>'
       + '<div style="font-size:11px;color:var(--muted);line-height:1.6;">' + s.desc + '</div>'
       + '</div>';
   }
@@ -290,7 +289,7 @@ function buildHomePage() {
   function groupSection(s) {
     var items = s.items.map(function(it) {
       return '<div onclick="' + it.action.replace(/"/g, '&quot;') + '" style="cursor:pointer;display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:6px;transition:background .12s;" onmouseover="this.style.background=\'rgba(255,255,255,.05)\'" onmouseout="this.style.background=\'\'">'
-        + '<span style="font-size:15px;flex-shrink:0;margin-top:1px;">' + it.icon + '</span>'
+        + '<span style="font-size:14px;flex-shrink:0;margin-top:1px;">' + it.icon + '</span>'
         + '<div style="min-width:0;">'
         + '<div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:1px;">' + it.label + '</div>'
         + '<div style="font-size:10px;color:var(--muted);">' + it.desc + '</div>'
@@ -298,81 +297,136 @@ function buildHomePage() {
         + '</div>';
     }).join('');
     return '<div class="home-group-card" style="background:var(--panel);border:2px solid var(--border);border-radius:8px;overflow:hidden;">'
-      + '<div class="home-group-header" style="padding:10px 14px;border-bottom:1px solid var(--border);font-family:\'Press Start 2P\',monospace;font-size:7px;color:' + s.color + ';letter-spacing:1px;">' + s.icon + '  ' + s.label + '</div>'
+      + '<div class="home-group-header" style="padding:10px 14px;border-bottom:1px solid var(--border);font-family:\'Press Start 2P\',monospace;font-size:7px;color:' + s.color + ';letter-spacing:1px;">' + s.label + '</div>'
       + '<div style="display:grid;grid-template-columns:' + (mobile ? '1fr' : '1fr 1fr') + ';gap:0;">' + items + '</div>'
       + '</div>';
   }
 
-  var topCards = SECTIONS.filter(function(s){ return s && !s.group; });
+  function buildPotdWidget() {
+    if (!POKE || !POKE.length) return '';
+    var dateStr = new Date().toISOString().slice(0, 10);
+    var seed = 0;
+    for (var i = 0; i < dateStr.length; i++) seed = (seed * 31 + dateStr.charCodeAt(i)) | 0;
+    var p = POKE[Math.abs(seed) % POKE.length];
+    var bs = BASE_STATS[p.num] || [];
+    var bst = bs.reduce(function(a,b){return a+b;},0);
+    var meta = POKE_META && POKE_META[p.num];
+    var rarityText = !meta ? '' : meta.cr >= 200 ? 'Common catch (rate ' + meta.cr + ')' : meta.cr >= 100 ? 'Uncommon catch (rate ' + meta.cr + ')' : meta.cr >= 30 ? 'Rare catch (rate ' + meta.cr + ')' : 'Very rare catch (rate ' + meta.cr + ')';
+    var bstText = bst >= 580 ? 'Legendary-tier BST of ' + bst : bst >= 500 ? 'Powerful at BST ' + bst : bst >= 400 ? 'Solid mid-tier at BST ' + bst : 'Underdog at BST ' + bst + ' — still useful in the right role';
+    var typeHtml = (p.types||[]).map(function(t){
+      var id = TYPE_ICON_IDS[t];
+      return id ? '<img src="' + TYPE_ICON_BASE + id + '.png" class="type-img type-img-' + t + '" height="18" style="image-rendering:pixelated;vertical-align:middle;margin-right:2px;">' : '<span class="type-badge type-' + t + '">' + t + '</span>';
+    }).join('');
+    var action = "showPage('dex',document.getElementById('navDex'));setTimeout(function(){var s=document.getElementById('poke-search');if(s){s.value='" + p.name + "';filterTable();}setTimeout(function(){var row=document.getElementById('poke-row-" + p.num + "');if(row){var tp=document.getElementById('tablePanel');if(tp){var sh=tp.querySelector('.section-header');var sH=sh?sh.offsetHeight:0;tp.scrollTop=tp.scrollTop+(row.getBoundingClientRect().top-tp.getBoundingClientRect().top)-sH;}else{row.scrollIntoView({behavior:'smooth',block:'start'});}}if(typeof toggleEvoRow==='function'){toggleEvoRow(" + p.num + ");}},120);},150)";
+    return '<div class="home-mast-potd" onclick="' + action.replace(/"/g,'&quot;') + '" title="Open in Pokédex">'
+      + '<div class="home-mast-now-playing">Featured Today</div>'
+      + '<div class="home-mast-potd-row">'
+      + '<img class="home-mast-potd-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + p.num + '.png" alt="' + p.name + '">'
+      + '<div class="home-mast-potd-detail">'
+      + '<div class="home-mast-potd-name">' + p.name.toUpperCase() + '<span class="home-mast-potd-num">#' + String(p.num).padStart(3,'0') + '</span></div>'
+      + '<div class="home-mast-potd-types">' + typeHtml + '</div>'
+      + '<div class="home-mast-potd-bst">BST ' + bst + (rarityText ? '  ·  ' + rarityText : '') + '</div>'
+      + '</div>'
+      + '</div>'
+      + '</div>';
+  }
+
   var groups   = SECTIONS.filter(function(s){ return s && s.group; });
   var mobile = window.innerWidth <= 600;
-  var introCollapsed = homeIntroCollapsed();
-  var activeGameMeta = {
-    all: { label: 'ALL GAMES', focus: 'ALL GAMES', issue: 'Issue 1: Kanto · Issue 2: Hoenn', glow: 'glow-all', note: 'One cartridge-era field guide for every Gen 3 run.' },
-    FR: { label: 'FIRERED', focus: 'FIRERED', issue: 'Issue 1: Kanto', glow: 'glow-fr', note: 'Gym order, route flow, and clean early-game momentum.' },
-    LG: { label: 'LEAFGREEN', focus: 'LEAFGREEN', issue: 'Issue 1: Kanto', glow: 'glow-lg', note: 'Version picks, encounter choices, and island extras.' },
-    R: { label: 'RUBY', focus: 'RUBY', issue: 'Issue 2: Hoenn', glow: 'glow-r', note: 'Fast route planning for the classic Ruby path.' },
-    S: { label: 'SAPPHIRE', focus: 'SAPPHIRE', issue: 'Issue 2: Hoenn', glow: 'glow-s', note: 'Water-heavy planning, coverage checks, and surf-ready notes.' },
-    E: { label: 'EMERALD', focus: 'EMERALD', issue: 'Issue 2: Hoenn', glow: 'glow-e', note: 'Best all-round Hoenn issue with Frontier extras.' }
-  }[GAME] || { label: 'ALL GAMES', focus: 'ALL GAMES', issue: 'Issue 1: Kanto · Issue 2: Hoenn', glow: 'glow-all', note: 'One cartridge-era field guide for every Gen 3 run.' };
 
-  var coverLines = [
-    'Walkthrough magazine energy with route maps, boss prep, and collector-style guide pages.',
-    'Every major tool in one cartridge-era issue: encounter rates, maps, planners, calculators, and tracking.',
-    activeGameMeta.note
+  var GAME_META = {
+    all: { name: 'ALL GAMES',  accent: '#F5C518', issue: 'VOL. I & II',       region: 'KANTO + HOENN' },
+    FR:  { name: 'FIRERED',    accent: '#ef5350', issue: 'VOL. I · ISSUE 1',  region: 'KANTO' },
+    LG:  { name: 'LEAFGREEN',  accent: '#66bb6a', issue: 'VOL. I · ISSUE 2',  region: 'KANTO' },
+    R:   { name: 'RUBY',       accent: '#e53935', issue: 'VOL. II · ISSUE 1', region: 'HOENN' },
+    S:   { name: 'SAPPHIRE',   accent: '#1e88e5', issue: 'VOL. II · ISSUE 2', region: 'HOENN' },
+    E:   { name: 'EMERALD',    accent: '#43a047', issue: 'VOL. II · ISSUE 3', region: 'HOENN' }
+  };
+  var gm = GAME_META[GAME] || GAME_META.all;
+
+  // #1 Mascot sprite
+  var MASCOT_NUMS = { all:25, FR:6, LG:3, R:383, S:382, E:384 };
+  var mascotNum = MASCOT_NUMS[GAME] || 25;
+
+  // #6 Caught %
+  var caughtPct = (function() {
+    try {
+      var save = (typeof TRK_SAVE !== 'undefined' && TRK_SAVE && TRK_SAVE !== 'all') ? TRK_SAVE
+               : (GAME !== 'all' ? GAME : 'FR');
+      var arr = JSON.parse(localStorage.getItem('pokedex_tracker_' + save) || '[]');
+      return Array.isArray(arr) ? Math.round(arr.length / 386 * 100) : 0;
+    } catch(e) { return 0; }
+  })();
+
+  // #4 Publication date
+  var _mo = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  var _now = new Date();
+  var pubDate = _mo[_now.getMonth()] + ' ' + _now.getFullYear();
+
+  // #7 Taglines
+  var TAGLINES = {
+    all: ['386 Pokémon across 5 games','Kanto + Hoenn complete','The ultimate Gen 3 companion','Every route, every catch'],
+    FR:  ['Charizard leads the charge','Conquer Kanto with FireRed','Catch \'em all in FireRed'],
+    LG:  ['Venusaur rules Kanto','Version picks & island extras','Explore Kanto with LeafGreen'],
+    R:   ['Groudon awakens in Hoenn','Command the land with Ruby','Hoenn awaits your conquest'],
+    S:   ['Kyogre rules the seas','Dive deep with Sapphire','Water-type mastery guide'],
+    E:   ['Rayquaza soars above all','Emerald — the complete Hoenn','Battle Frontier awaits']
+  };
+  var taglinePool = TAGLINES[GAME] || TAGLINES.all;
+
+  var _mapAction = (GAME === 'FR' || GAME === 'LG')
+    ? "closeNavDropdown('navMapsDropdown');showPage('kantomapview',document.getElementById('navKantoMapView'));if(!window._kantomapviewBuilt){buildKantoMapView();window._kantomapviewBuilt=true;}"
+    : "closeNavDropdown('navMapsDropdown');showPage('emeraldmapview',document.getElementById('navEmeraldMapView'));if(!window._emeraldmapviewBuilt){buildEmeraldMapView();window._emeraldmapviewBuilt=true;}";
+  var contentsItems = [
+    { label: 'Pokédex',      action: "showPage('dex',document.getElementById('navDex'))" },
+    { label: 'Walkthrough',  action: "showPage('bulba',document.getElementById('navBulba'));if(!window._bulbaBuilt){buildBulbaGuide();window._bulbaBuilt=true;}bulbaAutoSelectGame();" },
+    { label: 'Tracker',      action: "showPage('tracker',document.getElementById('navTracker'));if(!window._trackerBuilt){buildTracker();window._trackerBuilt=true;}" },
+    { label: 'Moves Dex',    action: "showPage('moves',document.getElementById('navMoves'));if(!window._movesBuilt){buildMoveDex();window._movesBuilt=true;}" },
+    { label: 'Item Dex',     action: "showPage('items',document.getElementById('navItems'));if(!window._itemsBuilt){buildItemDex();window._itemsBuilt=true;}" },
+    { label: 'Map',          action: _mapAction },
+    { label: 'Type Chart',   action: "showPage('typechart',document.getElementById('navTypeChart'));if(!window._typeChartBuilt){buildTypePage();window._typeChartBuilt=true;}" },
+    { label: 'Team Builder', action: "showPage('team',document.getElementById('navTeam'));if(!window._teamBuilt){window._teamBuilt=true;tbApplyRestore();}" },
+    { label: 'Distributions', action: "return openPage('distributions','navDistributions','navProgressDropdown')" },
+    { label: 'Notes',        action: "showPage('notes',document.getElementById('navNotes'))" },
   ];
-
-  var quickLaunch = [
-    { kicker:'Start Here', title:'Open the Dex', blurb:'Search 386 Pokemon by route, method, or version.', action:"showPage('dex',document.getElementById('navDex'))" },
-    { kicker:'Tracker', title:'Open Tracker', blurb:'Jump into caught, shiny, and checklist progress for the current game.', action:"showPage('tracker',document.getElementById('navTracker'));if(!window._trackerBuilt){buildTracker();window._trackerBuilt=true;}" },
-    { kicker:'Story Mode', title:'Open Guide', blurb:'Use the full walkthrough hub without losing your game filter.', action:"showPage('bulba',document.getElementById('navBulba'));if(!window._bulbaBuilt){buildBulbaGuide();window._bulbaBuilt=true;}bulbaAutoSelectGame();" },
-    { kicker:'Notes', title:'Open Notes', blurb:'Jump straight into the notes panel for route plans, reminders, and run ideas.', action:"if(typeof toggleNotesPanel==='function'){var panel=document.getElementById('notesPanel');if(!panel||!panel.classList.contains('open')) toggleNotesPanel();}" }
-  ];
-  var coverLinesHtml = coverLines.map(function(line){
-    return '<div class="home-cover-line">' + line + '</div>';
+  var contentsHtml = contentsItems.map(function(c, i) {
+    return (i > 0 ? '<span class="home-mast-contents-sep">·</span>' : '')
+      + '<button class="home-mast-contents-btn" onclick="' + c.action.replace(/"/g, '&quot;') + '">' + c.label + '</button>';
   }).join('');
-  var quickLaunchHtml = quickLaunch.map(function(item){
-    return '<button class="home-quicklink" onclick="' + item.action.replace(/"/g, '&quot;') + '">'
-      + '<span class="home-quicklink-kicker">' + item.kicker + '</span>'
-      + '<span class="home-quicklink-title">' + item.title + '</span>'
-      + '<span class="home-quicklink-blurb">' + item.blurb + '</span>'
-      + '</button>';
-  }).join('');
-  var introToggleLabel = introCollapsed ? 'Show Intro' : 'Hide Intro';
 
-  var html = '<div style="font-family:\'Press Start 2P\',monospace;font-size:11px;color:var(--gold);letter-spacing:2px;margin-bottom:6px;">GEN3 eGUIDE</div>'
-    + '<div class="home-intro-block' + (introCollapsed ? ' collapsed' : '') + '">'
-    + '<section class="home-cover">'
-    +   '<div class="home-cover-grid">'
-    +     '<div class="home-cover-main ' + activeGameMeta.glow + '">'
-    +       '<div class="home-cover-kicker">Gen 3 Strategy Guide Special</div>'
-    +       '<div class="home-cover-logo">GEN3 eGUIDE</div>'
-    +       '<div class="home-cover-subhead">A louder, magazine-style field guide for FireRed, LeafGreen, Ruby, Sapphire, and Emerald.</div>'
-    +       '<div class="home-cover-meta-row">'
-    +         '<span class="home-cover-chip">Issue: ' + activeGameMeta.issue + '</span>'
-    +         '<span class="home-cover-chip">Focus: ' + activeGameMeta.focus + '</span>'
-    +       '</div>'
-    +       '<div class="home-cover-lines">' + coverLinesHtml + '</div>'
-    +       '<div class="home-cover-actions">'
-    +         '<button class="home-cover-btn" onclick="showPage(\'dex\',document.getElementById(\'navDex\'))">Open Pokedex</button>'
-    +         '<button class="home-cover-btn alt" onclick="closeNavDropdown(\'navMapsDropdown\');showPage(\'routebrowser\',document.getElementById(\'navRouteBrowser\'));return false;">Open Route Browser</button>'
-    +       '</div>'
-    +     '</div>'
-    +     '<aside class="home-cover-sidebar">'
-    +       '<div class="home-sidebar-sticker">HOT ROUTES</div>'
-    +       '<div class="home-sidebar-title">Quick Launch</div>'
-    +       '<div class="home-sidebar-list">' + quickLaunchHtml + '</div>'
-    +     '</aside>'
+  var mastheadHtml = '<div class="home-masthead" style="--mast-accent:' + gm.accent + '">'
+    + '<img class="home-mast-mascot" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + mascotNum + '.png" alt="" aria-hidden="true">'
+    + '<div class="home-mast-inner">'
+    +   '<div class="home-mast-pub">'
+    +     '<div class="home-mast-logo">GEN3<br>eGUIDE</div>'
+    +     '<div class="home-mast-pub-sub">Strategy Guide<br>Special Edition</div>'
     +   '</div>'
-    + '</section>'
+    +   '<div class="home-mast-sep"></div>'
+    +   '<div class="home-mast-game">'
+    +     '<div class="home-mast-now-playing">Now Playing</div>'
+    +     '<div class="home-mast-game-name">' + gm.name + '</div>'
+    +     '<div class="home-mast-issue">' + gm.issue + ' &nbsp;&middot;&nbsp; ' + gm.region + '</div>'
+    +   '</div>'
+    +   '<div class="home-mast-sep"></div>'
+    +   '<div class="home-mast-potd-slot">'
+    +     buildPotdWidget()
+    +   '</div>'
+    +   '<div class="home-mast-sep"></div>'
+    +   '<div class="home-mast-stats">'
+    +     '<div class="home-mast-stat"><span class="home-mast-stat-num" data-target="386">0</span><span class="home-mast-stat-lbl">Pokémon</span></div>'
+    +     '<div class="home-mast-stat"><span class="home-mast-stat-num" data-target="5">0</span><span class="home-mast-stat-lbl">Games</span></div>'
+    +     '<div class="home-mast-stat"><span class="home-mast-stat-num" data-target="' + caughtPct + '" data-suffix="%">0%</span><span class="home-mast-stat-lbl">Caught</span></div>'
+    +   '</div>'
     + '</div>'
-    + '<section class="home-section-band">'
-    +   '<div class="home-section-divider"><button class="home-section-toggle" onclick="toggleHomeIntro()">' + introToggleLabel + '</button></div>'
-    + '</section>'
-    + '<div class="home-top-grid" style="display:grid;grid-template-columns:' + (mobile ? '1fr' : 'repeat(3,1fr)') + ';gap:12px;margin-bottom:20px;">'
-    + topCards.map(bigCard).join('')
+    + '<div class="home-mast-contents">'
+    +   '<span class="home-mast-contents-hd">In This Issue</span>'
+    +   contentsHtml
+    // #7 Tagline slot
+    +   '<span class="home-mast-tagline" id="home-mast-tagline"></span>'
     + '</div>'
+    + '</div>';
 
+  var html = mastheadHtml
     + '<section class="home-section-band">'
     +   '<div class="home-section-divider routes"><span>Departments</span></div>'
     + '</section>'
@@ -381,6 +435,38 @@ function buildHomePage() {
     + '</div>';
 
   el.innerHTML = html;
+
+  // #3 Stat counter animation
+  el.querySelectorAll('.home-mast-stat-num[data-target]').forEach(function(counter) {
+    var target = parseInt(counter.dataset.target, 10) || 0;
+    var suffix = counter.dataset.suffix || '';
+    if (!target) { counter.textContent = '0' + suffix; return; }
+    var start = null, duration = 900;
+    (function step(ts) {
+      if (!start) start = ts;
+      var p = Math.min((ts - start) / duration, 1);
+      var ease = 1 - Math.pow(1 - p, 3);
+      counter.textContent = Math.round(ease * target) + suffix;
+      if (p < 1) requestAnimationFrame(step);
+    })(performance.now());
+  });
+
+  // #7 Rotating tagline
+  (function() {
+    var tl = document.getElementById('home-mast-tagline');
+    if (!tl || !taglinePool.length) return;
+    var idx = Math.floor(Math.random() * taglinePool.length);
+    function showNext() {
+      tl.classList.remove('tl-visible');
+      setTimeout(function() {
+        tl.textContent = taglinePool[idx % taglinePool.length];
+        idx++;
+        tl.classList.add('tl-visible');
+      }, 450);
+    }
+    setTimeout(showNext, 600);
+    setInterval(showNext, 5000);
+  })();
 }
 
 function setFontSize(val) {
@@ -511,7 +597,7 @@ function _typeFB(img, t) { img.outerHTML = '<span class="type-badge type-' + t +
 function typeSprite(t) {
   var id = TYPE_ICON_IDS[t];
   if (!id) return '<span class="type-badge type-' + t + '">' + t + '</span>';
-  return '<img src="' + TYPE_ICON_BASE + id + '.png" alt="' + t + '" title="' + t.charAt(0).toUpperCase() + t.slice(1) + '" height="20" style="vertical-align:middle;image-rendering:pixelated;margin-right:2px;margin-bottom:1px;" onerror="_typeFB(this,\'' + t + '\')">';
+  return '<img src="' + TYPE_ICON_BASE + id + '.png" alt="' + t + '" class="type-img type-img-' + t + '" title="' + t.charAt(0).toUpperCase() + t.slice(1) + '" height="20" style="vertical-align:middle;image-rendering:pixelated;margin-right:2px;margin-bottom:1px;" onerror="_typeFB(this,\'' + t + '\')">';
 }
 function typeBadges(types) { return types.map(function(t){ return typeSprite(t); }).join(''); }
 var ITEM_SPRITE_BASE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/';
@@ -858,12 +944,20 @@ function buildRow(p) {
     : _FOSSIL_NUMS.has(p.num)
     ? `<span class="poke-badge poke-badge-fossil">&#9672; FOSSIL</span>`
     : '';
+  const linkedNotes = (typeof window.getLinkedPokemonNotes === 'function')
+    ? window.getLinkedPokemonNotes(p.name)
+    : [];
+  const safeName = p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  const noteUi = linkedNotes.length
+    ? `<div class="dex-note-links">${linkedNotes.slice(0,2).map(function(n){ return `<button class="dex-note-btn existing" onclick="event.stopPropagation();openExistingPokemonNote('${n.id}')">Linked note</button>`; }).join('')}${linkedNotes.length>2?`<span class="dex-note-count">+${linkedNotes.length-2} more</span>`:''}</div>`
+    : `<div class="dex-note-links"><button class="dex-note-btn add" onclick="event.stopPropagation();openPokemonLinkedNote('${safeName}')">+ Note</button></div>`;
+  const nameCell = `<div class="dex-name-wrap"><div class="dex-name-main">${p.name}${badge}${chainIcon}${teamBtn}</div>${noteUi}</div>`;
   if (GAME === 'all') {
-    return `<tr class="poke-row" id="poke-row-${p.num}"${clickAttr}><td class="col-num">${num}</td><td class="col-sprite">${sprite}</td><td class="col-name">${p.name}${badge}${chainIcon}${teamBtn}</td><td class="col-type">${typeBadges(p.types)}</td><td colspan="4">${renderAllGamesCell(p)}</td></tr>${evoRow}`;
+    return `<tr class="poke-row" id="poke-row-${p.num}" data-poke-num="${p.num}"${clickAttr}><td class="col-num">${num}</td><td class="col-sprite">${sprite}</td><td class="col-name">${nameCell}</td><td class="col-type">${typeBadges(p.types)}</td><td colspan="4">${renderAllGamesCell(p)}</td></tr>${evoRow}`;
   } else {
     const txt = p.games[GAME]||'';
     const [mth,loc,lvl,rate,mobile] = renderSingleGameCells(txt);
-    return `<tr class="poke-row" id="poke-row-${p.num}"${clickAttr}><td class="col-num">${num}</td><td class="col-sprite">${sprite}</td><td class="col-name">${p.name}${badge}${chainIcon}${teamBtn}</td><td class="col-type">${typeBadges(p.types)}</td><td class="col-method">${mth || '<span style="color:#3a4a6a;font-style:italic">—</span>'}</td><td class="col-location"><div class="dex-desktop-loc">${loc || '<span style="color:#3a4a6a;font-style:italic">—</span>'}</div><div class="dex-mobile-loc">${mobile || '<span style="color:#3a4a6a;font-style:italic">—</span>'}</div></td><td class="col-level">${lvl || ''}</td><td class="col-rate">${rate || ''}</td></tr>${evoRow}`;
+    return `<tr class="poke-row" id="poke-row-${p.num}" data-poke-num="${p.num}"${clickAttr}><td class="col-num">${num}</td><td class="col-sprite">${sprite}</td><td class="col-name">${nameCell}</td><td class="col-type">${typeBadges(p.types)}</td><td class="col-method">${mth || '<span style="color:#3a4a6a;font-style:italic">—</span>'}</td><td class="col-location"><div class="dex-desktop-loc">${loc || '<span style="color:#3a4a6a;font-style:italic">—</span>'}</div><div class="dex-mobile-loc">${mobile || '<span style="color:#3a4a6a;font-style:italic">—</span>'}</div></td><td class="col-level">${lvl || ''}</td><td class="col-rate">${rate || ''}</td></tr>${evoRow}`;
   }
 }
 
@@ -1074,6 +1168,12 @@ function syncHeaderBadges(g) {
   const idMap = {all:'hbadge-all',FR:'hbadge-fr',LG:'hbadge-lg',R:'hbadge-r',S:'hbadge-s',E:'hbadge-e'};
   const el = document.getElementById(idMap[g]||'hbadge-all');
   if (el) el.classList.add('active-game-badge');
+  // sync mobile dropdown
+  var mobileSelect = document.getElementById('gameSwitcherMobile');
+  if (mobileSelect) mobileSelect.value = g;
+  // propagate game accent colour to all page-hd-title elements
+  var _accentMap = {all:'#F5C518',FR:'#ef5350',LG:'#66bb6a',R:'#e53935',S:'#1e88e5',E:'#43a047'};
+  document.documentElement.style.setProperty('--mast-accent', _accentMap[g] || '#F5C518');
 }
 
 function motionReduced() {
@@ -1161,14 +1261,15 @@ function setGameFromHeader(g, btn) {
   if (window._movesBuilt) { buildMoveDex(); }
   if (window._easyDexBuilt) { renderEasyDexPage(); }
   pulseGameTabs(g);
+  if (typeof window.notesSyncToGlobalGame === 'function') window.notesSyncToGlobalGame();
   if (window._tmhmBuilt) { tmhmSyncFromGame(g); }
   var distPage = document.getElementById('page-distributions');
   if (distPage && distPage.classList.contains('active') && typeof buildDistributionsPage === 'function') {
     buildDistributionsPage();
   }
   var distChecklistPage = document.getElementById('page-distributionchecklist');
-  if (distChecklistPage && distChecklistPage.classList.contains('active') && typeof buildDistributionChecklistPage === 'function') {
-    buildDistributionChecklistPage();
+  if (distChecklistPage && distChecklistPage.classList.contains('active') && typeof buildDistributionsPage === 'function') {
+    buildDistributionsPage();
   }
   // Sync Team Builder game filter
   TB_GAME = g;
@@ -1239,6 +1340,7 @@ function setGame(g, btn) {
   updateDiveFilterVisibility(g);
   buildTable();
   pulseGameTabs(g);
+  if (typeof window.notesSyncToGlobalGame === 'function') window.notesSyncToGlobalGame();
   // Refresh Item Dex if it has been built and is visible
   if (window._itemsBuilt) { itOpenId = null; renderItemDex(); }
   if (window._movesBuilt) { buildMoveDex(); }
@@ -1384,6 +1486,8 @@ function applyHashRoute(route) {
   var page = route.page || 'home';
   var params = route.params || new URLSearchParams();
 
+  if (page === 'distributionchecklist') page = 'distributions';
+
   if (page === 'home') { resetHome(); return; }
   if (!document.getElementById('page-' + page)) return;
 
@@ -1478,8 +1582,8 @@ function pageTitleLabel(id) {
     statcalc: 'Stat Calculator',
     e4ref: 'Elite Four & Champion',
     routebrowser: 'Route Browser',
-    distributions: 'Distribution ROMs',
-    distributionchecklist: 'Distribution Checklist'
+    distributions: 'Distributions',
+    distributionchecklist: 'Distributions'
   };
   if (custom[id]) return custom[id];
   var nav = document.getElementById('nav' + id.charAt(0).toUpperCase() + id.slice(1));
@@ -1498,6 +1602,10 @@ function setBrowserPageTitle(id) {
 }
 
 function showPage(id, btn) {
+  if (id === 'distributionchecklist') {
+    id = 'distributions';
+    btn = document.getElementById('navDistributions');
+  }
   if (id === 'notes' && typeof window.enterNotesFullPage === 'function') {
     window.enterNotesFullPage();
   } else if (typeof window.exitNotesFullPage === 'function') {
@@ -1520,6 +1628,9 @@ function showPage(id, btn) {
     if (navBtn) navBtn.classList.add('active');
   }
   setBrowserPageTitle(id);
+  if (id === 'dex' && typeof buildTable === 'function') {
+    try { buildTable(); } catch (e) {}
+  }
   if (id === 'bulba' && !window._bulbaBuilt && typeof buildBulbaGuide === 'function') {
     buildBulbaGuide();
     window._bulbaBuilt = true;
@@ -3382,7 +3493,7 @@ function renderStatsPanel(num) {
     html += `<div class="stat-row">
       <div class="stat-label" style="color:${col}">${STAT_LABELS[i]}</div>
       <div class="stat-bar-wrap">
-        <div class="stat-bar" style="width:${pct}%;background:${barCol}"></div>
+        <div class="stat-bar" style="--bar-w:${pct}%;--bar-delay:${i * 0.08}s;background:${barCol}"></div>
       </div>
       <div class="stat-val" style="color:${valCol}">${val}</div>
       <div class="stat-tier ${tierClass}">${tierLabel}</div>
@@ -3781,6 +3892,13 @@ function toggleEvoRow(num) {
       panel.dataset.rendered = '1';
     }
     openPanel(chainRow, panel);
+    // Reset stat-bar scan animations so they play every time the panel opens
+    var statBars = panel ? panel.querySelectorAll('.stat-bar') : [];
+    statBars.forEach(function(bar) {
+      bar.style.animation = 'none';
+      bar.getBoundingClientRect(); // force reflow
+      bar.style.animation = '';
+    });
     pokeRow.classList.add('evo-open');
     openEvoNum = num;
     setPageHash('dex', { pokemon: num });
@@ -9683,6 +9801,25 @@ function trkRenderSidebar() {
   el('trk-s-legendary', legendaryList.length);
   el('trk-s-tm', tmList.length + ' / ' + trkTmListForSave(TRK_SAVE).length);
 
+  // Milestone sticker badges
+  var milestoneStrip = document.getElementById('trk-milestone-strip');
+  if (milestoneStrip) {
+    var msKey = 'gen3-milestones-' + TRK_SAVE;
+    var earned = (function(){ try{ return JSON.parse(localStorage.getItem(msKey)||'[]'); }catch(e){ return []; }})();
+    var changed = false;
+    [25,50,75,100].forEach(function(m){ if (pct >= m && earned.indexOf(m) === -1) { earned.push(m); changed = true; } });
+    if (changed) { try{ localStorage.setItem(msKey, JSON.stringify(earned)); }catch(e){} }
+    var msDefs = {
+      25:  { label:'🥉 BRONZE TRAINER', cls:'ms-25'  },
+      50:  { label:'🥈 SILVER TRAINER', cls:'ms-50'  },
+      75:  { label:'🥇 GOLD TRAINER',   cls:'ms-75'  },
+      100: { label:'🏆 POKÉMON MASTER', cls:'ms-100' }
+    };
+    milestoneStrip.innerHTML = earned.map(function(m){
+      var d = msDefs[m]; return d ? '<span class="trk-milestone-badge ' + d.cls + '">' + d.label + '</span>' : '';
+    }).join('');
+  }
+
   var remainingBody = document.getElementById('trk-remaining-body');
   if (remainingBody) {
     function remainingGroups() {
@@ -11060,20 +11197,25 @@ function cmpPanelStats() {
   var abStrA = abA ? abA.a1 + (abA.a2 ? ' / ' + abA.a2 : '') : '—';
   var abStrB = abB ? abB.a1 + (abB.a2 ? ' / ' + abB.a2 : '') : '—';
 
+  var _sp = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/';
+  var vsHeader = '<div class="cmp-vs-header">'
+    + '<div class="cmp-vs-slot">'
+    + (a ? '<img class="cmp-vs-sprite" src="' + _sp + a.num + '.png" alt="' + a.name + '">' : '<div style="width:72px;height:72px"></div>')
+    + '<div class="cmp-vs-name" style="color:#ef5350">' + (a ? a.name : '—') + '</div>'
+    + '<div style="text-align:center">' + typeRowA + '</div>'
+    + (bsA ? '<div class="cmp-vs-bst" style="background:rgba(239,83,80,0.12);color:#ef5350;border:1px solid rgba(239,83,80,0.3)">BST ' + bstA + '</div>' : '')
+    + '</div>'
+    + '<div class="cmp-vs-mid">VS</div>'
+    + '<div class="cmp-vs-slot">'
+    + (b ? '<img class="cmp-vs-sprite cmp-vs-sprite-b" src="' + _sp + b.num + '.png" alt="' + b.name + '">' : '<div style="width:72px;height:72px"></div>')
+    + '<div class="cmp-vs-name" style="color:#64b4ff">' + (b ? b.name : '—') + '</div>'
+    + '<div style="text-align:center">' + typeRowB + '</div>'
+    + (bsB ? '<div class="cmp-vs-bst" style="background:rgba(100,180,255,0.12);color:#64b4ff;border:1px solid rgba(100,180,255,0.3)">BST ' + bstB + '</div>' : '')
+    + '</div>'
+    + '</div>';
+
   return '<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;min-width:0;width:100%;box-sizing:border-box;">'
-    // Header row
-    + '<div style="display:grid;grid-template-columns:60px 1fr 44px 44px 1fr 60px;gap:6px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)">'
-    + '<div style="text-align:right;font-size:12px;font-weight:800;color:var(--fire)">' + (a ? a.name : '—') + '</div>'
-    + '<div></div><div></div><div></div><div></div>'
-    + '<div style="font-size:12px;font-weight:800;color:#64b4ff">' + (b ? b.name : '—') + '</div>'
-    + '</div>'
-    // Type row
-    + '<div style="display:grid;grid-template-columns:60px 1fr 44px 44px 1fr 60px;gap:6px;margin-bottom:10px;align-items:center">'
-    + '<div style="text-align:right">' + typeRowA + '</div>'
-    + '<div></div><div class="cmp-stat-name">TYPE</div><div></div><div></div>'
-    + '<div>' + typeRowB + '</div>'
-    + '</div>'
-    // Stat rows
+    + vsHeader
     + rows
     // BST row
     + '<div class="cmp-bst-row">'
@@ -11328,9 +11470,11 @@ function toggleTheme() {
 // ── GAME PERSISTENCE ──────────────────────────────────────
 (function initGame() {
   const startupMode = localStorage.getItem('gen3-startup-mode') || 'default';
-  const saved = startupMode === 'restore'
-    ? (localStorage.getItem('gen3-game') || localStorage.getItem('gen3-default-game') || 'all')
-    : (localStorage.getItem('gen3-default-game') || localStorage.getItem('gen3-game') || 'all');
+  const savedLast = localStorage.getItem('gen3-game');
+  const savedDefault = localStorage.getItem('gen3-default-game');
+  const saved = startupMode === 'default'
+    ? (savedLast || savedDefault || 'all')
+    : (savedLast || savedDefault || 'all');
   if (saved) {
     // Find the game button and click it after DOM is ready
     const trySet = () => {
@@ -11399,8 +11543,8 @@ function toggleTheme() {
       missables:   { btn:'navMissables',     init: function(){ if(!window._missablesBuilt){buildMissablesPage();window._missablesBuilt=true;} } },
       berries:     { btn:'navBerries',       init: function(){ if(!window._berriesBuilt){buildBerriesPage();window._berriesBuilt=true;} } },
       rng:         { btn:'navRng',           init: function(){ if(!window._rngBuilt){buildRngPage();window._rngBuilt=true;} } },
-      distributions:{ btn:'navDistributions', init: function(){ if(window.ensurePageReady) window.ensurePageReady('distributions'); } },
-      distributionchecklist:{ btn:'navDistributionChecklist', init: function(){ if(window.ensurePageReady) window.ensurePageReady('distributionchecklist'); } },
+      distributions:{ btn:'navDistributions', init: function(){ if(typeof window.buildDistributionsPage === 'function') window.buildDistributionsPage(); } },
+      distributionchecklist:{ btn:'navDistributions', init: function(){ showPage('distributions', document.getElementById('navDistributions')); if(typeof window.buildDistributionsPage === 'function') window.buildDistributionsPage(); } },
       safarizone:  { btn:'navSafariZone',    init: function(){ if(window.ensurePageReady) window.ensurePageReady('safarizone'); } },
       statcalc:    { btn:'navStatCalc',      init: function(){ if(window.ensurePageReady) window.ensurePageReady('statcalc'); } },
       pokeblock:   { btn:'navPokeblock',     init: function(){ if(window.ensurePageReady) window.ensurePageReady('pokeblock'); } },
@@ -11971,10 +12115,23 @@ function settingsSyncStartup() {
   var mode = document.getElementById('settingsStartupMode');
   var page = document.getElementById('settingsStartupPage');
   var game = document.getElementById('settingsStartupGame');
+  var boot = document.getElementById('settingsBootMode');
   if (mode) mode.value = localStorage.getItem('gen3-startup-mode') || 'restore';
   if (page) page.value = localStorage.getItem('gen3-default-page') || 'dex';
   if (game) game.value = localStorage.getItem('gen3-default-game') || 'all';
+  if (boot) boot.value = localStorage.getItem('gen3-boot-mode') || 'session';
   settingsUpdateStartupVisibility();
+}
+
+function settingsSaveBootMode() {
+  var boot = document.getElementById('settingsBootMode');
+  if (!boot) return;
+  try {
+    localStorage.setItem('gen3-boot-mode', boot.value);
+    // Reset the "first visit" flag so the new setting takes effect immediately
+    if (boot.value !== 'first') localStorage.removeItem('gen3-booted-ever');
+    if (boot.value !== 'session') sessionStorage.removeItem('gen3-booted');
+  } catch(e) {}
 }
 
 function settingsUpdateStartupVisibility() {
@@ -12995,7 +13152,7 @@ function runSearch(q) {
       icon:'⚠', label:'Missables Checklist', tag:'Guide',
       sub:'Interactive checklist of missable Pokémon, items and one-time events',
       keywords:'missable missables one time event checklist permanent choice gift legendary',
-      action:function() { closeSearch(); var btn=document.getElementById('navMissables'); closeNavDropdown('navGuidesDropdown'); showPage('missables',btn); if(!window._missablesBuilt){buildMissablesPage();window._missablesBuilt=true;} }
+      action:function() { closeSearch(); var btn=document.getElementById('navMissables'); closeNavDropdown('navProgressDropdown'); showPage('missables',btn); if(!window._missablesBuilt){buildMissablesPage();window._missablesBuilt=true;} }
     },
     {
       icon:'🫐', label:'Berry Farming Guide', tag:'Guide',
@@ -14508,9 +14665,31 @@ function toggleNuzlockeMode() {
 
 function nuzlockeMarkFainted(num) {
   if (!NUZLOCKE_MODE) return;
+  var wasFainted = nuzlockeIsFainted(TRK_SAVE, num);
   nuzlockeToggleFainted(TRK_SAVE, num);
   trkRenderGrid();
+  if (!wasFainted) {
+    var p = POKE && POKE.find(function(x) { return x.num === num; });
+    _showInMemoriam(num, p ? p.name : '#' + num);
+  }
 }
+
+function _showInMemoriam(num, name) {
+  var el = document.getElementById('nuz-memoriam');
+  if (!el) return;
+  var img = el.querySelector('.memoriam-sprite');
+  var nameEl = el.querySelector('.memoriam-name');
+  if (img) img.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + num + '.png';
+  if (nameEl) nameEl.textContent = name.toUpperCase();
+  el.classList.add('open');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(function() { el.classList.remove('open'); }, 5000);
+}
+
+window.closeInMemoriam = function() {
+  var el = document.getElementById('nuz-memoriam');
+  if (el) { clearTimeout(el._timer); el.classList.remove('open'); }
+};
 
 
 // Nav: flex-wrap handles responsive layout natively
@@ -14892,8 +15071,14 @@ function _bulbaNotePrimaryGame() {
 function _bulbaNoteActionHtml(mode, key, title) {
   var safeKey = String(key || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
   var safeTitle = String(title || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  var gameCtx = _bulbaNotePrimaryGame();
+  var hasLinked = typeof window.getLinkedRouteNotesForGame === 'function' && title && window.getLinkedRouteNotesForGame(title, gameCtx).length;
+  var label = hasLinked ? 'Linked note' : '+ Note';
   return '<button onclick="event.stopPropagation();bulbaOpenGuideNote(\'' + mode + '\',\'' + safeKey + '\',\'' + safeTitle + '\')"'
-    + ' style="font-size:9px;padding:5px 10px;border:1px solid var(--border);border-radius:4px;background:rgba(255,215,0,0.08);color:var(--gold);cursor:pointer;white-space:nowrap;flex-shrink:0;">📝 New Note</button>';
+    + ' style="font-size:9px;padding:5px 10px;border:1px solid var(--border);border-radius:4px;'
+    + 'background:' + (hasLinked ? 'rgba(125,220,110,.9)' : 'rgba(255,215,0,0.08)') + ';'
+    + 'color:' + (hasLinked ? '#16310f' : 'var(--gold)') + ';'
+    + 'cursor:pointer;white-space:nowrap;flex-shrink:0;">' + label + '</button>';
 }
 
 function bulbaUpdateSidebarNoteButton(mode, key, title) {
@@ -14902,30 +15087,44 @@ function bulbaUpdateSidebarNoteButton(mode, key, title) {
   if (!mode) {
     btn.style.display = 'none';
     btn.onclick = null;
-    btn.textContent = '📝 New Note';
+    btn.textContent = '+ Note';
     btn.title = '';
     return;
   }
+  var gameCtx = _bulbaNotePrimaryGame();
+  var hasLinked = typeof window.getLinkedRouteNotesForGame === 'function' && title && window.getLinkedRouteNotesForGame(title, gameCtx).length;
   btn.style.display = 'block';
-  btn.textContent = '📝 New Note';
-  btn.title = title ? ('Create a note for ' + title) : 'Create a note for this guide section';
+  btn.textContent = hasLinked ? 'Linked note' : '+ Note';
+  btn.style.background = hasLinked ? 'rgba(125,220,110,.9)' : 'rgba(255,215,0,0.08)';
+  btn.style.color = hasLinked ? '#16310f' : 'var(--gold)';
+  btn.title = title ? ((hasLinked ? 'Open note for ' : 'Create a note for ') + title) : 'Create a note for this guide section';
   btn.onclick = function(event) {
     if (event) event.stopPropagation();
     bulbaOpenGuideNote(mode, key, title);
   };
 }
 
-window.bulbaOpenGuideNote = function(mode, key, title) {
-  var notesPanel = document.getElementById('notes-panel');
-  var notesOverlay = document.getElementById('notes-overlay');
-  var lv = document.getElementById('notes-list-view');
-  var ev = document.getElementById('notes-editor-view');
-  if (notesPanel) notesPanel.classList.add('open');
-  if (notesOverlay) notesOverlay.classList.add('open');
-  if (lv) lv.style.display = 'none';
-  if (ev) ev.style.display = 'flex';
-  editingId = 'new';
+window.updateBulbaLinkedNoteButtons = function() {
+  if (!window._bulbaBuilt) return;
+  if (BULBA_CURRENT === 'index') {
+    if (typeof bulbaLoadIndex === 'function') bulbaLoadIndex();
+    return;
+  }
+  if (typeof BULBA_CURRENT === 'string' && BULBA_CURRENT.indexOf('extra-') === 0) {
+    var extraKey = BULBA_CURRENT.slice(6);
+    var extra = (typeof bulbaGetExtraCards === 'function' ? bulbaGetExtraCards() : []).find(function(item){ return item.key === extraKey; });
+    bulbaUpdateSidebarNoteButton('extra', extraKey, extra ? extra.title : extraKey);
+    return;
+  }
+  var partNum = parseInt(BULBA_CURRENT, 10);
+  if (!isNaN(partNum)) {
+    var parts = BULBA_GAME==='rs' ? BULBA_PARTS_RS : BULBA_GAME==='e' ? BULBA_PARTS_E : BULBA_PARTS;
+    var part = (parts || []).find(function(item){ return item && item.num === partNum; });
+    bulbaUpdateSidebarNoteButton('part', partNum, part ? part.title : ('Part ' + partNum));
+  }
+};
 
+window.bulbaOpenGuideNote = function(mode, key, title) {
   var guideKey = _bulbaNoteGuideKey();
   var game = _bulbaNotePrimaryGame();
   var keyLabel = mode === 'part'
@@ -14941,39 +15140,20 @@ window.bulbaOpenGuideNote = function(mode, key, title) {
     + '[ ] \n\n'
     + '## Guide Link\n\n'
     + '[[bulba:' + guideKey + ':' + keyLabel + '|' + linkLabel + ']]\n';
-
-  var titleEl = document.getElementById('ne-title');
-  var contentField = document.getElementById('ne-content');
-  var gameEl = document.getElementById('ne-game');
-  var labelsEl = document.getElementById('ne-labels');
-  var presetsEl = document.getElementById('ne-label-presets');
-  var tmenu = document.getElementById('ne-template-menu');
-  if (titleEl) titleEl.value = noteTitle;
-  if (contentField) contentField.value = content;
-  if (gameEl) gameEl.value = game;
-  if (labelsEl) labelsEl.value = 'Guide, Story';
-  if (presetsEl) {
-    presetsEl.innerHTML = LABEL_PRESETS.map(function(l){
-      return '<button class="note-label-pill" onclick="neAddLabel(\'' + l + '\')" style="font-size:8px;padding:2px 7px;">' + l + '</button>';
-    }).join('');
-  }
-  if (tmenu) {
-    tmenu.innerHTML = TEMPLATES.map(function(t,i){
-      return '<div class="slash-item" onclick="applyTemplate(' + i + ')"><span class="slash-item-icon">' + t.name.split(' ')[0] + '</span><div style="font-size:12px;">' + esc(t.name.replace(/^[\S]+ /,'')) + '</div></div>';
-    }).join('');
-  }
-  document.querySelectorAll('.ne-color-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.color === 'green'); });
-  document.querySelectorAll('.ne-tag-btn').forEach(function(b){ b.classList.toggle('active', false); });
-  var pin = document.getElementById('ne-pin');
-  if (pin) {
-    pin.classList.remove('active');
-    pin.textContent = '📌 Pin';
-  }
-  if (contentField) {
-    initSlashCommands(contentField);
-    contentField.focus();
-    contentField.selectionStart = contentField.selectionEnd = 0;
-  }
+  window.openRouteLinkedNote(noteTitle, content);
+  setTimeout(function(){
+    var gameEl = document.getElementById('ne-game');
+    var labelsEl = document.getElementById('ne-labels');
+    if (gameEl) gameEl.value = game;
+    if (labelsEl && !labelsEl.value.trim()) labelsEl.value = 'Guide, Story';
+    document.querySelectorAll('.ne-color-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.color === 'green'); });
+    document.querySelectorAll('.ne-tag-btn').forEach(function(b){ b.classList.toggle('active', false); });
+    var pin = document.getElementById('ne-pin');
+    if (pin) {
+      pin.classList.remove('active');
+      pin.textContent = '📌 Pin';
+    }
+  }, 100);
 };
 
 function bulbaRenderGuideSections(ids) {
@@ -15370,9 +15550,28 @@ window.toggleFeaturesOverlay = function() {
 window.closeFeaturesOverlay = function() {
   document.getElementById('featuresOverlay').classList.remove('open');
 };
+function _initSettingsSections() {
+  document.querySelectorAll('#settingsOverlay .settings-section').forEach(function(section) {
+    var title = section.querySelector('.settings-section-title');
+    if (!title || title.dataset.collapsible) return;
+    title.dataset.collapsible = '1';
+    var body = document.createElement('div');
+    body.className = 'settings-section-body';
+    var children = Array.from(section.children);
+    var idx = children.indexOf(title);
+    children.slice(idx + 1).forEach(function(child) { body.appendChild(child); });
+    section.appendChild(body);
+    title.addEventListener('click', function() { section.classList.toggle('ss-open'); });
+  });
+}
+
 window.openSettingsOverlay = function() {
   var el = document.getElementById('settingsOverlay');
   if (el) el.classList.add('open');
+  if (!window._settingsSectionsInit) {
+    _initSettingsSections();
+    window._settingsSectionsInit = true;
+  }
   settingsSyncAll();
 };
 window.closeSettingsOverlay = function() {
@@ -18128,8 +18327,7 @@ var PAGE_LIST=[
   {id:'missables',icon:'⚠',label:'Missables'},
   {id:'berries',icon:'🫐',label:'Berry Farming'},
   {id:'rng',icon:'🎲',label:'RNG Guide'},
-  {id:'distributions',icon:'📦',label:'Distribution ROMs'},
-  {id:'distributionchecklist',icon:'✅',label:'Distribution Checklist'},
+  {id:'distributions',icon:'📦',label:'Distributions'},
   {id:'essentials',icon:'📘',label:'Essentials'},
   {id:'safarizone',icon:'🎯',label:'Safari Zone Calc'},
   {id:'statcalc',icon:'📏',label:'Stat Calculator'},
@@ -18226,10 +18424,22 @@ var BULBA_SECTIONS={
 };
 
 /* ── State ── */
-var notes=[], currentGame='ALL', currentLabel=null, searchQuery='', editingId=null;
+var notes=[], currentGame='ALL', currentLabel=null, searchQuery='', editingId=null, notesView='active', notesSort='modified', notesChecklistOnly=false, noteEditorStatus='active', noteEditorSeedToken=0;
 
 /* ── Storage ── */
-function loadNotes(){try{var r=localStorage.getItem(STORAGE_KEY);notes=r?JSON.parse(r):[];if(!Array.isArray(notes))notes=[];}catch(e){notes=[];}}
+function loadNotes(){
+  try{var r=localStorage.getItem(STORAGE_KEY);notes=r?JSON.parse(r):[];if(!Array.isArray(notes))notes=[];}catch(e){notes=[];}
+  notes=notes.map(function(n){
+    if(!n||typeof n!=='object') return null;
+    if(!n.status) n.status='active';
+    if(!n.routeRef) n.routeRef='';
+    if(!n.pokemonRef) n.pokemonRef='';
+    if(!n.checkboxStates) n.checkboxStates={};
+    if(!n.created) n.created=Date.now();
+    if(!n.modified) n.modified=n.created;
+    return n;
+  }).filter(Boolean);
+}
 function saveNotes(){
   try{localStorage.setItem(STORAGE_KEY,JSON.stringify(notes));}catch(e){}
   updateBadge();
@@ -18237,8 +18447,386 @@ function saveNotes(){
   var tab=document.getElementById('notesPanelTab');
   if(panel) pulseElement(panel,'notes-saved',700);
   if(tab) pulseElement(tab,'notes-tab-saved',700);
+  if(typeof window.updateDexLinkedNoteButtons === 'function'){
+    try{ window.updateDexLinkedNoteButtons(); }catch(e){}
+  }
+  if(typeof window.updateBulbaLinkedNoteButtons === 'function'){
+    try{ window.updateBulbaLinkedNoteButtons(); }catch(e){}
+  }
+  if(typeof buildTable === 'function'){
+    try{ buildTable(); }catch(e){}
+  }
 }
 function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function noteHasChecklist(n){return /\[[ xX]\]\s/.test(String((n&&n.content)||''));}
+function noteChecklistProgress(n){
+  var m=String((n&&n.content)||'').match(/\[[ xX]\]\s/g)||[];
+  var checked=String((n&&n.content)||'').match(/\[[xX]\]\s/g)||[];
+  return { total:m.length, done:checked.length };
+}
+function noteSavedProgress(n){
+  var keys=n&&n.checkboxStates?Object.keys(n.checkboxStates):[];
+  if(!keys.length) return null;
+  var done=keys.filter(function(k){return n.checkboxStates[k];}).length;
+  return { total:keys.length, done:done };
+}
+function routePageIdForName(name){
+  var q=String(name||'').trim();
+  if(!q) return null;
+  if(typeof AREAS==='undefined' || !Array.isArray(AREAS)) return null;
+  var norm=normName(q);
+  for(var i=0;i<AREAS.length;i++){
+    var a=AREAS[i];
+    if(!a) continue;
+    var nm=String(a.name||'');
+    if(nm.toLowerCase()===q.toLowerCase() || normName(nm)===norm) return 'routebrowser';
+  }
+  return 'routebrowser';
+}
+window.getLinkedPokemonNotes=function(name){
+  var gameCtx = (typeof GAME !== 'undefined') ? GAME : 'ALL';
+  return window.getLinkedPokemonNotesForGame(name, gameCtx);
+};
+window.getLinkedPokemonNotesForGame=function(name, gameCtx){
+  var target=normName(name||'');
+  var list=Array.isArray(notes)?notes:[];
+  return list.filter(function(n){
+    if(!(n && n.status!=='archived' && n.pokemonRef && normName(n.pokemonRef)===target)) return false;
+    if(!gameCtx || gameCtx==='ALL' || gameCtx==='all') return true;
+    return n.primaryGame===gameCtx || n.primaryGame==='ALL' || (Array.isArray(n.taggedGames) && n.taggedGames.indexOf(gameCtx)>=0);
+  }).sort(function(a,b){
+    if(a.pinned&&!b.pinned) return -1;
+    if(!a.pinned&&b.pinned) return 1;
+    return (b.modified||0)-(a.modified||0);
+  });
+};
+window.getLinkedRouteNotes=function(route){
+  var gameCtx = (typeof GAME !== 'undefined') ? GAME : 'ALL';
+  return window.getLinkedRouteNotesForGame(route, gameCtx);
+};
+window.getLinkedRouteNotesForGame=function(route, gameCtx){
+  var target=normName(route||'');
+  var list=Array.isArray(notes)?notes:[];
+  return list.filter(function(n){
+    if(!(n && n.status!=='archived' && n.routeRef && normName(n.routeRef)===target)) return false;
+    if(!gameCtx || gameCtx==='ALL' || gameCtx==='all') return true;
+    return n.primaryGame===gameCtx || n.primaryGame==='ALL' || (Array.isArray(n.taggedGames) && n.taggedGames.indexOf(gameCtx)>=0);
+  }).sort(function(a,b){
+    if(a.pinned&&!b.pinned) return -1;
+    if(!a.pinned&&b.pinned) return 1;
+    return (b.modified||0)-(a.modified||0);
+  });
+};
+function ensureNotesSidebarOpen(){
+  if(typeof window.toggleNotesPanel==='function'){
+    var panel=document.getElementById('notes-panel');
+    if(!panel || !panel.classList.contains('open') || panel.classList.contains('fullpage')){
+      window.toggleNotesPanel();
+    }
+  }
+}
+window.openPokemonLinkedNote=function(name){
+  var gameCtx = (typeof GAME !== 'undefined') ? GAME : 'ALL';
+  var existing = (typeof window.getLinkedPokemonNotesForGame === 'function')
+    ? window.getLinkedPokemonNotesForGame(name, gameCtx)
+    : [];
+  if(existing && existing.length){
+    return window.openExistingLinkedNote(existing[0].id);
+  }
+  ensureNotesSidebarOpen();
+  setTimeout(function(){
+    if(typeof openNoteEditorNew==='function') openNoteEditorNew();
+    var token=noteEditorSeedToken;
+    var title=document.getElementById('ne-title');
+    var poke=document.getElementById('ne-pokemon');
+    var pokeWrap=document.getElementById('ne-pokemon-wrap');
+    var content=document.getElementById('ne-content');
+    if(token!==noteEditorSeedToken) return;
+    if(pokeWrap) pokeWrap.style.display='block';
+    if(title) title.value=name;
+    if(poke) poke.value=name;
+    if(content && !content.value.trim()) content.value='## ' + name + '\n\n- ';
+    if(content) content.focus();
+  },80);
+};
+window.openRouteLinkedNote=function(routeName, guideContent){
+  var gameCtx = (typeof _bulbaNotePrimaryGame === 'function') ? _bulbaNotePrimaryGame() : ((typeof GAME !== 'undefined') ? GAME : 'ALL');
+  var existing = (typeof window.getLinkedRouteNotesForGame === 'function')
+    ? window.getLinkedRouteNotesForGame(routeName, gameCtx)
+    : [];
+  if(existing && existing.length){
+    return window.openExistingLinkedNote(existing[0].id);
+  }
+  ensureNotesSidebarOpen();
+  setTimeout(function(){
+    if(typeof openNoteEditorNew==='function') openNoteEditorNew();
+    var token=noteEditorSeedToken;
+    var title=document.getElementById('ne-title');
+    var routeField=document.getElementById('ne-route');
+    var routeWrap=document.getElementById('ne-route-wrap');
+    var content=document.getElementById('ne-content');
+    if(token!==noteEditorSeedToken) return;
+    if(routeWrap) routeWrap.style.display='block';
+    if(title) title.value=routeName;
+    if(routeField) routeField.value=routeName;
+    if(content && !content.value.trim()) content.value=guideContent || ('## ' + routeName + '\n\n- ');
+    if(content) content.focus();
+  },80);
+};
+window.openExistingLinkedNote=function(id){
+  ensureNotesSidebarOpen();
+  setTimeout(function(){
+    if(typeof openNoteEditor==='function') openNoteEditor(id);
+  },80);
+};
+window.openExistingPokemonNote=window.openExistingLinkedNote;
+window.updateDexLinkedNoteButtons=function(){
+  if(typeof POKE==='undefined' || !Array.isArray(POKE)) return;
+  document.querySelectorAll('.poke-row[data-poke-num]').forEach(function(row){
+    var num=parseInt(row.getAttribute('data-poke-num'),10);
+    var p=POKE.find(function(x){ return x && x.num===num; });
+    if(!p) return;
+    var wrap=row.querySelector('.dex-note-links');
+    if(!wrap) return;
+    var linked=(typeof window.getLinkedPokemonNotes==='function') ? window.getLinkedPokemonNotes(p.name) : [];
+    var safeName=p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    if(linked.length){
+      wrap.innerHTML=linked.slice(0,2).map(function(n){
+        return '<button class="dex-note-btn existing" onclick="event.stopPropagation();openExistingPokemonNote(\''+n.id+'\')">Linked note</button>';
+      }).join('') + (linked.length>2?'<span class=\"dex-note-count\">+'+(linked.length-2)+' more</span>':'');
+    }else{
+      wrap.innerHTML='<button class="dex-note-btn add" onclick="event.stopPropagation();openPokemonLinkedNote(\''+safeName+'\')">+ Note</button>';
+    }
+  });
+};
+function getNotePokemonOptions(){
+  try{
+    if(typeof POKE==='undefined' || !Array.isArray(POKE)) return [];
+    return POKE.map(function(p){ return p && p.name; }).filter(Boolean).sort(function(a,b){ return a.localeCompare(b); });
+  }catch(e){ return []; }
+}
+function getNoteRouteOptions(){
+  var seen={};
+  function add(name){
+    name=String(name||'').trim();
+    if(!name || name.length<2) return;
+    seen[name]=1;
+  }
+  try{
+    var parts = BULBA_GAME==='rs'
+      ? (Array.isArray(BULBA_PARTS_RS) ? BULBA_PARTS_RS : [])
+      : BULBA_GAME==='e'
+      ? (Array.isArray(BULBA_PARTS_E) ? BULBA_PARTS_E : [])
+      : (Array.isArray(BULBA_PARTS) ? BULBA_PARTS : []);
+    parts.forEach(function(p){
+      if(!p) return;
+      add(p.title || '');
+      add(p.sub || '');
+    });
+    if(typeof bulbaGetExtraCards === 'function'){
+      (bulbaGetExtraCards() || []).forEach(function(item){
+        if(!item) return;
+        add(item.title || '');
+        add(item.sub || '');
+      });
+    }
+  }catch(e){}
+  return Object.keys(seen).sort(function(a,b){ return a.localeCompare(b); });
+}
+var _noteLinkPicker=null,_noteLinkPickerInput=null,_noteLinkPickerItems=[],_noteLinkPickerIndex=0,_noteLinkPickerMuting=false;
+var _noteRouteGuideKey=null;
+function closeNoteLinkPicker(){
+  if(_noteLinkPicker){
+    _noteLinkPicker.remove();
+    _noteLinkPicker=null;
+  }
+  _noteLinkPickerInput=null;
+  _noteLinkPickerItems=[];
+  _noteLinkPickerIndex=0;
+  _noteRouteGuideKey=null;
+}
+function clearNoteLinkPickerDom(){
+  if(_noteLinkPicker){
+    _noteLinkPicker.remove();
+    _noteLinkPicker=null;
+  }
+  _noteLinkPickerItems=[];
+  _noteLinkPickerIndex=0;
+}
+function positionNoteLinkPicker(input){
+  if(!_noteLinkPicker || !input) return;
+  var rect=input.getBoundingClientRect();
+  var vph=window.visualViewport?window.visualViewport.height:window.innerHeight;
+  var vot=window.visualViewport?window.visualViewport.offsetTop:0;
+  var spaceBelow=vph-rect.bottom-8;
+  var maxH=Math.min(260, Math.max(100, spaceBelow));
+  _noteLinkPicker.style.left=Math.max(4, rect.left)+'px';
+  _noteLinkPicker.style.top=(rect.bottom+vot+4)+'px';
+  _noteLinkPicker.style.width=Math.min(360, rect.width)+'px';
+  _noteLinkPicker.style.maxHeight=maxH+'px';
+}
+function renderNoteLinkPicker(){
+  if(!_noteLinkPicker) return;
+  _noteLinkPicker.innerHTML=_noteLinkPickerItems.map(function(item,i){
+    return '<div class="slash-item'+(i===_noteLinkPickerIndex?' focused':'')+'" data-idx="'+i+'">'
+      + '<span class="slash-item-icon">'+(item.iconHtml||esc(item.icon||'•'))+'</span>'
+      + '<div><div style="font-size:12px;">'+esc(item.label)+'</div>'
+      + (item.sub?'<div style="font-size:10px;color:var(--muted);">'+esc(item.sub)+'</div>':'')
+      + '</div></div>';
+  }).join('');
+  _noteLinkPicker.querySelectorAll('.slash-item').forEach(function(el){
+    el.addEventListener('mousedown', function(e){
+      e.preventDefault();
+      var idx=parseInt(this.dataset.idx,10);
+      var item=_noteLinkPickerItems[idx];
+      if(_noteLinkPickerInput && item && item.guideKey){
+        _noteRouteGuideKey=item.guideKey;
+        _noteLinkPickerInput.value='';
+        _noteLinkPickerInput.focus();
+        openNoteLinkPicker(_noteLinkPickerInput, getRouteGuideSectionItems(item.guideKey, ''));
+        return;
+      }
+      if(_noteLinkPickerInput && item){
+        _noteLinkPickerInput.value=item.value;
+        _noteLinkPickerInput.focus();
+        _noteLinkPickerInput.setSelectionRange(item.value.length, item.value.length);
+      }
+      closeNoteLinkPicker();
+    });
+    el.addEventListener('mouseover', function(){
+      _noteLinkPickerIndex=parseInt(this.dataset.idx,10);
+      renderNoteLinkPicker();
+    });
+  });
+}
+function openNoteLinkPicker(input, items){
+  clearNoteLinkPickerDom();
+  if(!input || !items || !items.length) return;
+  _noteLinkPickerInput=input;
+  _noteLinkPickerItems=items.slice(0,40);
+  _noteLinkPickerIndex=0;
+  var dd=document.createElement('div');
+  dd.className='slash-dropdown';
+  document.body.appendChild(dd);
+  _noteLinkPicker=dd;
+  positionNoteLinkPicker(input);
+  renderNoteLinkPicker();
+}
+function noteLinkPickerAutocomplete(input, items){
+  var raw=input.value||'';
+  var q=raw.trim();
+  if(!q || !items || !items.length) return;
+  var first=items[0];
+  if(!first || !first.value) return;
+  if(first.value.toLowerCase().indexOf(q.toLowerCase())!==0) return;
+  if(first.value.toLowerCase()===q.toLowerCase()) return;
+  var start=raw.length;
+  _noteLinkPickerMuting=true;
+  input.value=first.value;
+  input.focus();
+  try{ input.setSelectionRange(start, first.value.length); }catch(e){}
+  _noteLinkPickerMuting=false;
+}
+function getRouteGuideChooserItems(){
+  return [
+    { icon:'🔥🌿', label:'FireRed / LeafGreen', sub:'Kanto walkthrough', guideKey:'FRLG' },
+    { icon:'💎🔷', label:'Ruby / Sapphire', sub:'Hoenn walkthrough', guideKey:'RS' },
+    { icon:'💚', label:'Emerald', sub:'Emerald walkthrough', guideKey:'E' }
+  ];
+}
+function getRouteGuideSectionItems(guideKey, query){
+  var q=String(query||'').trim().toLowerCase();
+  var qNorm=_noteNorm(q);
+  var source=BULBA_SECTIONS[guideKey]||[];
+  return source.filter(function(s){
+    if(!q) return true;
+    var label=String(s.label||'');
+    var sub=String(s.desc||'');
+    return label.toLowerCase().indexOf(q)>=0
+      || sub.toLowerCase().indexOf(q)>=0
+      || _noteNorm(label).indexOf(qNorm)>=0
+      || _noteNorm(sub).indexOf(qNorm)>=0;
+  }).map(function(s){
+    return {
+      icon: s.type==='extra'?'⭐':s.type==='index'?'🏠':'📖',
+      label: s.label,
+      sub: s.desc || null,
+      value: s.label
+    };
+  });
+}
+function updateNoteLinkPicker(input, mode){
+  if(!input) return;
+  if(mode==='route'){
+    var routeQuery=String(input.value||'').trim();
+    var routeItems=_noteRouteGuideKey
+      ? getRouteGuideSectionItems(_noteRouteGuideKey, routeQuery)
+      : getRouteGuideChooserItems();
+    if(routeItems.length) openNoteLinkPicker(input, routeItems);
+    else closeNoteLinkPicker();
+    return;
+  }
+  var q=String(input.value||'').trim().toLowerCase();
+  var qNorm=_noteNorm(q);
+  var source=(mode==='pokemon'?getNotePokemonOptions():getNoteRouteOptions());
+  var items=source.filter(function(label){
+    if(!q) return true;
+    var lo=label.toLowerCase();
+    return lo.indexOf(q)>=0 || _noteNorm(label).indexOf(qNorm)>=0;
+  }).map(function(label){
+      var item={ icon: mode==='pokemon'?'📖':'🗺', label: label, value: label };
+      if(mode==='pokemon' && typeof POKE!=='undefined' && Array.isArray(POKE)){
+        var p=POKE.find(function(x){ return x && x.name===label; });
+        if(p){
+          item.iconHtml="<img src=\"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"+p.num+".png\" alt=\"\" width=\"20\" height=\"20\" style=\"image-rendering:pixelated;display:block\" onerror=\"this.style.display='none'\">";
+        }
+      }
+      return item;
+    });
+  if(!_noteLinkPickerMuting) noteLinkPickerAutocomplete(input, items);
+  if(items.length) openNoteLinkPicker(input, items);
+  else closeNoteLinkPicker();
+}
+function bindNoteLinkPicker(inputId, mode){
+  var input=document.getElementById(inputId);
+  if(!input || input.dataset.pickerBound==='1') return;
+  input.dataset.pickerBound='1';
+  input.addEventListener('focus', function(){ updateNoteLinkPicker(input, mode); });
+  input.addEventListener('input', function(){ if(!_noteLinkPickerMuting) updateNoteLinkPicker(input, mode); });
+  input.addEventListener('keydown', function(e){
+    if(!_noteLinkPicker || _noteLinkPickerInput!==input) return;
+    if(e.key==='ArrowDown'){ e.preventDefault(); _noteLinkPickerIndex=Math.min(_noteLinkPickerIndex+1,_noteLinkPickerItems.length-1); renderNoteLinkPicker(); }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); _noteLinkPickerIndex=Math.max(_noteLinkPickerIndex-1,0); renderNoteLinkPicker(); }
+    else if(e.key==='Enter' || e.key==='Tab'){
+      if(_noteLinkPickerItems[_noteLinkPickerIndex]){
+        e.preventDefault();
+        var item=_noteLinkPickerItems[_noteLinkPickerIndex];
+        if(mode==='route' && item.guideKey){
+          _noteRouteGuideKey=item.guideKey;
+          input.value='';
+          updateNoteLinkPicker(input, mode);
+        } else {
+          input.value=item.value;
+          input.dispatchEvent(new Event('input'));
+          closeNoteLinkPicker();
+        }
+      }
+    } else if(e.key==='Escape'){ closeNoteLinkPicker(); }
+    else if(e.key==='Backspace' && mode==='route' && !input.value && _noteRouteGuideKey){
+      _noteRouteGuideKey=null;
+      updateNoteLinkPicker(input, mode);
+    }
+  });
+  input.addEventListener('blur', function(){
+    setTimeout(function(){
+      if(_noteLinkPicker && document.activeElement!==input) closeNoteLinkPicker();
+    }, 150);
+  });
+}
+function initNoteAutocomplete(){
+  bindNoteLinkPicker('ne-pokemon','pokemon');
+  bindNoteLinkPicker('ne-route','route');
+}
 
 /* ── Badge ── */
 function updateBadge(){var b=document.getElementById('notes-tab-badge');if(!b)return;b.textContent=notes.length;b.classList.toggle('visible',notes.length>0);}
@@ -18278,7 +18866,10 @@ window.toggleNotesPanel=function(){
   var p=document.getElementById('notes-panel'),o=document.getElementById('notes-overlay');
   if (p.classList.contains('fullpage')) { closeNotesPanel(); return; }
   if(p.classList.contains('open')){p.classList.remove('open');o.classList.remove('open');}
-  else{p.classList.add('open');o.classList.add('open');renderNotesList();renderLabelBar();}
+  else{
+    if(typeof window.notesSyncToGlobalGame==='function') window.notesSyncToGlobalGame();
+    p.classList.add('open');o.classList.add('open');renderNotesList();renderLabelBar();
+  }
 };
 window.enterNotesFullPage=function(){
   var panel=document.getElementById('notes-panel');
@@ -18290,6 +18881,7 @@ window.enterNotesFullPage=function(){
   if(panel.parentElement !== host) host.appendChild(panel);
   panel.classList.add('fullpage','open');
   if(overlay) overlay.classList.remove('open');
+  if(typeof window.notesSyncToGlobalGame==='function') window.notesSyncToGlobalGame();
   renderNotesList();
   renderLabelBar();
 };
@@ -18429,6 +19021,17 @@ function renderMd(raw,noteId){
   if(inUl)html+='</ul>';
   return html;
 }
+function renderRouteChip(route){
+  if(!route) return '';
+  return '<button class="note-meta-chip route" onclick="event.stopPropagation();noteOpenRoute(\''+esc(route).replace(/'/g,"\\'")+'\')">Route: '+esc(route)+'</button>';
+}
+function renderPokemonChip(pokemon){
+  if(!pokemon) return '';
+  return '<button class="note-meta-chip pokemon" onclick="event.stopPropagation();noteLinkPoke(\''+esc(pokemon).replace(/'/g,"\\'")+'\')">Pokemon: '+esc(pokemon)+'</button>';
+}
+function isGuideLinkedNote(note){
+  return !!(note && /\[\[bulba:/i.test(String(note.content||'')));
+}
 
 function inlineFmt(text,noteId){
   // Page links
@@ -18466,10 +19069,11 @@ var NOTE_BTN_MAP={
   natures:'navNatures',catchcalc:'navCatchCalc',dexdash:'navDexDash',
   npctrades:'navNpcTrades',happiness:'navHappiness',typechart:'navTypeChart',
   safarizone:'navSafariZone',statcalc:'navStatCalc',
-  distributions:'navDistributions',distributionchecklist:'navDistributionChecklist',pokeblock:'navPokeblock',e4ref:'navE4Ref',rematches:'navRematches',routebrowser:'navRouteBrowser',
+  distributions:'navDistributions',distributionchecklist:'navDistributions',pokeblock:'navPokeblock',e4ref:'navE4Ref',rematches:'navRematches',routebrowser:'navRouteBrowser',
 };
 
 window.openTopLevelPage = function(pid) {
+  if(pid==='distributionchecklist') pid='distributions';
   if(pid==='bulba'){showPage('bulba',document.getElementById('navBulba'));if(!window._bulbaBuilt){buildBulbaGuide();window._bulbaBuilt=true;}if(typeof bulbaAutoSelectGame==='function')bulbaAutoSelectGame();return;}
   if(pid==='tracker'){showPage('tracker',document.getElementById('navTracker'));buildTracker();window._trackerBuilt=true;return;}
   var directBuilders = {
@@ -18586,6 +19190,19 @@ function noteLinkMove(name){
     setTimeout(function(){var s=document.getElementById('mdex-search');if(s){s.value=name;s.dispatchEvent(new Event('input'));}},150);
   }
 }
+window.noteOpenRoute=function(route){
+  closeNotesPanel();
+  var pid=routePageIdForName(route) || 'routebrowser';
+  showPage(pid,document.getElementById('navRouteBrowser'));
+  if(pid==='routebrowser' && typeof buildRouteBrowser==='function' && !window._routeBrowserBuilt){buildRouteBrowser();window._routeBrowserBuilt=true;}
+  setTimeout(function(){
+    var inp=document.getElementById('route-search')||document.getElementById('routeSearch')||document.getElementById('rb-search');
+    if(inp){
+      inp.value=route;
+      inp.dispatchEvent(new Event('input'));
+    }
+  },120);
+};
 
 /* ── Render list ── */
 function timeAgo(ts){var d=Date.now()-ts;if(d<60000)return 'just now';if(d<3600000)return Math.floor(d/60000)+'m ago';if(d<86400000)return Math.floor(d/3600000)+'h ago';return Math.floor(d/86400000)+'d ago';}
@@ -18593,19 +19210,60 @@ function timeAgo(ts){var d=Date.now()-ts;if(d<60000)return 'just now';if(d<36000
 function getVisible(){
   var q=searchQuery.toLowerCase();
   return notes.filter(function(n){
+    if((notesView==='archived' && n.status!=='archived') || (notesView!=='archived' && n.status==='archived')) return false;
     if(currentGame!=='ALL'){
       var ok=n.primaryGame===currentGame||n.primaryGame==='ALL'||(n.taggedGames&&n.taggedGames.indexOf(currentGame)>=0);
       if(!ok)return false;
     }
     if(currentLabel&&(!n.labels||n.labels.indexOf(currentLabel)<0))return false;
-    if(q){var hay=((n.title||'')+' '+(n.content||'')).toLowerCase();if(hay.indexOf(q)<0)return false;}
+    if(notesChecklistOnly && !noteHasChecklist(n)) return false;
+    if(q){
+      var hay=((n.title||'')+' '+(n.content||'')+' '+(n.routeRef||'')+' '+(n.pokemonRef||'')).toLowerCase();
+      if(hay.indexOf(q)<0)return false;
+    }
     return true;
-  }).sort(function(a,b){if(a.pinned&&!b.pinned)return -1;if(!a.pinned&&b.pinned)return 1;return b.modified-a.modified;});
+  }).sort(function(a,b){
+    if(a.pinned&&!b.pinned)return -1;if(!a.pinned&&b.pinned)return 1;
+    if(notesSort==='created') return (b.created||0)-(a.created||0);
+    if(notesSort==='title') return String(a.title||a.routeRef||'').localeCompare(String(b.title||b.routeRef||''));
+    return (b.modified||0)-(a.modified||0);
+  });
 }
+function renderPinnedBar(){
+  var bar=document.getElementById('notes-pinned-bar'); if(!bar) return;
+  var pins=getVisible().filter(function(n){return n.pinned && n.status!=='archived';}).slice(0,3);
+  if(!pins.length){bar.style.display='none';bar.innerHTML='';return;}
+  bar.style.display='block';
+  bar.innerHTML='<div style="font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--gold);margin-bottom:8px;letter-spacing:1px;">PINNED OBJECTIVES</div>'
+    + pins.map(function(n){
+      var prog=noteSavedProgress(n)||noteChecklistProgress(n), progText=(prog&&prog.total)?(' · '+prog.done+'/'+prog.total):'';
+      return '<button class="note-pinned-chip" onclick="openNoteEditor(\''+n.id+'\')">'+esc(n.title||n.routeRef||'Pinned note')+progText+'</button>';
+    }).join('');
+}
+function refreshNotesToolbar(){
+  var a=document.getElementById('notes-view-active'), ar=document.getElementById('notes-view-archived');
+  if(a) a.classList.toggle('active',notesView==='active');
+  if(ar) ar.classList.toggle('active',notesView==='archived');
+  ['modified','created','title'].forEach(function(k){
+    var el=document.getElementById('notes-sort-'+k);
+    if(el) el.classList.toggle('active',notesSort===k);
+  });
+  var chk=document.getElementById('notes-filter-checklist');
+  if(chk) chk.classList.toggle('active',notesChecklistOnly);
+}
+window.notesSyncToGlobalGame=function(){
+  var globalGame=(typeof GAME!=='undefined' && GAME)?GAME:'all';
+  currentGame=(globalGame==='all')?'ALL':globalGame;
+  document.querySelectorAll('.notes-game-tab').forEach(function(b){
+    b.classList.toggle('active',b.dataset.game===currentGame);
+  });
+};
 
 function renderNotesList(){
   var el=document.getElementById('notes-list-inner');if(!el)return;
   var vis=getVisible();
+  renderPinnedBar();
+  refreshNotesToolbar();
   if(!vis.length){
     el.innerHTML='<div style="text-align:center;padding:40px 16px;color:var(--muted);font-size:12px;line-height:2;">'
       +(notes.length===0?'📝<br><br>No notes yet.<br>Press <strong>+ New</strong> to get started.':'No notes match your filters.')+'</div>';
@@ -18618,18 +19276,28 @@ function renderNotesList(){
     var gcol=GAME_COLORS[note.primaryGame]||'var(--gold)';
     var tagHtml=(note.taggedGames||[]).map(function(g){return '<span class="note-tag-chip" style="color:'+(GAME_COLORS[g]||'var(--muted)')+';border-color:'+(GAME_COLORS[g]||'var(--border)')+';">+'+g+'</span>';}).join('');
     var lblHtml=(note.labels||[]).map(function(l){return '<span class="note-tag-chip">'+esc(l)+'</span>';}).join('');
-    return '<div class="note-card'+(note.pinned?' pinned':'')+'" style="border-left:3px solid '+accent+';">'
+    var progress=noteSavedProgress(note)||noteChecklistProgress(note);
+    var progressHtml=(progress&&progress.total)?'<span class="note-progress-chip">'+progress.done+'/'+progress.total+' done</span>':'';
+    var statusChip=note.status&&note.status!=='active'?'<span class="note-progress-chip '+note.status+'">'+esc(note.status)+'</span>':'';
+    var linkedHtml=(isGuideLinkedNote(note)?renderRouteChip(note.routeRef):'')+renderPokemonChip(note.pokemonRef);
+    var body=String(note.content||'');
+    var longBody=body.length>520 || body.split('\n').length>14;
+    return '<div class="note-card'+(note.pinned?' pinned':'')+(note.status==='completed'?' completed':'')+'" style="border-left:3px solid '+accent+';">'
       +'<div class="note-card-header">'
       +(note.color&&note.color!=='none'?'<div class="note-color-dot" style="background:'+accent+';"></div>':'')
       +(note.pinned?'<span title="Pinned">📌</span>':'')
       +'<span style="font-size:10px;font-weight:700;color:'+gcol+';">'+glbl+'</span>'
-      +tagHtml+lblHtml
+      +statusChip+progressHtml+tagHtml+lblHtml
       +'<span style="margin-left:auto;font-size:9px;color:var(--muted);">'+timeAgo(note.modified)+'</span>'
+      +'<button onclick="event.stopPropagation();duplicateNote(\''+note.id+'\')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:0 3px;" title="Duplicate">⎘</button>'
+      +'<button onclick="event.stopPropagation();noteCycleStatus(\''+note.id+'\')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:0 3px;" title="Change status">◎</button>'
       +'<button onclick="event.stopPropagation();openNoteEditor(\''+note.id+'\')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0 3px;" title="Edit">✏️</button>'
       +'<button onclick="event.stopPropagation();confirmDeleteNote(\''+note.id+'\')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0 3px;" title="Delete">🗑</button>'
       +'</div>'
       +(note.title?'<div style="padding:8px 12px 0;font-size:12px;font-weight:700;color:var(--gold);">'+esc(note.title)+'</div>':'')
-      +'<div class="note-card-body">'+renderMd(note.content||'',note.id)+'</div>'
+      +(linkedHtml?'<div class="note-linked-row">'+linkedHtml+'</div>':'')
+      +'<div class="note-card-body'+(longBody?' collapsed':'')+'" id="note-body-'+note.id+'">'+renderMd(note.content||'',note.id)+'</div>'
+      +(longBody?'<div class="note-card-footer"><button class="note-label-pill" onclick="toggleNoteCollapse(\''+note.id+'\')">Expand</button></div>':'')
       +'</div>';
   }).join('');
   // Wire auto-link clicks
@@ -18652,6 +19320,16 @@ function renderLabelBar(){
     +labels.map(function(l){return '<button class="note-label-pill'+(currentLabel===l?' active':'')+'" onclick="noteLabelFilter(\''+l.replace(/'/g,"\\'")+'\')">'+ esc(l)+'</button>';}).join('');
 }
 window.noteLabelFilter=function(l){currentLabel=l;renderLabelBar();renderNotesList();};
+window.notesSetView=function(v){notesView=v;renderNotesList();};
+window.notesSetSort=function(v){notesSort=v;renderNotesList();};
+window.notesToggleChecklistOnly=function(){notesChecklistOnly=!notesChecklistOnly;renderNotesList();};
+window.toggleNoteCollapse=function(id){
+  var el=document.getElementById('note-body-'+id);
+  if(!el) return;
+  var collapsed=el.classList.toggle('collapsed');
+  var btn=el.parentElement.querySelector('.note-card-footer .note-label-pill');
+  if(btn) btn.textContent=collapsed?'Expand':'Collapse';
+};
 
 /* ── Game tab ── */
 window.notesSetGame=function(g){
@@ -18669,16 +19347,42 @@ window.confirmDeleteNote=function(id){
   notes=notes.filter(function(n){return n.id!==id;});
   saveNotes();renderNotesList();renderLabelBar();
 };
+window.duplicateNote=function(id){
+  var n=notes.find(function(x){return x.id===id;}); if(!n) return;
+  var copy=JSON.parse(JSON.stringify(n));
+  copy.id=genId();
+  copy.title=(n.title||'Untitled')+' Copy';
+  copy.status='active';
+  copy.pinned=false;
+  copy.created=Date.now();
+  copy.modified=Date.now();
+  notes.unshift(copy);
+  saveNotes(); renderNotesList(); renderLabelBar();
+};
+window.noteCycleStatus=function(id){
+  var n=notes.find(function(x){return x.id===id;}); if(!n) return;
+  n.status = n.status==='active' ? 'completed' : n.status==='completed' ? 'archived' : 'active';
+  n.modified=Date.now();
+  saveNotes(); renderNotesList(); renderLabelBar();
+};
 
 /* ── Editor ── */
 window.openNoteEditor=function(id){
   var lv=document.getElementById('notes-list-view'),ev=document.getElementById('notes-editor-view');
   if(!lv||!ev)return;
+  noteEditorSeedToken++;
+  initNoteAutocomplete();
   var note=id?notes.find(function(n){return n.id===id;}):null;
   editingId=id||'new';
   document.getElementById('ne-title').value=note?(note.title||''):'';
   document.getElementById('ne-content').value=note?(note.content||''):'';
   document.getElementById('ne-game').value=note?(note.primaryGame||currentGame):currentGame;
+  document.getElementById('ne-route').value=note?(note.routeRef||''):'';
+  document.getElementById('ne-pokemon').value=note?(note.pokemonRef||''):'';
+  var routeWrap=document.getElementById('ne-route-wrap');
+  var pokemonWrap=document.getElementById('ne-pokemon-wrap');
+  if(routeWrap) routeWrap.style.display=(note && isGuideLinkedNote(note))?'block':'none';
+  if(pokemonWrap) pokemonWrap.style.display=(note && note.pokemonRef)?'block':'none';
   var tagged=note?(note.taggedGames||[]):[];
   document.querySelectorAll('.ne-tag-btn').forEach(function(b){b.classList.toggle('active',tagged.indexOf(b.dataset.game)>=0);});
   var col=note?(note.color||'none'):'none';
@@ -18687,6 +19391,8 @@ window.openNoteEditor=function(id){
   var pin=document.getElementById('ne-pin');
   pin.classList.toggle('active',!!(note&&note.pinned));
   pin.textContent=(note&&note.pinned)?'📌 Pinned':'📌 Pin';
+  noteEditorStatus=note?(note.status||'active'):'active';
+  if(typeof window.neRefreshStatusButtons==='function') window.neRefreshStatusButtons();
   // Label presets
   var presetsEl=document.getElementById('ne-label-presets');
   if(presetsEl){
@@ -18706,6 +19412,20 @@ window.openNoteEditor=function(id){
   initSlashCommands(document.getElementById('ne-content'));
 };
 window.openNoteEditorNew=function(){openNoteEditor(null);};
+window.openQuickObjectiveNote=function(){
+  openNoteEditor(null);
+  document.getElementById('ne-title').value='Current Objective';
+  document.getElementById('ne-content').value='[ ] ';
+  var routeWrap=document.getElementById('ne-route-wrap');
+  var pokemonWrap=document.getElementById('ne-pokemon-wrap');
+  if(routeWrap) routeWrap.style.display='none';
+  if(pokemonWrap) pokemonWrap.style.display='none';
+  document.getElementById('ne-pin').classList.add('active');
+  document.getElementById('ne-pin').textContent='📌 Pinned';
+  noteEditorStatus='active';
+  if(typeof window.neRefreshStatusButtons==='function') window.neRefreshStatusButtons();
+  document.getElementById('ne-content').focus();
+};
 
 window.cancelNoteEditor=function(){
   editingId=null;
@@ -18718,15 +19438,20 @@ window.saveNoteEditor=function(){
   var title=document.getElementById('ne-title').value.trim();
   var content=document.getElementById('ne-content').value;
   var game=document.getElementById('ne-game').value;
+  var routeRef=document.getElementById('ne-route').value.trim();
+  var pokemonRef=document.getElementById('ne-pokemon').value.trim();
+  if(!title) title=pokemonRef||routeRef||'';
+  if(routeRef && isGuideLinkedNote({content:content})) title=routeRef;
+  else if(pokemonRef) title=pokemonRef;
   var labels=document.getElementById('ne-labels').value.split(',').map(function(l){return l.trim();}).filter(Boolean);
   var tagged=[];document.querySelectorAll('.ne-tag-btn.active').forEach(function(b){tagged.push(b.dataset.game);});
   var color='none';document.querySelectorAll('.ne-color-btn.active').forEach(function(b){color=b.dataset.color;});
   var pinned=document.getElementById('ne-pin').classList.contains('active');
   if(editingId&&editingId!=='new'){
     var n=notes.find(function(x){return x.id===editingId;});
-    if(n){n.title=title;n.content=content;n.primaryGame=game;n.taggedGames=tagged;n.labels=labels;n.color=color;n.pinned=pinned;n.modified=Date.now();n.checkboxStates={};}
+    if(n){n.title=title;n.content=content;n.primaryGame=game;n.taggedGames=tagged;n.labels=labels;n.color=color;n.pinned=pinned;n.routeRef=routeRef;n.pokemonRef=pokemonRef;n.status=noteEditorStatus;n.modified=Date.now();n.checkboxStates={};}
   }else{
-    notes.unshift({id:genId(),title:title,content:content,primaryGame:game,taggedGames:tagged,labels:labels,color:color,pinned:pinned,checkboxStates:{},created:Date.now(),modified:Date.now()});
+    notes.unshift({id:genId(),title:title,content:content,primaryGame:game,taggedGames:tagged,labels:labels,color:color,pinned:pinned,routeRef:routeRef,pokemonRef:pokemonRef,status:noteEditorStatus,checkboxStates:{},created:Date.now(),modified:Date.now()});
   }
   saveNotes();cancelNoteEditor();renderNotesList();renderLabelBar();
 };
@@ -18734,8 +19459,69 @@ window.saveNoteEditor=function(){
 window.neTogglePin=function(){var b=document.getElementById('ne-pin');b.classList.toggle('active');b.textContent=b.classList.contains('active')?'📌 Pinned':'📌 Pin';};
 window.neSelectColor=function(btn){document.querySelectorAll('.ne-color-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');};
 window.neAddLabel=function(l){var inp=document.getElementById('ne-labels');var cur=inp.value.split(',').map(function(x){return x.trim();}).filter(Boolean);if(cur.indexOf(l)<0)cur.push(l);inp.value=cur.join(', ');};
+window.neInsertChip=function(l){
+  if(typeof window.neAddLabel==='function') window.neAddLabel(l);
+  var ta=document.getElementById('ne-content'); if(!ta) return;
+  var s=ta.selectionStart,v=ta.value,bef=v.slice(0,s),aft=v.slice(s);
+  var txt='['+l+'] ';
+  ta.value=bef+txt+aft;
+  ta.selectionStart=ta.selectionEnd=bef.length+txt.length;
+  ta.focus();
+};
+window.neSetStatus=function(status){noteEditorStatus=status; if(typeof window.neRefreshStatusButtons==='function') window.neRefreshStatusButtons();};
+window.neRefreshStatusButtons=function(){
+  ['active','completed','archived'].forEach(function(k){
+    var el=document.getElementById('ne-status-'+k);
+    if(el) el.classList.toggle('active',noteEditorStatus===k);
+  });
+};
+window.neInsertTimestamp=function(){
+  var d=new Date(), mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var stamp='['+d.getDate()+' '+mo[d.getMonth()]+' '+d.getFullYear()+'] ';
+  var ta=document.getElementById('ne-content'); if(!ta) return;
+  var s=ta.selectionStart,v=ta.value,bef=v.slice(0,s),aft=v.slice(s);
+  ta.value=bef+stamp+aft;
+  ta.selectionStart=ta.selectionEnd=bef.length+stamp.length;
+  ta.focus();
+};
+window.neDuplicateEditing=function(){
+  if(!editingId || editingId==='new') return;
+  duplicateNote(editingId);
+};
 window.neTemplateMenuToggle=function(){var m=document.getElementById('ne-template-menu');m.style.display=m.style.display==='none'?'block':'none';};
 window.applyTemplate=function(i){var t=TEMPLATES[i];if(!t)return;document.getElementById('ne-content').value=t.content;if(t.label){var inp=document.getElementById('ne-labels');neAddLabel(t.label);}document.querySelectorAll('.ne-color-btn').forEach(function(b){b.classList.toggle('active',b.dataset.color===t.color);});document.getElementById('ne-template-menu').style.display='none';};
+window.neCommand=function(type){
+  var ta=document.getElementById('ne-content');
+  if(!ta)return;
+  var s=ta.selectionStart,e=ta.selectionEnd,v=ta.value,bef=v.slice(0,s),aft=v.slice(e);
+  function place(text, offset){
+    ta.value=bef+text+aft;
+    var pos=typeof offset==='number'?bef.length+offset:bef.length+text.length;
+    ta.selectionStart=ta.selectionEnd=pos;
+    ta.focus();
+  }
+  function trigger(cmd){
+    place(cmd);
+    if(typeof _sin==='function')_sin();
+  }
+  if(type==='page') return trigger('/p');
+  if(type==='guide') return trigger('/b');
+  if(type==='game') return trigger('/g');
+  if(type==='type') return trigger('/type');
+  if(type==='badge') return trigger('/badge');
+  if(type==='template'){
+    if(typeof window.neTemplateMenuToggle==='function')window.neTemplateMenuToggle();
+    ta.focus();
+    return;
+  }
+  if(type==='date'){
+    var d=new Date(),mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return place(d.getDate()+' '+mo[d.getMonth()]+' '+d.getFullYear());
+  }
+  if(type==='divider') return place('\n\n---\n\n');
+  if(type==='note') return place('📝 **Note:** ');
+  if(type==='warn') return place('⚠️ **Warning:** ');
+};
 window.neFmt=function(type){
   var ta=document.getElementById('ne-content');
   var s=ta.selectionStart,e=ta.selectionEnd,v=ta.value,sel=v.slice(s,e),bef=v.slice(0,s),aft=v.slice(e);
@@ -19167,6 +19953,15 @@ window.openExportModal=function(){
 /* ── Init ── */
 loadNotes();
 updateBadge();
+if(typeof window.notesSyncToGlobalGame === 'function'){
+  try{ window.notesSyncToGlobalGame(); }catch(e){}
+}
+if(typeof window.updateDexLinkedNoteButtons === 'function'){
+  try{ window.updateDexLinkedNoteButtons(); }catch(e){}
+}
+if(typeof buildTable === 'function'){
+  try{ buildTable(); }catch(e){}
+}
 document.getElementById('notes-overlay').addEventListener('click',closeNotesPanel);
 
 })(); // end NOTES IIFE
@@ -32348,3 +33143,55 @@ function emBindPanZoom() {
   },{passive:false});
   wrap.addEventListener('touchend',function(){EM_DRAGGING=false;ltd=null;});
 }
+
+// ══════════════════════════════════════════════════════════════════
+//  #10  MASCOT TIP BUBBLES
+// ══════════════════════════════════════════════════════════════════
+(function() {
+  var TIPS = [
+    'Synchronize in your lead slot copies wild encounter natures — great for hunting legendaries.',
+    'Pickup (Meowth/Linoone) farms Rare Candies and Nuggets passively during battles.',
+    'False Swipe can\'t knock out the target — the safest way to catch a legendary.',
+    'Repel only blocks Pokémon lower-level than your lead. Keep it topped up in long caves.',
+    'Blaze / Torrent / Overgrow activate at ≤⅓ HP — risky but powerful.',
+    'Macho Brace halves your Speed but doubles EVs gained from every battle.',
+    'Inner Focus prevents flinching — useful against Fake Out leads.',
+    'Pokéblocks made from Lv.2+ berries raise conditions higher — quality matters for contests.',
+    'EXP Share sends full EVs to the holder even without dealing damage.',
+    'Skill Swap lets you steal Arena Trap or Magnet Pull from annoying opponents.',
+    'Emerald\'s Battle Frontier has 7 facilities — Gold Symbols are the real endgame.',
+    'Soft-reset in front of any legendary by saving before the battle — hunt for better IVs.',
+    'Intimidate drops the opponent\'s Attack one stage on switch-in — great opener.',
+    'Secret Power has different effects depending on the terrain you use it on.',
+    'Wonder Guard (Shedinja) only works if you keep it healthy — bring a Safety Goggles team.',
+  ];
+  var MASCOTS = { all:25, FR:6, LG:3, R:257, S:260, E:254 };
+  var tipIdx = Math.floor(Math.random() * TIPS.length);
+
+  window.hideMascotTip = function() {
+    var el = document.getElementById('mascot-tip');
+    if (el) el.classList.remove('visible');
+  };
+
+  function showMascotTip() {
+    var el = document.getElementById('mascot-tip');
+    var txt = document.getElementById('mascot-tip-text');
+    var img = document.getElementById('mascot-sprite');
+    if (!el || !txt || !img) return;
+    txt.textContent = TIPS[tipIdx % TIPS.length];
+    tipIdx++;
+    var game = (function(){ try{ return localStorage.getItem('gen3-game')||'all'; }catch(e){ return 'all'; }})();
+    img.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + (MASCOTS[game] || 25) + '.png';
+    el.classList.add('visible');
+    clearTimeout(el._hideTimer);
+    el._hideTimer = setTimeout(window.hideMascotTip, 8000);
+  }
+
+  // First tip after 25s, then every 55s
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+      showMascotTip();
+      setInterval(showMascotTip, 55000);
+    }, 25000);
+  });
+})();

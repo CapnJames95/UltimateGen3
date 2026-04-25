@@ -256,59 +256,135 @@ function buildDistributionsPage() {
   var root = document.getElementById('distributions-content');
   if (!root) return;
 
+  // ── helpers ──────────────────────────────────────────────────────────────
+  function escHtml(value) {
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function escAttr(value) {
+    return escHtml(value).replace(/'/g, '&#39;');
+  }
+
+  function norm(s) { return String(s || '').toLowerCase(); }
+
+  function pill(text, color, bg) {
+    return '<span style="display:inline-block;padding:4px 8px;border-radius:999px;font-size:10px;border:1px solid '
+      + (color || 'var(--border)') + ';color:' + (color || 'var(--text)') + ';background:' + (bg || 'transparent') + ';">'
+      + escHtml(text) + '</span>';
+  }
+
+  function statBox(label, value, accent) {
+    return '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;">'
+      + '<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:' + accent + ';letter-spacing:1px;margin-bottom:8px;">' + label + '</div>'
+      + '<div style="font-size:18px;color:var(--text);font-weight:700;">' + value + '</div>'
+      + '</div>';
+  }
+
+  function miniBlock(label, content, isHtml) {
+    return '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;">'
+      + '<div style="font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--gold);letter-spacing:1px;margin-bottom:8px;">' + label + '</div>'
+      + '<div style="font-size:11px;color:var(--text);line-height:1.8;">' + (isHtml ? content : escHtml(content || '')) + '</div>'
+      + '</div>';
+  }
+
+  // ── checklist storage ────────────────────────────────────────────────────
+  var STORAGE_KEY = 'g3-distribution-checklist-v2';
   var allEntries = window.getDistributionEntries();
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') || {}; } catch (e) { saved = {}; }
 
-  var state = { source: 'all', language: 'all', query: '' };
+  function currentGameKey() {
+    return (typeof GAME !== 'undefined' && GAME) ? GAME : 'all';
+  }
 
-  function norm(s) {
-    return String(s || '').toLowerCase();
+  function currentGameLabel() {
+    return ({ all: 'All Games', FR: 'FireRed', LG: 'LeafGreen', R: 'Ruby', S: 'Sapphire', E: 'Emerald' }[currentGameKey()]) || currentGameKey();
+  }
+
+  function entryKey(entry) {
+    return entry.source + '::' + entry.language + '::' + entry.title;
+  }
+
+  function rewardList(entry) {
+    return (entry.obtains || []).map(function(obtain, idx) {
+      return { id: entryKey(entry) + '::' + idx, label: obtain };
+    });
+  }
+
+  function rewardChecked(entry, rewardId) {
+    var byGame = saved[currentGameKey()] || {};
+    var entryState = byGame[entryKey(entry)] || {};
+    return !!entryState[rewardId];
+  }
+
+  function setRewardChecked(entry, rewardId, checked) {
+    var game = currentGameKey();
+    saved[game] = saved[game] || {};
+    saved[game][entryKey(entry)] = saved[game][entryKey(entry)] || {};
+    if (checked) {
+      saved[game][entryKey(entry)][rewardId] = true;
+    } else {
+      delete saved[game][entryKey(entry)][rewardId];
+      if (!Object.keys(saved[game][entryKey(entry)]).length) delete saved[game][entryKey(entry)];
+      if (!Object.keys(saved[game]).length) delete saved[game];
+    }
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(saved)); } catch (e) {}
+  }
+
+  function allRewardsChecked(entry) {
+    var rewards = rewardList(entry);
+    return rewards.length > 0 && rewards.every(function(r) { return rewardChecked(entry, r.id); });
+  }
+
+  function anyRewardChecked(entry) {
+    return rewardList(entry).some(function(r) { return rewardChecked(entry, r.id); });
+  }
+
+  // ── page-level state ─────────────────────────────────────────────────────
+  var state = window._distributionsPageState || { source: 'all', language: 'all', query: '', onlyUnchecked: false };
+  window._distributionsPageState = state;
+
+  // ── filter helpers ───────────────────────────────────────────────────────
+  function gameMatches(entry) {
+    var g = currentGameKey();
+    if (!g || g === 'all') return true;
+    return (entry.targets || []).some(function(target) {
+      var t = norm(target);
+      if (g === 'FR') return t.indexOf('firered') !== -1 || t === 'fr';
+      if (g === 'LG') return t.indexOf('leafgreen') !== -1 || t === 'lg';
+      if (g === 'R')  return t.indexOf('ruby') !== -1 || t === 'r';
+      if (g === 'S')  return t.indexOf('sapphire') !== -1 || t === 's';
+      if (g === 'E')  return t.indexOf('emerald') !== -1 || t === 'e';
+      return true;
+    });
   }
 
   function matches(entry) {
-    var q = norm(state.query);
-    var selectedGame = typeof GAME !== 'undefined' ? GAME : 'all';
+    if (!gameMatches(entry)) return false;
     if (state.source !== 'all' && norm(entry.source) !== state.source) return false;
     if (state.language !== 'all') {
       var lang = norm(entry.language);
       if (lang !== state.language && lang !== 'multi-language') return false;
     }
-    if (selectedGame && selectedGame !== 'all') {
-      var compatible = (entry.targets || []).some(function(target) {
-        var t = norm(target);
-        if (selectedGame === 'FR') return t.indexOf('firered') !== -1 || t === 'fr';
-        if (selectedGame === 'LG') return t.indexOf('leafgreen') !== -1 || t === 'lg';
-        if (selectedGame === 'R') return t.indexOf('ruby') !== -1 || t === 'r';
-        if (selectedGame === 'S') return t.indexOf('sapphire') !== -1 || t === 's';
-        if (selectedGame === 'E') return t.indexOf('emerald') !== -1 || t === 'e';
-        return true;
-      });
-      if (!compatible) return false;
-    }
-    if (!q) return true;
+    if (state.onlyUnchecked && allRewardsChecked(entry)) return false;
+    if (!state.query) return true;
     var hay = [
-      entry.title,
-      entry.language,
-      entry.kind,
-      entry.source,
+      entry.title, entry.language, entry.kind, entry.source,
       (entry.obtains || []).join(' '),
       (entry.targets || []).join(' '),
-      entry.details,
-      entry.notes
+      entry.details, entry.notes,
+      (entry.mechanics || []).join(' ')
     ].join(' ').toLowerCase();
-    return hay.indexOf(q) !== -1;
-  }
-
-  function pill(text, color, bg) {
-    return '<span style="display:inline-block;padding:4px 8px;border-radius:999px;font-size:10px;border:1px solid ' + (color || 'var(--border)') + ';color:' + (color || 'var(--text)') + ';background:' + (bg || 'transparent') + ';">' + text + '</span>';
+    return hay.indexOf(norm(state.query)) !== -1;
   }
 
   function shinyPill(entry) {
-    if (entry.source === 'Project Wonder' && entry.kind.indexOf('Egg') === -1) {
-      return '';
-    }
-    if (entry.kind.indexOf('Item') !== -1 && entry.kind.indexOf('Egg') === -1 && entry.kind.indexOf('Pokémon') === -1) {
-      return '';
-    }
+    if (entry.source === 'Project Wonder' && entry.kind.indexOf('Egg') === -1) return '';
+    if (entry.kind.indexOf('Item') !== -1 && entry.kind.indexOf('Egg') === -1 && entry.kind.indexOf('Pokémon') === -1) return '';
     var note = norm(entry.notes);
     if (note.indexOf('not shiny-locked') !== -1 || note.indexOf('can be shiny') !== -1) {
       return pill('Shiny Possible', '#7fe39c', 'rgba(127,227,156,0.10)');
@@ -319,141 +395,182 @@ function buildDistributionsPage() {
     return pill('Shiny Unknown', '#b8c1d1', 'rgba(184,193,209,0.08)');
   }
 
-  function sectionSummary(label, value, accent) {
-    return '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;">'
-      + '<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:' + accent + ';letter-spacing:1px;margin-bottom:8px;">' + label + '</div>'
-      + '<div style="font-size:18px;color:var(--text);font-weight:700;">' + value + '</div>'
-      + '</div>';
-  }
-
-  function renderEntry(entry) {
-    return '<div style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;">'
-      + '<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:10px;">'
-      + '<div>'
-      + '<div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;">' + entry.title + '</div>'
-      + '<div style="display:flex;gap:6px;flex-wrap:wrap;">'
-      + pill(entry.source === 'Project Wonder' ? 'Patch-based' : 'Classic ROM', entry.source === 'Project Wonder' ? '#64b4ff' : '#ffd166', entry.source === 'Project Wonder' ? 'rgba(100,180,255,0.1)' : 'rgba(255,209,102,0.08)')
-      + pill(entry.language, '#9ad27a', 'rgba(154,210,122,0.08)')
-      + pill(entry.kind, '#c7a6ff', 'rgba(199,166,255,0.08)')
-      + (shinyPill(entry) || '')
-      + '</div>'
-      + '</div>'
-      + '</div>'
-      + '<div style="font-size:11px;color:var(--muted);line-height:1.8;margin-bottom:10px;">' + entry.details + '</div>'
-      + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">'
-      + '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;">'
-      + '<div style="font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--gold);letter-spacing:1px;margin-bottom:8px;">OBTAINABLE</div>'
-      + '<div style="font-size:11px;color:var(--text);line-height:1.8;">' + entry.obtains.join(', ') + '</div>'
-      + '</div>'
-      + '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;">'
-      + '<div style="font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--gold);letter-spacing:1px;margin-bottom:8px;">TARGET GAMES</div>'
-      + '<div style="font-size:11px;color:var(--text);line-height:1.8;">' + entry.targets.join(', ') + '</div>'
-      + '</div>'
-      + (entry.mechanics && entry.mechanics.length ? '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;">'
-      + '<div style="font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--gold);letter-spacing:1px;margin-bottom:8px;">TECHNICAL DETAILS</div>'
-      + '<div style="font-size:11px;color:var(--text);line-height:1.8;">' + entry.mechanics.join('<br>') + '</div>'
-      + '</div>' : '')
-      + '</div>'
-      + (entry.notes ? '<div style="margin-top:10px;padding:10px 12px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);font-size:11px;color:var(--muted);line-height:1.8;"><strong style="color:var(--text)">Notes:</strong> ' + entry.notes + '</div>' : '')
-      + '</div>';
-  }
-
+  // ── main render ──────────────────────────────────────────────────────────
   function render() {
-    var entries = allEntries.filter(matches);
-    var classicCount = allEntries.filter(function(entry) { return entry.source === 'Classic Distribution ROM'; }).length;
-    var wonderCount = allEntries.filter(function(entry) { return entry.source === 'Project Wonder'; }).length;
-    var selectedGame = typeof GAME !== 'undefined' ? GAME : 'all';
-    var selectedGameLabel = selectedGame === 'all' ? 'All games' : ({FR:'FireRed',LG:'LeafGreen',R:'Ruby',S:'Sapphire',E:'Emerald'}[selectedGame] || selectedGame);
+    var filtered = allEntries.filter(matches);
+    var classicCount = allEntries.filter(function(e) { return e.source === 'Classic Distribution ROM'; }).length;
+    var wonderCount  = allEntries.filter(function(e) { return e.source === 'Project Wonder'; }).length;
+
+    // checklist stats (against current game, ignoring unchecked-only filter)
+    var allForGame = allEntries.filter(gameMatches);
+    var gameRewards = allForGame.reduce(function(n, e) { return n + rewardList(e).length; }, 0);
+    var gameChecked = allForGame.reduce(function(n, e) {
+      return n + rewardList(e).filter(function(r) { return rewardChecked(e, r.id); }).length;
+    }, 0);
+
+    // focused search preservation
     var activeEl = document.activeElement;
-    var restoreSearchFocus = activeEl && activeEl.id === 'dist-search';
-    var searchSelStart = restoreSearchFocus && typeof activeEl.selectionStart === 'number' ? activeEl.selectionStart : null;
-    var searchSelEnd = restoreSearchFocus && typeof activeEl.selectionEnd === 'number' ? activeEl.selectionEnd : null;
+    var searchFocused = activeEl && activeEl.id === 'dist-search';
+    var selStart = searchFocused ? activeEl.selectionStart : null;
+    var selEnd   = searchFocused ? activeEl.selectionEnd   : null;
 
     root.innerHTML = ''
-      + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:18px;">'
-      + sectionSummary('TOTAL ENTRIES', allEntries.length, 'var(--gold)')
-      + sectionSummary('CLASSIC ROMS', classicCount, '#ffd166')
-      + sectionSummary('PROJECT WONDER PATCHES', wonderCount, '#64b4ff')
-      + sectionSummary('EGG / RANDOM POOLS', allEntries.filter(function(entry) { return entry.kind.indexOf('Egg') !== -1; }).length, '#9ad27a')
+      // ── stats row ──
+      + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:18px;">'
+      + statBox('TOTAL ENTRIES',   allEntries.length,  'var(--gold)')
+      + statBox('CLASSIC ROMS',    classicCount,        '#ffd166')
+      + statBox('PROJECT WONDER',  wonderCount,         '#64b4ff')
+      + statBox('EGG / RANDOM',    allEntries.filter(function(e) { return e.kind.indexOf('Egg') !== -1; }).length, '#9ad27a')
+      + statBox('CHECKED',         gameChecked,         '#7fe39c')
+      + statBox('REMAINING',       Math.max(gameRewards - gameChecked, 0), '#ff9d6c')
       + '</div>'
+      // ── repo info ──
       + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:18px;">'
-      + '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;font-size:11px;color:var(--muted);line-height:1.8;"><strong style="color:var(--text)">Classic repo:</strong> Link-cable multiboot Pokémon distributions, split mostly into English and Japanese event recreations. The English README says all are shiny-locked except Wishmkr Jirachi, Channel Jirachi, and Pokémon Box Eggs; the Japanese README exempts Pokémon Box Eggs, PokéPark Eggs, and 5thAnnivPCJP eggs from the blanket shiny-lock rule.</div>'
-      + '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;font-size:11px;color:var(--muted);line-height:1.8;"><strong style="color:var(--text)">Project Wonder repo:</strong> Wireless-adapter patch set built from the preserved Aurora Ticket distribution ROM. The README explicitly supports English, French, German, Italian, Japanese, and Spanish, with Emerald-only limits for Eon Ticket, Old Sea Map, and Decoration Set.</div>'
+      + '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;font-size:11px;color:var(--muted);line-height:1.8;"><strong style="color:var(--text)">Classic repo:</strong> Link-cable multiboot Pokémon distributions, split mostly into English and Japanese event recreations. The English README says all are shiny-locked except Wishmkr Jirachi, Channel Jirachi, and Pokémon Box Eggs; the Japanese README exempts Pokémon Box Eggs, PokéPark Eggs, and 5thAnnivPCJP eggs.</div>'
+      + '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;font-size:11px;color:var(--muted);line-height:1.8;"><strong style="color:var(--text)">Project Wonder repo:</strong> Wireless-adapter patch set built from the preserved Aurora Ticket distribution ROM. Supports English, French, German, Italian, Japanese, and Spanish, with Emerald-only limits for Eon Ticket, Old Sea Map, and Decoration Set.</div>'
       + '</div>'
+      // ── filter bar ──
       + '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">'
       + '<div style="position:relative;display:flex;align-items:center;flex:1;min-width:240px;">'
-      + '<input id="dist-search" type="text" placeholder="Search ROM, patch, Pokémon, item, or note…" style="flex:1;padding-right:28px;padding:8px 12px;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;outline:none;">'
-      + '<button id="dist-search-clear" class="search-bar-clear" title="Clear search" style="display:none;" type="button">✕</button>'
+      + '<input id="dist-search" type="text" placeholder="Search ROM, patch, Pokémon, item, notes…" style="flex:1;padding:8px 12px;padding-right:28px;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;outline:none;">'
+      + '<button id="dist-search-clear" class="search-bar-clear" title="Clear search" style="display:' + (state.query ? 'flex' : 'none') + ';" type="button">✕</button>'
       + '</div>'
       + '<div id="dist-source-filter" style="display:flex;gap:6px;flex-wrap:wrap;"></div>'
       + '<div id="dist-language-filter" style="display:flex;gap:6px;flex-wrap:wrap;"></div>'
+      + '<button id="dist-unchecked-toggle" type="button" style="font-size:10px;padding:6px 10px;border:1px solid var(--border);border-radius:999px;cursor:pointer;white-space:nowrap;background:' + (state.onlyUnchecked ? 'var(--gold)' : 'var(--card)') + ';color:' + (state.onlyUnchecked ? '#000' : 'var(--text)') + ';">Unchecked Only</button>'
       + '</div>'
+      // ── status line ──
       + '<div style="display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">'
-      + '<div style="font-size:11px;color:var(--muted);">Showing <strong style="color:var(--text)">' + entries.length + '</strong> entries.</div>'
-      + '<div style="font-size:11px;color:var(--muted);">Sources: <a href="https://github.com/Goppier/GEN3PokemonDistributions" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">GEN3PokemonDistributions</a> and <a href="https://github.com/Goppier/Gen3DistributionRoms" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">Gen3DistributionRoms</a></div>'
+      + '<div style="font-size:11px;color:var(--muted);">Showing <strong style="color:var(--text)">' + filtered.length + '</strong> entries. Tracking progress for <strong style="color:var(--text)">' + currentGameLabel() + '</strong> &mdash; checked <strong style="color:var(--text)">' + gameChecked + '</strong> of <strong style="color:var(--text)">' + gameRewards + '</strong> rewards.</div>'
+      + '<div style="font-size:11px;color:var(--muted);">Sources: <a href="https://github.com/Goppier/GEN3PokemonDistributions" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">GEN3PokemonDistributions</a> &amp; <a href="https://github.com/Goppier/Gen3DistributionRoms" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">Gen3DistributionRoms</a></div>'
       + '</div>'
+      // ── entry list ──
       + '<div id="dist-list" style="display:flex;flex-direction:column;gap:12px;"></div>';
 
-    var sourceFilter = document.getElementById('dist-source-filter');
-    var languageFilter = document.getElementById('dist-language-filter');
+    // ── search input wiring ──
     var search = document.getElementById('dist-search');
     var clearBtn = document.getElementById('dist-search-clear');
     if (search) {
       search.value = state.query;
-      search.oninput = function() {
-        state.query = this.value || '';
-        render();
-      };
+      search.oninput = function() { state.query = this.value || ''; render(); };
       if (clearBtn) {
-        clearBtn.style.display = state.query ? 'flex' : 'none';
-        clearBtn.onclick = function() {
-          state.query = '';
-          render();
-        };
+        clearBtn.onclick = function() { state.query = ''; render(); };
       }
-      if (restoreSearchFocus) {
+      if (searchFocused) {
         search.focus();
-        if (searchSelStart !== null && searchSelEnd !== null) {
-          try { search.setSelectionRange(searchSelStart, searchSelEnd); } catch (e) {}
+        if (selStart !== null && selEnd !== null) {
+          try { search.setSelectionRange(selStart, selEnd); } catch (e) {}
         }
       }
     }
 
+    // ── unchecked toggle ──
+    var uncheckedBtn = document.getElementById('dist-unchecked-toggle');
+    if (uncheckedBtn) {
+      uncheckedBtn.onclick = function() { state.onlyUnchecked = !state.onlyUnchecked; render(); };
+    }
+
+    // ── source filter buttons ──
+    var sourceFilter = document.getElementById('dist-source-filter');
     [
-      { key: 'all', label: 'All Sources' },
+      { key: 'all',                    label: 'All Sources' },
       { key: 'classic distribution rom', label: 'Classic ROMs' },
-      { key: 'project wonder', label: 'Project Wonder' }
+      { key: 'project wonder',         label: 'Project Wonder' }
     ].forEach(function(opt) {
       var active = state.source === opt.key;
       var btn = document.createElement('button');
       btn.textContent = opt.label;
       btn.style.cssText = 'font-size:10px;padding:6px 10px;border:1px solid var(--border);border-radius:999px;cursor:pointer;background:' + (active ? 'var(--gold)' : 'var(--card)') + ';color:' + (active ? '#000' : 'var(--text)') + ';';
-      btn.onclick = function() {
-        state.source = opt.key;
-        render();
-      };
+      btn.onclick = function() { state.source = opt.key; render(); };
       sourceFilter.appendChild(btn);
     });
 
+    // ── language filter buttons ──
+    var langFilter = document.getElementById('dist-language-filter');
     [
-      { key: 'all', label: 'All Languages' },
-      { key: 'english', label: 'English' },
+      { key: 'all',      label: 'All Languages' },
+      { key: 'english',  label: 'English' },
       { key: 'japanese', label: 'Japanese' }
     ].forEach(function(opt) {
       var active = state.language === opt.key;
       var btn = document.createElement('button');
       btn.textContent = opt.label;
       btn.style.cssText = 'font-size:10px;padding:6px 10px;border:1px solid var(--border);border-radius:999px;cursor:pointer;background:' + (active ? '#64b4ff' : 'var(--card)') + ';color:' + (active ? '#000' : 'var(--text)') + ';';
-      btn.onclick = function() {
-        state.language = opt.key;
-        render();
-      };
-      languageFilter.appendChild(btn);
+      btn.onclick = function() { state.language = opt.key; render(); };
+      langFilter.appendChild(btn);
     });
 
+    // ── entry cards ──
     var list = document.getElementById('dist-list');
-    list.innerHTML = entries.map(renderEntry).join('');
+    if (!filtered.length) {
+      list.innerHTML = '<div style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px;font-size:12px;color:var(--muted);line-height:1.7;">No distribution entries match the current filters.</div>';
+    } else {
+      list.innerHTML = filtered.map(function(entry) {
+        var rewards = rewardList(entry);
+        var checkedCount = rewards.filter(function(r) { return rewardChecked(entry, r.id); }).length;
+        var fullyChecked = rewards.length > 0 && checkedCount === rewards.length;
+        var partiallyChecked = !fullyChecked && checkedCount > 0;
+        var borderColor = fullyChecked ? 'rgba(127,227,156,0.35)' : partiallyChecked ? 'rgba(255,209,102,0.35)' : 'var(--border)';
+
+        var checkboxesHtml = rewards.map(function(reward) {
+          var checked = rewardChecked(entry, reward.id);
+          return '<label style="display:flex;align-items:flex-start;gap:10px;padding:5px 0;cursor:pointer;">'
+            + '<input data-dist-entry="' + escAttr(entryKey(entry)) + '" data-dist-reward="' + escAttr(reward.id) + '" type="checkbox" ' + (checked ? 'checked' : '') + ' style="margin-top:2px;width:16px;height:16px;accent-color:var(--gold);flex:0 0 auto;">'
+            + '<span style="font-size:11px;line-height:1.7;color:' + (checked ? 'var(--muted)' : 'var(--text)') + ';text-decoration:' + (checked ? 'line-through' : 'none') + ';">' + escHtml(reward.label) + '</span>'
+            + '</label>';
+        }).join('');
+
+        var obtainableBlock = '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;">'
+          + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">'
+          + '<div style="font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--gold);letter-spacing:1px;">OBTAINABLE</div>'
+          + '<div style="font-size:10px;color:var(--muted);">' + checkedCount + ' / ' + rewards.length + ' checked</div>'
+          + '</div>'
+          + checkboxesHtml
+          + '</div>';
+
+        var targetBlock = miniBlock('TARGET GAMES', (entry.targets || []).join(', '));
+        var mechanicsBlock = (entry.mechanics && entry.mechanics.length)
+          ? miniBlock('TECHNICAL DETAILS', entry.mechanics.map(escHtml).join('<br>'), true)
+          : '';
+
+        return '<div style="background:var(--panel);border:1px solid ' + borderColor + ';border-radius:10px;padding:16px;">'
+          + '<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:8px;">'
+          + '<div>'
+          + '<div style="font-size:14px;font-weight:700;color:' + (fullyChecked ? 'var(--muted)' : 'var(--text)') + ';margin-bottom:4px;">' + escHtml(entry.title) + '</div>'
+          + '<div style="display:flex;gap:6px;flex-wrap:wrap;">'
+          + pill(entry.source === 'Project Wonder' ? 'Patch-based' : 'Classic ROM', entry.source === 'Project Wonder' ? '#64b4ff' : '#ffd166', entry.source === 'Project Wonder' ? 'rgba(100,180,255,0.1)' : 'rgba(255,209,102,0.08)')
+          + pill(entry.language, '#9ad27a', 'rgba(154,210,122,0.08)')
+          + pill(entry.kind, '#c7a6ff', 'rgba(199,166,255,0.08)')
+          + (shinyPill(entry) || '')
+          + '</div>'
+          + '</div>'
+          + '</div>'
+          + '<div style="font-size:11px;color:var(--muted);line-height:1.8;margin-bottom:10px;">' + escHtml(entry.details || '') + '</div>'
+          + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:' + (entry.notes ? '8' : '0') + 'px;">'
+          + obtainableBlock
+          + targetBlock
+          + mechanicsBlock
+          + '</div>'
+          + (entry.notes ? '<div style="margin-top:8px;font-size:11px;color:var(--muted);line-height:1.8;"><strong style="color:var(--text)">Notes:</strong> ' + escHtml(entry.notes) + '</div>' : '')
+          + '</div>';
+      }).join('');
+    }
+
+    // ── checkbox change handlers ──
+    Array.prototype.forEach.call(root.querySelectorAll('input[data-dist-reward]'), function(box) {
+      box.onchange = function() {
+        var entryId  = this.getAttribute('data-dist-entry');
+        var rewardId = this.getAttribute('data-dist-reward');
+        var entry = allEntries.filter(function(e) { return entryKey(e) === entryId; })[0];
+        if (!entry) return;
+        setRewardChecked(entry, rewardId, this.checked);
+        render();
+      };
+    });
   }
 
   render();
 }
+
+// Legacy stub — the checklist is now fully integrated into buildDistributionsPage.
+function buildDistributionChecklistPage() {}
