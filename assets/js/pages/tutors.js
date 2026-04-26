@@ -31,7 +31,7 @@ function buildTutorPage() {
     var type = TUTOR_TYPES[name] || 'Normal';
     var typeLower = type.toLowerCase();
     rows += '<tr>'
-      + '<td style="font-weight:600">' + name + '</td>'
+      + '<td style="font-weight:600"><span style="cursor:pointer;transition:color 0.12s" onmouseover="this.style.color=\'var(--game-color,var(--gold))\'" onmouseout="this.style.color=\'\'" onclick="goToMoveInDex(\'' + name.replace(/'/g,"\\'") + '\')">' + name + '</span></td>'
       + '<td>' + typeSprite(typeLower) + '</td>'
       + '<td style="text-align:center">' + (flags.frlg ? '<span class="tutors-check">✓</span>' : '<span class="tutors-dash">—</span>') + '</td>'
       + '<td style="text-align:center">' + (flags.frlg ? '<span class="tutors-check">✓</span>' : '<span class="tutors-dash">—</span>') + '</td>'

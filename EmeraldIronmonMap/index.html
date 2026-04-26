@@ -1,1 +1,35 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"/><link rel="icon" href="./pokeball.png"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#000000"/><link rel="manifest" href="./manifest.json"/><title>Emerald IronMON Map</title><script>window.ironmonMapStorageKey="Emerald_StorageKey"</script><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/><script defer="defer" src="./static/js/main.e3ad46f7.js"></script><link href="./static/css/main.98d19ae0.css" rel="stylesheet"></head><body><noscript>You need to enable JavaScript to run this app.</noscript><div id="root"></div></body></html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"/><link rel="icon" href="./pokeball.png"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#000000"/><link rel="manifest" href="./manifest.json"/><title>Emerald IronMON Map</title><script>window.ironmonMapStorageKey="Emerald_StorageKey"</script><script>
+(function(){
+  var THEME_CSS=[
+    '.MuiPaper-root{background-color:rgba(13,15,26,0.96)!important;color:#e8e8f0!important;box-shadow:0 4px 24px rgba(0,0,0,0.6)!important;border:1px solid rgba(255,255,255,0.08)!important;}',
+    '.MuiAccordionSummary-root{color:#e8e8f0!important;border-bottom:1px solid rgba(255,255,255,0.06)!important;}',
+    '.MuiAccordionSummary-content{color:var(--map-game-color,#f5c518)!important;}',
+    '.MuiAccordionSummary-content *{color:#e8e8f0!important;}',
+    '.MuiIcon-colorInfo{color:var(--map-game-color,#f5c518)!important;}',
+    '.MuiAccordionSummary-expandIconWrapper .MuiIcon-root{color:#e8e8f0!important;}',
+    '.MuiAccordionDetails-root,.MuiCollapse-root{background-color:rgba(13,15,26,0.96)!important;}',
+    '.MuiFormLabel-root{color:var(--map-game-color,#f5c518)!important;font-weight:700!important;}',
+    '.MuiFormControlLabel-label,.MuiTypography-root{color:#e8e8f0!important;}',
+    '.MuiCheckbox-root{color:#4a4d6a!important;}',
+    '.MuiCheckbox-root.Mui-checked{color:var(--map-game-color,#f5c518)!important;}',
+    '.MuiRadio-root{color:#4a4d6a!important;}',
+    '.MuiRadio-root.Mui-checked{color:var(--map-game-color,#f5c518)!important;}',
+    '.MuiDivider-root{border-color:rgba(255,255,255,0.07)!important;}',
+    '.MuiIconButton-root{color:#6b6d85!important;}',
+    '.MuiIconButton-root:hover{color:#e8e8f0!important;background-color:rgba(255,255,255,0.06)!important;}',
+    '.MuiAccordion-root:before{background-color:rgba(255,255,255,0.06)!important;}'
+  ].join('');
+  function applyTheme(color){
+    document.documentElement.style.setProperty('--map-game-color', color);
+    var existing=document.getElementById('eguide-theme');
+    if(existing) existing.parentNode.removeChild(existing);
+    var s=document.createElement('style');
+    s.id='eguide-theme';
+    s.textContent=THEME_CSS;
+    (document.head||document.documentElement).appendChild(s);
+  }
+  window.addEventListener('message',function(e){
+    if(e.data&&e.data.type==='mapGameColor') applyTheme(e.data.color||'#f5c518');
+  });
+})();
+</script><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/><script defer="defer" src="./static/js/main.e3ad46f7.js"></script><link href="./static/css/main.98d19ae0.css" rel="stylesheet"></head><body><noscript>You need to enable JavaScript to run this app.</noscript><div id="root"></div></body></html>

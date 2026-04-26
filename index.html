@@ -676,7 +676,7 @@
     <!-- FR/LG sidebar -->
     <div id="bulba-toc-frlg">
     <div class="bulba-toc-subhead">Main Storyline</div>
-    <a class="bulba-toc-item active" id="btoc-index" onclick="bulbaLoadIndex()">🏠 Contents</a>
+    <a class="bulba-toc-item active" id="btoc-index" onclick="bulbaLoadIndex()">Contents</a>
     <a class="bulba-toc-item" id="btoc-1" onclick="bulbaLoadPart(1,'Introduction, Pallet Town')">Part 1 — Pallet Town</a>
     <a class="bulba-toc-item" id="btoc-2" onclick="bulbaLoadPart(2,'Route 1, Viridian City, Route 2')">Part 2 — Viridian City</a>
     <a class="bulba-toc-item" id="btoc-3" onclick="bulbaLoadPart(3,'Viridian Forest, Pewter City')">Part 3 — Pewter City</a>
@@ -703,13 +703,13 @@
     <div class="bulba-toc-subhead" style="margin-top:8px;">Guide Extras</div>
     <a class="bulba-toc-item" id="btoc-extra-frlg-sevii" onclick="bulbaLoadExtra('frlg-sevii','Sevii Islands Guide')">Sevii Guide</a>
     <a class="bulba-toc-item" id="btoc-extra-frlg-legends" onclick="bulbaLoadExtra('frlg-legends','Legendary Checklist')">Legends</a>
-    <a class="bulba-toc-item" id="btoc-extra-frlg-safari" onclick="bulbaLoadExtra('frlg-safari','Safari Zone Guide')">🌳 Safari Zone</a>
+    <a class="bulba-toc-item" id="btoc-extra-frlg-safari" onclick="bulbaLoadExtra('frlg-safari','Safari Zone Guide')">Safari Zone</a>
     </div><!-- end frlg toc -->
 
     <!-- RS sidebar -->
     <div id="bulba-toc-rs" style="display:none">
     <div class="bulba-toc-subhead">Main Storyline</div>
-    <a class="bulba-toc-item active" id="btoc-rs-index" onclick="bulbaLoadIndex()">🏠 Contents</a>
+    <a class="bulba-toc-item active" id="btoc-rs-index" onclick="bulbaLoadIndex()">Contents</a>
     <a class="bulba-toc-item" id="btoc-rs-1" onclick="bulbaLoadPart(1,'Littleroot Town, Route 101')">Part 1 — Littleroot Town</a>
     <a class="bulba-toc-item" id="btoc-rs-2" onclick="bulbaLoadPart(2,'Oldale Town, Petalburg City')">Part 2 — Petalburg City</a>
     <a class="bulba-toc-item" id="btoc-rs-3" onclick="bulbaLoadPart(3,'Rustboro City')">Part 3 — Rustboro City</a>
@@ -737,13 +737,13 @@
     <div class="bulba-toc-subhead" style="margin-top:8px;">Guide Extras</div>
     <a class="bulba-toc-item" id="btoc-extra-rs-features" onclick="bulbaLoadExtra('rs-features','RSE Features')">RSE Features</a>
     <a class="bulba-toc-item" id="btoc-extra-rs-legends" onclick="bulbaLoadExtra('rs-legends','Legendary Checklist')">Legends</a>
-    <a class="bulba-toc-item" id="btoc-extra-rs-safari" onclick="bulbaLoadExtra('rs-safari','Safari Zone Guide')">🌳 Safari Zone</a>
+    <a class="bulba-toc-item" id="btoc-extra-rs-safari" onclick="bulbaLoadExtra('rs-safari','Safari Zone Guide')">Safari Zone</a>
     </div><!-- end rs toc -->
 
     <!-- Emerald sidebar -->
     <div id="bulba-toc-e" style="display:none">
     <div class="bulba-toc-subhead">Main Storyline</div>
-    <a class="bulba-toc-item active" id="btoc-e-index" onclick="bulbaLoadIndex()">🏠 Contents</a>
+    <a class="bulba-toc-item active" id="btoc-e-index" onclick="bulbaLoadIndex()">Contents</a>
     <a class="bulba-toc-item" id="btoc-e-1" onclick="bulbaLoadPart(1,'Littleroot Town, Route 101')">Part 1 — Littleroot Town</a>
     <a class="bulba-toc-item" id="btoc-e-2" onclick="bulbaLoadPart(2,'Rustboro City')">Part 2 — Rustboro City</a>
     <a class="bulba-toc-item" id="btoc-e-3" onclick="bulbaLoadPart(3,'Dewford Town, Slateport City')">Part 3 — Dewford &amp; Slateport</a>
@@ -769,7 +769,7 @@
     <div class="bulba-toc-subhead" style="margin-top:8px;">Guide Extras</div>
     <a class="bulba-toc-item" id="btoc-extra-e-features" onclick="bulbaLoadExtra('e-features','RSE Features')">RSE Features</a>
     <a class="bulba-toc-item" id="btoc-extra-e-legends" onclick="bulbaLoadExtra('e-legends','Legendary Checklist')">Legends</a>
-    <a class="bulba-toc-item" id="btoc-extra-e-safari" onclick="bulbaLoadExtra('e-safari','Safari Zone Guide')">🌳 Safari Zone</a>
+    <a class="bulba-toc-item" id="btoc-extra-e-safari" onclick="bulbaLoadExtra('e-safari','Safari Zone Guide')">Safari Zone</a>
     </div><!-- end emerald toc -->
 
   </div>
@@ -804,7 +804,7 @@
 <!-- ═══════════════ ITEM DEX PAGE ═══════════════ -->
 <div id="page-items" class="page item-page">
   <div class="item-controls">
-    <div style="position:relative;display:flex;align-items:center;flex:1;min-width:180px;max-width:320px;"><input type="text" id="itSearch" class="item-search-inp" placeholder="Search item name, effect, or location…" oninput="filterItemDex();updateItClear(this)" style="max-width:none;flex:1;padding-right:28px"><button class="search-bar-clear" id="itClear" onclick="clearItSearch()" title="Clear search">✕</button></div>
+    <div style="position:relative;display:flex;align-items:center;flex:1;min-width:180px;max-width:320px;"><input type="text" id="itSearch" class="item-search-inp" placeholder="Search item name, effect, or location…" oninput="updateItClear(this);filterItemDex()" style="max-width:none;flex:1;padding-right:28px"><button class="search-bar-clear" id="itClear" onclick="clearItSearch()" title="Clear search">✕</button></div>
     <div class="item-cat-btns">
       <button class="item-cat-btn active" style="background:var(--card);color:var(--text)" onclick="setItemCat('All',this)">All</button>
       <button class="item-cat-btn" style="background:#E8501A;color:#fff" onclick="setItemCat('Ball',this)">Ball</button>
@@ -1053,7 +1053,7 @@
     <span id="tmhm-count" style="font-size:10px;color:var(--muted);margin-left:auto;"></span>
   </div>
   <div style="flex:1;overflow-y:auto;" id="tmhm-scroll">
-    <div id="tmhm-inner" style="padding:12px 16px;max-width:1100px;"></div>
+    <div id="tmhm-inner" style="padding:20px 24px;max-width:1100px;margin:0 auto;"></div>
   </div>
 </div>
 
@@ -1342,7 +1342,7 @@
     </div>
     <span class="ivev-ev-label" id="ivev-ev-count" style="color:#44DD88">0 / 510</span>
     <button onclick="ivevClearEVs()" style="font-size:9px;font-weight:800;padding:4px 9px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all 0.12s;" onmouseover="this.style.borderColor='var(--fire)';this.style.color='var(--fire)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">CLEAR EVs</button>
-    <button onclick="ivevOptimalEVs()" style="font-size:9px;font-weight:800;padding:4px 9px;border-radius:4px;border:1px solid rgba(255,215,0,0.4);background:rgba(255,215,0,0.06);color:var(--gold);cursor:pointer;transition:all 0.12s;">AUTO 252/252</button>
+    <button onclick="ivevOptimalEVs()" style="font-size:9px;font-weight:800;padding:4px 9px;border-radius:4px;border:1px solid color-mix(in srgb,var(--game-color,var(--gold)) 40%,transparent);background:color-mix(in srgb,var(--game-color,var(--gold)) 6%,transparent);color:var(--game-color,var(--gold));cursor:pointer;transition:all 0.12s;">AUTO 252/252</button>
   </div>
 
   <!-- Main stat grid -->
@@ -1363,12 +1363,12 @@
     <div class="ivev-iv-finder-title">🔍 IV FINDER — What IVs give a specific stat value?</div>
     <div style="font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.7;">Enter an observed in-game stat value to find the possible IV range. Works best at level 50 or 100.</div>
     <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:12px;">
-      <div id="ivf-col-hp"><label style="font-size:9px;font-weight:800;color:var(--muted);display:block;margin-bottom:4px">HP</label><input class="ivev-inp" id="ivf-hp" type="number" placeholder="—" oninput="ivefFind()"></div>
-      <div id="ivf-col-atk"><label style="font-size:9px;font-weight:800;color:var(--muted);display:block;margin-bottom:4px">ATK</label><input class="ivev-inp" id="ivf-atk" type="number" placeholder="—" oninput="ivefFind()"></div>
-      <div id="ivf-col-def"><label style="font-size:9px;font-weight:800;color:var(--muted);display:block;margin-bottom:4px">DEF</label><input class="ivev-inp" id="ivf-def" type="number" placeholder="—" oninput="ivefFind()"></div>
-      <div id="ivf-col-spa"><label style="font-size:9px;font-weight:800;color:var(--muted);display:block;margin-bottom:4px">SP.ATK</label><input class="ivev-inp" id="ivf-spa" type="number" placeholder="—" oninput="ivefFind()"></div>
-      <div id="ivf-col-spd"><label style="font-size:9px;font-weight:800;color:var(--muted);display:block;margin-bottom:4px">SP.DEF</label><input class="ivev-inp" id="ivf-spd" type="number" placeholder="—" oninput="ivefFind()"></div>
-      <div id="ivf-col-spe"><label style="font-size:9px;font-weight:800;color:var(--muted);display:block;margin-bottom:4px">SPEED</label><input class="ivev-inp" id="ivf-spe" type="number" placeholder="—" oninput="ivefFind()"></div>
+      <div id="ivf-col-hp"><label style="font-size:9px;font-weight:800;color:var(--game-color,var(--gold));display:block;margin-bottom:4px">HP</label><input class="ivev-inp" id="ivf-hp" type="number" placeholder="—" oninput="ivefFind()"></div>
+      <div id="ivf-col-atk"><label style="font-size:9px;font-weight:800;color:var(--game-color,var(--gold));display:block;margin-bottom:4px">ATK</label><input class="ivev-inp" id="ivf-atk" type="number" placeholder="—" oninput="ivefFind()"></div>
+      <div id="ivf-col-def"><label style="font-size:9px;font-weight:800;color:var(--game-color,var(--gold));display:block;margin-bottom:4px">DEF</label><input class="ivev-inp" id="ivf-def" type="number" placeholder="—" oninput="ivefFind()"></div>
+      <div id="ivf-col-spa"><label style="font-size:9px;font-weight:800;color:var(--game-color,var(--gold));display:block;margin-bottom:4px">SP.ATK</label><input class="ivev-inp" id="ivf-spa" type="number" placeholder="—" oninput="ivefFind()"></div>
+      <div id="ivf-col-spd"><label style="font-size:9px;font-weight:800;color:var(--game-color,var(--gold));display:block;margin-bottom:4px">SP.DEF</label><input class="ivev-inp" id="ivf-spd" type="number" placeholder="—" oninput="ivefFind()"></div>
+      <div id="ivf-col-spe"><label style="font-size:9px;font-weight:800;color:var(--game-color,var(--gold));display:block;margin-bottom:4px">SPEED</label><input class="ivev-inp" id="ivf-spe" type="number" placeholder="—" oninput="ivefFind()"></div>
     </div>
     <div style="margin-bottom:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
       <div class="ivev-ctrl-group"><label class="ivev-ctrl-label">Level</label><input class="ivev-inp" id="ivf-level" type="number" value="50" min="1" max="100" style="width:52px" oninput="ivefFind()"></div>
@@ -1380,7 +1380,7 @@
 
   <!-- Hidden Power Calculator -->
   <div class="ivev-iv-finder">
-    <div class="ivev-iv-finder-title" style="color:#9898A8;">⚡ HIDDEN POWER CALCULATOR</div>
+    <div class="ivev-iv-finder-title">⚡ HIDDEN POWER CALCULATOR</div>
     <div style="font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.7;">
       In Gen 3, Hidden Power's <strong>type</strong> and <strong>power</strong> are determined entirely by a Pokémon's IVs.
       Enter IVs below (or click <em>Copy from IV Calc</em> to use the values above).
@@ -1392,12 +1392,12 @@
       <button onclick="hpSetIVs(31,30,31,30,31,30)" style="font-size:9px;font-weight:800;padding:5px 10px;border-radius:4px;border:1px solid rgba(80,56,232,0.4);background:rgba(80,56,232,0.05);color:#5038E8;cursor:pointer;" title="Dragon: 31/30/31/30/31/30">Dragon preset</button>
     </div>
     <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:14px;">
-      <div><label style="font-size:9px;font-weight:800;color:var(--muted);display:block;margin-bottom:4px">HP</label><input class="ivev-inp" id="hp-iv-0" type="number" min="0" max="31" value="31" oninput="calcHP()"></div>
-      <div><label style="font-size:9px;font-weight:800;color:var(--muted);display:block;margin-bottom:4px">ATK</label><input class="ivev-inp" id="hp-iv-1" type="number" min="0" max="31" value="31" oninput="calcHP()"></div>
-      <div><label style="font-size:9px;font-weight:800;color:var(--muted);display:block;margin-bottom:4px">DEF</label><input class="ivev-inp" id="hp-iv-2" type="number" min="0" max="31" value="31" oninput="calcHP()"></div>
-      <div><label style="font-size:9px;font-weight:800;color:var(--muted);display:block;margin-bottom:4px">SP.ATK</label><input class="ivev-inp" id="hp-iv-3" type="number" min="0" max="31" value="31" oninput="calcHP()"></div>
-      <div><label style="font-size:9px;font-weight:800;color:var(--muted);display:block;margin-bottom:4px">SP.DEF</label><input class="ivev-inp" id="hp-iv-4" type="number" min="0" max="31" value="31" oninput="calcHP()"></div>
-      <div><label style="font-size:9px;font-weight:800;color:var(--muted);display:block;margin-bottom:4px">SPEED</label><input class="ivev-inp" id="hp-iv-5" type="number" min="0" max="31" value="31" oninput="calcHP()"></div>
+      <div><label style="font-size:9px;font-weight:800;color:var(--game-color,var(--gold));display:block;margin-bottom:4px">HP</label><input class="ivev-inp" id="hp-iv-0" type="number" min="0" max="31" value="31" oninput="calcHP()"></div>
+      <div><label style="font-size:9px;font-weight:800;color:var(--game-color,var(--gold));display:block;margin-bottom:4px">ATK</label><input class="ivev-inp" id="hp-iv-1" type="number" min="0" max="31" value="31" oninput="calcHP()"></div>
+      <div><label style="font-size:9px;font-weight:800;color:var(--game-color,var(--gold));display:block;margin-bottom:4px">DEF</label><input class="ivev-inp" id="hp-iv-2" type="number" min="0" max="31" value="31" oninput="calcHP()"></div>
+      <div><label style="font-size:9px;font-weight:800;color:var(--game-color,var(--gold));display:block;margin-bottom:4px">SP.ATK</label><input class="ivev-inp" id="hp-iv-3" type="number" min="0" max="31" value="31" oninput="calcHP()"></div>
+      <div><label style="font-size:9px;font-weight:800;color:var(--game-color,var(--gold));display:block;margin-bottom:4px">SP.DEF</label><input class="ivev-inp" id="hp-iv-4" type="number" min="0" max="31" value="31" oninput="calcHP()"></div>
+      <div><label style="font-size:9px;font-weight:800;color:var(--game-color,var(--gold));display:block;margin-bottom:4px">SPEED</label><input class="ivev-inp" id="hp-iv-5" type="number" min="0" max="31" value="31" oninput="calcHP()"></div>
     </div>
     <div id="hp-result" style="padding:14px 16px;background:var(--darker);border-radius:6px;font-size:13px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
       <span style="color:var(--muted);font-style:italic;font-size:12px;">Enter IVs above to calculate Hidden Power type and power.</span>
@@ -1945,20 +1945,20 @@
       <div style="font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.7;">All Pokémon that evolve via trading in Gen 3, including what held item is required and where to obtain it. Pokémon that require trading can only be obtained by linking two GBA systems or using an emulator link cable.</div>
 
       <div style="background:rgba(255,107,53,0.08);border:1px solid rgba(255,107,53,0.3);border-radius:6px;padding:12px 16px;margin-bottom:20px;font-size:12px;line-height:1.7;">
-        <strong style="color:var(--fire);">⚠ Link Cable Required:</strong> Gen 3 trades require two GBA systems + a Game Boy Advance Link Cable (or a GCN–GBA cable for some interactions). Alternatively, use a single emulator with two ROM instances and a virtual link cable (supported in VBA-M, mGBA, etc.).
+        <strong style="color:var(--fire);">Link Cable Required:</strong> Gen 3 trades require two GBA systems + a Game Boy Advance Link Cable (or a GCN–GBA cable for some interactions). Alternatively, use a single emulator with two ROM instances and a virtual link cable (supported in VBA-M, mGBA, etc.).
       </div>
 
       <!-- Gen 3 possible trades -->
-      <div style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--text);letter-spacing:0.5px;margin-bottom:12px;">POSSIBLE IN GEN 3 GBA GAMES</div>
+      <div style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--game-color,var(--gold));letter-spacing:0.5px;margin-bottom:12px;">POSSIBLE IN GEN 3 GBA GAMES</div>
       <div id="tradeevo-gen3"></div>
 
       <!-- Gen 4+ only reference -->
-      <div style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--muted);letter-spacing:0.5px;margin:24px 0 12px;">GEN 4+ ONLY (NOT POSSIBLE IN GEN 3)</div>
+      <div style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--game-color,var(--gold));letter-spacing:0.5px;margin:24px 0 12px;">GEN 4+ ONLY (NOT POSSIBLE IN GEN 3)</div>
       <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">These trade evolutions were introduced or require Pokémon Colosseum / Gen 4 games. Listed here for reference when planning a living Dex.</div>
       <div id="tradeevo-gen4"></div>
 
       <!-- Item location guide -->
-      <div style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--game-color,var(--gold));letter-spacing:0.5px;margin:28px 0 12px;">🗺 WHERE TO FIND TRADE ITEMS</div>
+      <div style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--game-color,var(--gold));letter-spacing:0.5px;margin:28px 0 12px;">WHERE TO FIND TRADE ITEMS</div>
       <div id="tradeevo-items"></div>
     </div>
   </div>
@@ -2045,7 +2045,7 @@
       <div style="overflow-x:auto;">
         <table class="tutors-table" id="tutors-table">
           <thead><tr>
-            <th>MOVE</th><th>TYPE</th><th style="text-align:center;">🔥 FR</th><th style="text-align:center;">🌿 LG</th><th style="text-align:center;">🟢 EMERALD</th>
+            <th>MOVE</th><th>TYPE</th><th style="text-align:center;">FR</th><th style="text-align:center;">LG</th><th style="text-align:center;">EMERALD</th>
           </tr></thead>
           <tbody id="tutors-tbody"></tbody>
         </table>
@@ -2239,7 +2239,7 @@
       <button onclick="cancelNoteEditor()"
         style="flex:1;background:var(--panel);border:1px solid var(--border);border-radius:5px;padding:9px;color:var(--muted);font-size:12px;cursor:pointer;">Cancel</button>
       <button onclick="saveNoteEditor()"
-        style="flex:2;background:var(--gold);color:#000;border:none;border-radius:5px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;">Save Note</button>
+        style="flex:2;background:var(--game-color,var(--gold));color:#000;border:none;border-radius:5px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;">Save Note</button>
     </div>
   </div>
 

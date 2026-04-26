@@ -21,6 +21,16 @@ let SORT_KEY = null, SORT_DIR = 1; // 1=asc, -1=desc
 var SITE_GAME_COLORS = {all:'var(--gold)',FR:'var(--fire)',LG:'var(--leaf)',R:'#FF5555',S:'#5599FF',E:'#44DD88'};
 function setSiteGameColor(g) {
   document.documentElement.style.setProperty('--game-color', SITE_GAME_COLORS[g] || 'var(--gold)');
+  // Push resolved color to map iframes for game-color theming
+  (function() {
+    var _rc = getComputedStyle(document.documentElement).getPropertyValue('--game-color').trim() || '#f5c518';
+    ['kmc-iframe', 'emc-iframe'].forEach(function(id) {
+      var ifrm = document.getElementById(id);
+      if (ifrm && ifrm.contentWindow) {
+        try { ifrm.contentWindow.postMessage({ type: 'mapGameColor', color: _rc }, '*'); } catch(e) {}
+      }
+    });
+  })();
   // Re-colour any already-built type chart active tab
   if (window._typeChartBuilt) {
     var _gc = SITE_GAME_COLORS[g] || 'var(--gold)';
@@ -371,12 +381,30 @@ function buildHomePage() {
   var mascotNum = MASCOT_NUMS[GAME] || 25;
 
   // #6 Caught %
+  var _homeSave = (typeof TRK_SAVE !== 'undefined' && TRK_SAVE && TRK_SAVE !== 'all') ? TRK_SAVE
+                : (GAME !== 'all' ? GAME : null);
   var caughtPct = (function() {
     try {
-      var save = (typeof TRK_SAVE !== 'undefined' && TRK_SAVE && TRK_SAVE !== 'all') ? TRK_SAVE
-               : (GAME !== 'all' ? GAME : 'FR');
-      var arr = JSON.parse(localStorage.getItem('pokedex_tracker_' + save) || '[]');
-      return Array.isArray(arr) ? Math.round(arr.length / 386 * 100) : 0;
+      if (_homeSave) {
+        var arr = JSON.parse(localStorage.getItem('pokedex_tracker_' + _homeSave) || '[]');
+        return Array.isArray(arr) ? Math.round(arr.length / 386 * 100) : 0;
+      }
+      // All games: union of caught across all 5 saves
+      var seen = {};
+      ['FR','LG','R','S','E'].forEach(function(g) {
+        var a = JSON.parse(localStorage.getItem('pokedex_tracker_' + g) || '[]');
+        if (Array.isArray(a)) a.forEach(function(n) { seen[n] = 1; });
+      });
+      return Math.round(Object.keys(seen).length / 386 * 100);
+    } catch(e) { return 0; }
+  })();
+  var badgeCount = (function() {
+    try {
+      if (!_homeSave) return 0;
+      var raw = localStorage.getItem('dexdash_gym_' + _homeSave);
+      var arr = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(arr)) return 0;
+      return arr.filter(function(id) { return id !== 'elite4'; }).length;
     } catch(e) { return 0; }
   })();
 
@@ -436,7 +464,10 @@ function buildHomePage() {
     +   '<div class="home-mast-sep"></div>'
     +   '<div class="home-mast-stats">'
     +     '<div class="home-mast-stat"><span class="home-mast-stat-num" data-target="386">0</span><span class="home-mast-stat-lbl">Pokémon</span></div>'
-    +     '<div class="home-mast-stat"><span class="home-mast-stat-num" data-target="5">0</span><span class="home-mast-stat-lbl">Games</span></div>'
+    +     (GAME !== 'all'
+            ? '<div class="home-mast-stat"><span class="home-mast-stat-num" data-target="' + badgeCount + '">0</span><span class="home-mast-stat-lbl">Badges</span></div>'
+            : '<div class="home-mast-stat"><span class="home-mast-stat-num" data-target="5">0</span><span class="home-mast-stat-lbl">Games</span></div>'
+          )
     +     '<div class="home-mast-stat"><span class="home-mast-stat-num" data-target="' + caughtPct + '" data-suffix="%">0%</span><span class="home-mast-stat-lbl">Caught</span></div>'
     +   '</div>'
     + '</div>'
@@ -977,7 +1008,7 @@ function buildRow(p) {
   const num = getDisplayDex(p.num);
   const hasChain = getEvoChain(p.num).length > 1;
   const clickAttr = ` onclick="toggleEvoRow(${p.num})"`;
-  const teamBtn = `<button onclick="event.stopPropagation();tbAddFromDex(${p.num})" title="Add to Team Builder" style="background:none;border:1px solid var(--border);color:var(--muted);font-size:9px;padding:1px 5px;border-radius:3px;cursor:pointer;margin-left:4px;font-weight:700;transition:all 0.12s" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">+team</button>`;
+  const teamBtn = `<button onclick="event.stopPropagation();tbAddFromDex(${p.num})" title="Add to Team Builder" style="background:none;border:1px solid var(--border);color:var(--muted);font-size:9px;padding:1px 5px;border-radius:3px;cursor:pointer;margin-left:4px;font-weight:700;transition:all 0.12s" onmouseover="this.style.borderColor='var(--game-color,var(--gold))';this.style.color='var(--game-color,var(--gold))'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">+team</button>`;
   const chainIcon = hasChain
     ? `<span style="font-size:9px;color:var(--muted);margin-left:5px;opacity:0.6" title="Click to show evolution chain, stats &amp; moves">⬡</span>`
     : `<span style="font-size:9px;color:var(--muted);margin-left:5px;opacity:0.4" title="Click to show stats &amp; moves">◈</span>`;
@@ -1864,7 +1895,7 @@ function showMapLocation(locId) {
       const safeName = name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
       const dispName = name.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
       const dispLoc  = locStr.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      itemHtml += '<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:var(--card);border-radius:5px;border:1px solid var(--border);margin-bottom:4px;cursor:pointer;transition:border-color 0.15s" onmouseover="this.style.borderColor=\'var(--gold)\'" onmouseout="this.style.borderColor=\'var(--border)\'" onclick="openItemByName(\'' + safeName + '\')">'
+      itemHtml += '<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:var(--card);border-radius:5px;border:1px solid var(--border);margin-bottom:4px;cursor:pointer;transition:border-color 0.15s" onmouseover="this.style.borderColor=\'var(--game-color,var(--gold))\'" onmouseout="this.style.borderColor=\'var(--border)\'" onclick="openItemByName(\'' + safeName + '\')">'
         + iconHtml
         + '<div style="flex:1;min-width:0">'
         + '<div style="font-weight:800;font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + dispName + '</div>'
@@ -2553,19 +2584,23 @@ function mdexToggle(id) {
 }
 
 function mdexGoTo(num) {
-  openEvoNum = null;
-  showPage('dex',document.getElementById('navDex'));
-  setTimeout(()=>{
-    const r = document.getElementById('poke-row-'+num);
-    const container = document.getElementById('tablePanel');
+  SEARCH = '';
+  var inp = document.getElementById('searchInput');
+  if (inp) inp.value = '';
+  openEvoNum = num;
+  showPage('dex', document.getElementById('navDex'));
+  setTimeout(function() {
+    var r = document.getElementById('poke-row-' + num);
+    var container = document.getElementById('tablePanel');
     if (!r || !container) return;
-    const rowTop = r.getBoundingClientRect().top;
-    const containerTop = container.getBoundingClientRect().top;
-    // Get sticky thead height to avoid it overlapping the row
-    const thead = container.querySelector('thead');
-    const theadH = thead ? thead.getBoundingClientRect().height : 0;
-    container.scrollTo({top: container.scrollTop + (rowTop - containerTop) - theadH - 14, behavior:'smooth'});
-  },80);
+    if (openEvoNum !== num) toggleEvoRow(num);
+    flashDexRow(num);
+    var thead = container.querySelector('thead');
+    var theadH = thead ? thead.getBoundingClientRect().height : 0;
+    var rowTop = r.getBoundingClientRect().top;
+    var containerTop = container.getBoundingClientRect().top;
+    container.scrollTo({ top: container.scrollTop + (rowTop - containerTop) - theadH - 14, behavior: 'smooth' });
+  }, 80);
 }
 function mdexSort(key) {if(MD_SORT_KEY===key)MD_SORT_DIR*=-1;else{MD_SORT_KEY=key;MD_SORT_DIR=1;}MD_OPEN_ID=null;mdexRender();}
 function mdexSetType(type) {MD_TYPE_FILTER=MD_TYPE_FILTER===type?null:type;MD_OPEN_ID=null;document.querySelectorAll('.mdex-type-btn').forEach(b=>b.classList.toggle('active',b.dataset.type===MD_TYPE_FILTER));mdexRender();}
@@ -2646,13 +2681,20 @@ function goToMoveInDex(moveName) {
   const btn = document.getElementById('navMoves');
   showPage('moves', btn);
   if (!window._movesBuilt) { buildMoveDex(); window._movesBuilt = true; }
-  MD_SEARCH = moveName; MD_OPEN_ID = null;
+  // Find the exact move ID by name
+  const exactEntry = Object.entries(MOVES_DATA).find(([id, m]) => m[0].toLowerCase() === moveName.toLowerCase());
+  const exactId = exactEntry ? exactEntry[0] : null;
+  MD_SEARCH = moveName; MD_OPEN_ID = exactId ? Number(exactId) : null;
   const inp = document.getElementById('mdex-search');
-  if (inp) inp.value = moveName;
+  if (inp) { inp.value = moveName; updateMdexClear(inp); }
   mdexRender();
-  // Auto-open the move row if there's an exact match
-  const rows = mdexGetFiltered();
-  if (rows.length === 1) { const id = rows[0][0]; setTimeout(() => mdexToggleDet(id), 80); }
+  // Scroll the already-open row into view
+  if (exactId) {
+    setTimeout(function() {
+      var row = document.querySelector('#mdex-tbody tr.mrow[data-mid="' + exactId + '"]');
+      if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 80);
+  }
 }
 
 
@@ -4035,7 +4077,7 @@ function buildFullChart() {
   const abbr = {normal:'NOR',fire:'FIR',water:'WAT',electric:'ELE',grass:'GRS',ice:'ICE',fighting:'FGT',poison:'PSN',ground:'GRD',flying:'FLY',psychic:'PSY',bug:'BUG',rock:'ROC',ghost:'GHO',dragon:'DRG',dark:'DRK',steel:'STL'};
 
   let t = '<div style="overflow-x:auto"><table class="tc-table"><thead><tr>'
-    + '<th class="row-head" style="font-size:9px;color:var(--muted)">ATK ↓ / DEF →</th>';
+    + '<th class="row-head" style="font-size:9px;color:var(--game-color,var(--gold))">ATK ↓ / DEF →</th>';
 
   TYPES.forEach(dt => {
     const id = TYPE_ICON_IDS[dt];
@@ -10277,10 +10319,6 @@ function tmhmRender() {
     return;
   }
 
-  var gameCol = TMHM_GAME_COLORS[TMHM_GAME];
-
-  // Page title colour driven by CSS --game-color (no inline override needed)
-
   // Separate TMs and HMs
   var tms = items.filter(function(it){ return /^TM/.test(it[1]); });
   var hms = items.filter(function(it){ return /^HM/.test(it[1]); });
@@ -10288,7 +10326,7 @@ function tmhmRender() {
   function renderSection(list, title) {
     if (!list.length) return '';
     var rows = list.map(function(it) {
-      var name = it[1]; // "TM01 Focus Punch"
+      var name = it[1];
       var num = name.match(/^(TM|HM)(\d+)/);
       var prefix = num ? num[1] : '';
       var numStr = num ? num[2] : '';
@@ -10297,7 +10335,6 @@ function tmhmRender() {
       var loc = locs[TMHM_GAME] || '';
       var effect = it[3] || '';
 
-      // Find move data for type
       var moveEntry = null;
       Object.entries(MOVES_DATA).forEach(function(e){
         if (e[1][0] === moveName) moveEntry = e[1];
@@ -10305,66 +10342,41 @@ function tmhmRender() {
       var moveType = moveEntry ? moveEntry[1] : '';
       var moveCat = moveEntry ? moveEntry[2] : '';
       var movePow = moveEntry ? moveEntry[3] : null;
-      var typeColor = moveType ? (TYPE_COLORS_MD[moveType] || '#888') : '#888';
-
-      // Location availability across all region games
-      var availGroups = [
-        {label:'FR/LG', games:['FR','LG'], col:'var(--fire)'},
-        {label:'R/S',   games:['R','S'],   col:'#FF5555'},
-        {label:'E',     games:['E'],       col:'#44DD88'},
-      ];
-      var gameAvailHtml = availGroups.map(function(grp) {
-        var hasLoc = grp.games.some(function(g){ return !!(locs[g]||''); });
-        var dim = !hasLoc ? 'opacity:0.25' : '';
-        return '<span style="font-family:\'Press Start 2P\',monospace;font-size:6px;padding:2px 5px;border-radius:2px;border:1px solid;border-color:'+grp.col+';color:'+grp.col+';'+dim+'">'+grp.label+'</span>';
-      }).join(' ');
-      gameAvailHtml = '<span style="white-space:nowrap;display:inline-flex;gap:3px;flex-wrap:nowrap">' + gameAvailHtml + '</span>';
-
-      var locDisplay = loc
-        ? '<span style="color:var(--text)">' + loc + '</span>'
-        : '<span style="color:var(--muted);font-style:italic">Not available in ' + TMHM_GAME_LABELS[TMHM_GAME] + '</span>';
 
       var catIcon = moveCat === 'Physical' ? '⚔' : moveCat === 'Special' ? '✨' : moveCat === 'Status' ? '●' : '';
       var powStr = movePow ? movePow : '—';
+      var powColor = movePow >= 100 ? '#F08030' : movePow >= 60 ? 'var(--text)' : 'var(--muted)';
 
-      // Look up the correct sprite URL from ITEM_ICONS (TMs stored as type-based e.g. tm-electric.png)
-      var tmIconUrl = '';
       var tmKey = (prefix + numStr).toUpperCase();
       var tmEntry = ALL_ITEMS.find(function(it){ return it[1].toUpperCase().indexOf(tmKey) === 0; });
-      if (tmEntry && ITEM_ICONS[tmEntry[0]]) tmIconUrl = ITEM_ICONS[tmEntry[0]];
-      else tmIconUrl = ITEM_SPRITE_BASE + prefix.toLowerCase() + numStr + '.png';
-      var tmSprite = '<img src="'+tmIconUrl+'" width="20" height="20" style="image-rendering:pixelated;flex-shrink:0;vertical-align:middle" onerror="this.style.display=\'none\'">';
-      return '<tr style="border-bottom:1px solid rgba(42,58,110,0.25)">'
-        + '<td style="padding:7px 10px;white-space:nowrap">'
-        +   '<div style="display:flex;align-items:center;gap:5px;">'
-        +   tmSprite
-        +   '<span style="font-family:\'Press Start 2P\',monospace;font-size:7px;background:color-mix(in srgb,var(--game-color,var(--gold)) 12%,transparent);color:var(--game-color,var(--gold));border:1px solid color-mix(in srgb,var(--game-color,var(--gold)) 30%,transparent);padding:2px 6px;border-radius:3px">'+prefix+numStr+'</span>'
-        +   '</div>'
-        + '</td>'
-        + '<td style="padding:7px 10px;font-weight:800;font-size:12px;white-space:nowrap"><span style="cursor:pointer;transition:color 0.12s" onmouseover="this.style.color=\'var(--fire)\'" onmouseout="this.style.color=\'\'" onclick="goToMoveInDex(\'' + moveName + '\')">' + moveName + '</span></td>'
-        + '<td style="padding:7px 10px">'
-        +   (moveType ? typeSprite(moveType.toLowerCase()) : '')
-        + '</td>'
-        + '<td style="padding:7px 10px;font-size:11px;color:var(--muted);white-space:nowrap">' + catIcon + ' ' + moveCat + '</td>'
-        + '<td style="padding:7px 10px;font-family:monospace;font-weight:800;text-align:right;font-size:12px;color:' + (movePow>=100?'#F08030':movePow>=60?'var(--text)':'var(--muted)') + '">' + powStr + '</td>'
-        + '<td style="padding:7px 10px;font-size:11px;color:var(--muted);max-width:300px">' + effect.slice(0,60) + (effect.length>60?'…':'') + '</td>'
-        + '<td style="padding:7px 10px">' + gameAvailHtml + '</td>'
-        + '<td style="padding:7px 10px;font-size:11px;min-width:220px">' + locDisplay + '</td>'
+      var tmIconUrl = (tmEntry && ITEM_ICONS[tmEntry[0]]) ? ITEM_ICONS[tmEntry[0]] : ITEM_SPRITE_BASE + prefix.toLowerCase() + numStr + '.png';
+      var tmSprite = '<img src="' + tmIconUrl + '" width="20" height="20" style="image-rendering:pixelated;flex-shrink:0;vertical-align:middle" onerror="this.style.display=\'none\'">';
+
+      var locText = loc
+        ? '<span style="color:var(--text)">' + loc + '</span>'
+        : '<span style="color:var(--muted);font-style:italic">Not available</span>';
+
+      return '<tr>'
+        + '<td style="white-space:nowrap"><div style="display:flex;align-items:center;gap:6px">' + tmSprite + '<span class="tmhm-num-badge">' + prefix + numStr + '</span></div></td>'
+        + '<td style="white-space:nowrap"><span class="tmhm-move-link" onclick="goToMoveInDex(\'' + moveName.replace(/'/g,"\\'") + '\')">' + moveName + '</span></td>'
+        + '<td>' + (moveType ? typeSprite(moveType.toLowerCase()) : '') + '</td>'
+        + '<td style="font-size:11px;color:var(--muted);white-space:nowrap">' + catIcon + ' ' + moveCat + ' <span style="font-family:monospace;font-weight:800;font-size:12px;color:' + powColor + '">' + powStr + '</span></td>'
+        + '<td style="font-size:11px;color:var(--muted);max-width:260px">' + effect.slice(0,55) + (effect.length>55?'…':'') + '</td>'
+        + '<td style="min-width:200px">' + locText + '</td>'
         + '</tr>';
     }).join('');
 
-    return '<div style="margin-bottom:20px">'
-      + '<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:' + gameCol + ';letter-spacing:1px;padding:8px 0 10px;border-bottom:2px solid var(--border);margin-bottom:0">' + title + '</div>'
-      + '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">'
-      + '<thead><tr style="background:var(--card)">'
-      + '<th style="padding:6px 10px;text-align:left;font-size:9px;color:var(--game-color,var(--gold));text-transform:uppercase;border-bottom:2px solid var(--border);white-space:nowrap">#</th>'
-      + '<th style="padding:6px 10px;text-align:left;font-size:9px;color:var(--game-color,var(--gold));text-transform:uppercase;border-bottom:2px solid var(--border)">Move</th>'
-      + '<th style="padding:6px 10px;text-align:left;font-size:9px;color:var(--game-color,var(--gold));text-transform:uppercase;border-bottom:2px solid var(--border)">Type</th>'
-      + '<th style="padding:6px 10px;text-align:left;font-size:9px;color:var(--game-color,var(--gold));text-transform:uppercase;border-bottom:2px solid var(--border)">Cat</th>'
-      + '<th style="padding:6px 10px;text-align:right;font-size:9px;color:var(--game-color,var(--gold));text-transform:uppercase;border-bottom:2px solid var(--border)">Pwr</th>'
-      + '<th style="padding:6px 10px;text-align:left;font-size:9px;color:var(--game-color,var(--gold));text-transform:uppercase;border-bottom:2px solid var(--border)">Effect</th>'
-      + '<th style="padding:6px 10px;text-align:left;font-size:9px;color:var(--game-color,var(--gold));text-transform:uppercase;border-bottom:2px solid var(--border)">Games</th>'
-      + '<th style="padding:6px 10px;text-align:left;font-size:9px;color:' + gameCol + ';text-transform:uppercase;border-bottom:2px solid var(--border)">Location in ' + TMHM_GAME_LABELS[TMHM_GAME] + '</th>'
+    return '<div class="tmhm-section">'
+      + '<div class="panel" style="padding:0;overflow-x:auto;">'
+      + '<div class="tmhm-section-title">' + title + '</div>'
+      + '<table class="tmhm-table">'
+      + '<thead><tr>'
+      + '<th>#</th>'
+      + '<th>Move</th>'
+      + '<th>Type</th>'
+      + '<th>Cat / Pwr</th>'
+      + '<th>Effect</th>'
+      + '<th>Location — ' + TMHM_GAME_LABELS[TMHM_GAME] + '</th>'
       + '</tr></thead>'
       + '<tbody>' + rows + '</tbody>'
       + '</table></div></div>';
@@ -10833,7 +10845,7 @@ function ivevSelectPoke(num) {
   document.getElementById('ivev-poke-info').innerHTML =
     '<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+num+'.png" width="40" height="40" style="image-rendering:pixelated">'
     +'<div><div style="font-weight:800;font-size:13px">'+p.name+'</div><div style="display:flex;gap:3px;margin-top:2px">'+tc+'</div></div>'
-    +'<button onclick="ivevClearPoke()" title="Remove Pokémon" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:4px;font-size:11px;padding:2px 7px;cursor:pointer;margin-left:4px;transition:all 0.12s;" onmouseover="this.style.borderColor=\'var(--fire)\';this.style.color=\'var(--fire)\'" onmouseout="this.style.borderColor=\'var(--border)\';this.style.color=\'var(--muted)\'">✕</button>';
+    +'<button onclick="ivevClearPoke()" title="Remove Pokémon" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:4px;font-size:11px;padding:2px 7px;cursor:pointer;margin-left:4px;transition:all 0.12s;" onmouseover="this.style.borderColor=\'var(--game-color,var(--gold))\';this.style.color=\'var(--game-color,var(--gold))\'" onmouseout="this.style.borderColor=\'var(--border)\';this.style.color=\'var(--muted)\'">✕</button>';
 
   // Reset EVs, keep IVs at 31
   IVEV_EVS = [0,0,0,0,0,0];
@@ -13630,8 +13642,8 @@ function heldFilter() {
     var lbl = CAT_LABELS[it.cat] || it.cat;
     var rowId = 'held-row-' + i;
     var detId = 'held-det-' + i;
-    html += '<tr id="' + rowId + '" style="border-bottom:1px solid var(--border)' + (i%2===0 ? ';background:rgba(255,255,255,0.01)' : '') + '" ' + (isMobile ? 'onclick="heldToggleDet(\'' + detId + '\',\'' + rowId + '\')" style="cursor:pointer;border-bottom:1px solid var(--border)' + (i%2===0 ? ';background:rgba(255,255,255,0.01)' : '') + '"' : '') + '>'
-      + '<td style="padding:9px 12px;font-size:12px;font-weight:700;white-space:nowrap;"><div style="display:flex;align-items:center;gap:6px;' + (isMobile ? '' : 'cursor:pointer;') + '" ' + (isMobile ? '' : 'onclick="openItemByName(this.dataset.item)" data-item="' + it.name.replace(/"/g,'&quot;').replace(/'/g,'&#39;') + '"') + '>' + itemSprite(it.name, 24) + it.name + '</div></td>'
+    html += '<tr id="' + rowId + '" style="border-bottom:1px solid var(--border);" ' + (isMobile ? 'onclick="heldToggleDet(\'' + detId + '\',\'' + rowId + '\')" style="cursor:pointer;border-bottom:1px solid var(--border);"' : '') + '>'
+      + '<td style="padding:9px 12px;font-size:12px;font-weight:700;white-space:nowrap;"><div style="display:flex;align-items:center;gap:6px;' + (isMobile ? '' : 'cursor:pointer;transition:color 0.12s;') + '" ' + (isMobile ? '' : 'onclick="openItemByName(this.dataset.item)" data-item="' + it.name.replace(/"/g,'&quot;').replace(/'/g,'&#39;') + '" onmouseover="this.style.color=\'var(--game-color,var(--gold))\'" onmouseout="this.style.color=\'\'"') + '>' + itemSprite(it.name, 24) + it.name + '</div></td>'
       + '<td style="padding:9px 12px;"><span style="font-size:10px;font-weight:700;color:' + col + ';white-space:nowrap;">' + lbl + '</span></td>'
       + '<td style="padding:9px 12px;font-size:11px;color:var(--text);line-height:1.5;">' + it.effect + '</td>'
       + (isMobile ? '' : '<td style="padding:9px 12px;font-size:11px;color:var(--muted);line-height:1.5;">' + it.location + '</td>')
@@ -14637,26 +14649,33 @@ function renderTradeEvoPage() {
   // Gen 3 trades
   var gen3el = document.getElementById('tradeevo-gen3');
   if (!gen3el) return;
+  var thStyle = 'padding:9px 12px;text-align:left;font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--game-color,var(--gold));border-bottom:2px solid var(--border);';
   var html = '<table style="width:100%;border-collapse:collapse;margin-bottom:8px;">'
-    + '<thead><tr style="background:var(--card);">'
-    + '<th style="padding:9px 12px;text-align:left;font-size:10px;color:var(--muted);border-bottom:2px solid var(--border);">Trade</th>'
-    + '<th style="padding:9px 12px;text-align:left;font-size:10px;color:var(--muted);border-bottom:2px solid var(--border);">Required Item</th>'
-    + '<th style="padding:9px 12px;text-align:left;font-size:10px;color:var(--muted);border-bottom:2px solid var(--border);">Available In</th>'
-    + '<th style="padding:9px 12px;text-align:left;font-size:10px;color:var(--muted);border-bottom:2px solid var(--border);">Notes</th>'
+    + '<thead><tr style="background:var(--panel);">'
+    + '<th style="' + thStyle + '">Trade</th>'
+    + '<th style="' + thStyle + '">Required Item</th>'
+    + '<th style="' + thStyle + '">Available In</th>'
+    + '<th style="' + thStyle + '">Notes</th>'
     + '</tr></thead><tbody>';
 
   TRADE_EVOS_GEN3.forEach(function(e, i) {
     var itemBadge = e.item
       ? '<span style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,215,0,0.15);border:1px solid rgba(255,215,0,0.4);border-radius:3px;padding:2px 8px;font-size:10px;font-weight:700;color:var(--game-color,var(--gold));">' + itemSprite(e.item,18) + e.item + '</span>'
       : '<span style="font-size:11px;color:var(--muted);">No item</span>';
-    html += '<tr style="border-bottom:1px solid var(--border)' + (i%2===0?';background:rgba(255,255,255,0.01)':'') + '">'
+    html += '<tr style="border-bottom:1px solid var(--border);">'
       + '<td style="padding:10px 12px;">'
       + '<div style="display:flex;align-items:center;gap:10px;">'
-      + '<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + e.fromNum + '.png" width="32" height="32" style="image-rendering:pixelated">'
+      + '<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + e.fromNum + '.png" width="32" height="32" style="image-rendering:pixelated;cursor:pointer;" onclick="guideDex(\'' + e.from.replace(/'/g,"\\'") + '\')">'
       + '<span style="font-size:13px;color:var(--muted);">→</span>'
-      + '<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + e.toNum + '.png" width="32" height="32" style="image-rendering:pixelated">'
-      + '<div><div style="font-size:12px;font-weight:700;">' + e.from + ' → ' + e.to + '</div>'
-      + '<div style="font-size:10px;color:var(--muted);">#' + String(e.fromNum).padStart(3,'0') + ' → #' + String(e.toNum).padStart(3,'0') + '</div></div>'
+      + '<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + e.toNum + '.png" width="32" height="32" style="image-rendering:pixelated;cursor:pointer;" onclick="guideDex(\'' + e.to.replace(/'/g,"\\'") + '\')">'
+      + '<div>'
+      + '<div style="font-size:12px;font-weight:700;">'
+      + '<span class="guide-poke-link" onclick="guideDex(\'' + e.from.replace(/'/g,"\\'") + '\')">' + e.from + '</span>'
+      + ' → '
+      + '<span class="guide-poke-link" onclick="guideDex(\'' + e.to.replace(/'/g,"\\'") + '\')">' + e.to + '</span>'
+      + '</div>'
+      + '<div style="font-size:10px;color:var(--muted);">#' + String(e.fromNum).padStart(3,'0') + ' → #' + String(e.toNum).padStart(3,'0') + '</div>'
+      + '</div>'
       + '</div></td>'
       + '<td style="padding:10px 12px;">' + itemBadge + '</td>'
       + '<td style="padding:10px 12px;font-size:11px;color:var(--text);">' + e.games + '</td>'
@@ -14664,15 +14683,15 @@ function renderTradeEvoPage() {
       + '</tr>';
   });
   html += '</tbody></table>';
-  gen3el.innerHTML = '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">' + html + '</div>';
+  gen3el.innerHTML = '<div class="panel" style="overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0;">' + html + '</div>';
 
   // Gen 4+ only
   var gen4el = document.getElementById('tradeevo-gen4');
   html = '<table style="width:100%;border-collapse:collapse;margin-bottom:8px;opacity:0.75;">'
-    + '<thead><tr style="background:var(--card);">'
-    + '<th style="padding:9px 12px;text-align:left;font-size:10px;color:var(--muted);border-bottom:2px solid var(--border);">Trade</th>'
-    + '<th style="padding:9px 12px;text-align:left;font-size:10px;color:var(--muted);border-bottom:2px solid var(--border);">Item</th>'
-    + '<th style="padding:9px 12px;text-align:left;font-size:10px;color:var(--muted);border-bottom:2px solid var(--border);">Note</th>'
+    + '<thead><tr style="background:var(--panel);">'
+    + '<th style="' + thStyle + '">Trade</th>'
+    + '<th style="' + thStyle + '">Item</th>'
+    + '<th style="' + thStyle + '">Note</th>'
     + '</tr></thead><tbody>';
   TRADE_EVOS_GEN4.forEach(function(e, i) {
     html += '<tr style="border-bottom:1px solid var(--border)">'
@@ -14682,7 +14701,7 @@ function renderTradeEvoPage() {
       + '</tr>';
   });
   html += '</tbody></table>';
-  gen4el.innerHTML = '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">' + html + '</div>';
+  gen4el.innerHTML = '<div class="panel" style="overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0;">' + html + '</div>';
 
   // Item locations
   var itemsEl = document.getElementById('tradeevo-items');
@@ -15240,7 +15259,9 @@ window.bulbaOpenGuideNote = function(mode, key, title) {
     var labelsEl = document.getElementById('ne-labels');
     if (gameEl) gameEl.value = game;
     if (labelsEl && !labelsEl.value.trim()) labelsEl.value = 'Guide, Story';
-    document.querySelectorAll('.ne-color-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.color === 'green'); });
+    var _bulbaGameColorMap = {FR:'orange', LG:'green', R:'red', S:'blue', E:'green'};
+    var _bulbaDefaultColor = _bulbaGameColorMap[game] || 'green';
+    document.querySelectorAll('.ne-color-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.color === _bulbaDefaultColor); });
     document.querySelectorAll('.ne-tag-btn').forEach(function(b){ b.classList.toggle('active', false); });
     var pin = document.getElementById('ne-pin');
     if (pin) {
@@ -16247,14 +16268,13 @@ function buildContestsPage() {
   html += card('HOW CONTESTS WORK',
     info('Each contest round: all contestants pick a move. <strong>Appeal</strong> is generated from the move\'s base appeal value plus crowd bonuses. The Pokémon with the most appeal at the end of 5 rounds wins.')
     +'<div style="display:flex;flex-direction:column;gap:8px;margin-top:6px;">'
-    +[['🎭 Appeal','The main score. Generated by moves. Doubled when the crowd is excited (filled heart meter). Some moves generate more appeal when used after specific other moves.'],
-      ['😤 Jamming','Some moves reduce the appeal of other contestants on that turn. Blocking jamming gives +2 appeal.'],
-      ['💛 Crowd hearts','The audience has 5 hearts. Using moves of the matching contest category fills hearts. Filled = excited crowd → ×2 appeal multiplier. Hearts drain if you ignore the crowd.'],
-      ['🔢 Move order','Determined by your condition stat matching the category (e.g. Coolness contests use the Coolness stat). Higher condition = earlier turn = ability to jam before others appeal.'],
-      ['🔁 Combos','Some moves set up combos: using move A then move B on the next turn gives +8 bonus appeal. The move description hints at this ("appeal increases greatly if used after X").']]
+    +[['Appeal','The main score. Generated by moves. Doubled when the crowd is excited (filled heart meter). Some moves generate more appeal when used after specific other moves.'],
+      ['Jamming','Some moves reduce the appeal of other contestants on that turn. Blocking jamming gives +2 appeal.'],
+      ['Crowd hearts','The audience has 5 hearts. Using moves of the matching contest category fills hearts. Filled = excited crowd → ×2 appeal multiplier. Hearts drain if you ignore the crowd.'],
+      ['Move order','Determined by your condition stat matching the category (e.g. Coolness contests use the Coolness stat). Higher condition = earlier turn = ability to jam before others appeal.'],
+      ['Combos','Some moves set up combos: using move A then move B on the next turn gives +8 bonus appeal. The move description hints at this ("appeal increases greatly if used after X").']]
       .map(function(row){return '<div style="display:flex;gap:10px;padding:8px;background:var(--panel);border-radius:6px;">'
-        +'<span style="font-size:16px;flex-shrink:0;">'+row[0].split(' ')[0]+'</span>'
-        +'<div><strong style="font-size:11px;color:var(--text);">'+row[0].slice(2)+'</strong><div style="font-size:11px;color:var(--muted);line-height:1.6;margin-top:2px;">'+row[1]+'</div></div>'
+        +'<div><strong style="font-size:11px;color:var(--text);">'+row[0]+'</strong><div style="font-size:11px;color:var(--muted);line-height:1.6;margin-top:2px;">'+row[1]+'</div></div>'
         +'</div>';})
       .join('')
     +'</div>'
@@ -16268,7 +16288,7 @@ function buildContestsPage() {
        ['Super','Lilycove Contest Hall (2F)','Won Normal in that category'],
        ['Hyper','Lilycove Contest Hall (3F)','Won Super in that category'],
        ['Master','Lilycove Contest Hall (4F)','Won Hyper in that category']])
-    +'<div style="margin-top:10px;padding:8px 12px;background:rgba(255,215,0,0.06);border:1px solid var(--gold);border-radius:6px;font-size:11px;color:var(--muted);">🏆 Win the Master rank of all 5 categories to get the <strong style="color:var(--gold);">Artist</strong> to paint your Pokémon\'s portrait, displayed in the Lilycove Museum.</div>'
+    +'<div style="margin-top:10px;padding:8px 12px;background:rgba(255,215,0,0.06);border:1px solid var(--gold);border-radius:6px;font-size:11px;color:var(--muted);">Win the Master rank of all 5 categories to get the <strong style="color:var(--gold);">Artist</strong> to paint your Pokémon\'s portrait, displayed in the Lilycove Museum.</div>'
   );
 
   // Ribbon checklist
@@ -16309,42 +16329,40 @@ function buildFrontierPage() {
   function badge(label, color) { return '<span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;background:'+color+'22;border:1px solid '+color+';color:'+color+';margin:2px;">'+label+'</span>'; }
 
   var facilities = [
-    { name:'BATTLE TOWER', icon:'🗼', color:'#5599FF', brain:'Anabel', streak:50, mode:'Own Pokémon (Level 50 or Open Level). Singles or Doubles.',
+    { name:'BATTLE TOWER', color:'#5599FF', brain:'Anabel', streak:50, mode:'Own Pokémon (Level 50 or Open Level). Singles or Doubles.',
       tip:'The most straightforward facility. Level 50 format lets weaker Pokémon compete. Bring Pokémon with high individual stat totals — Salamence, Metagross, Snorlax, Blissey, and Latios are top-tier.',
       prize:'BP prizes include Salac/Petaya/Liechi berries at 1 BP, and Choice Band / Scope Lens at 48 BP.' },
-    { name:'BATTLE DOME', icon:'🏟', color:'#FF9040', brain:'Tucker', streak:50, mode:'Tournament bracket (16 Pokémon, 4 rounds per set). Own Pokémon.',
+    { name:'BATTLE DOME', color:'#FF9040', brain:'Tucker', streak:50, mode:'Tournament bracket (16 Pokémon, 4 rounds per set). Own Pokémon.',
       tip:'You see opponent\'s Pokémon before each battle — pick your 3 from your 6 strategically. Info screens reveal opponent\'s tendencies. Tucker uses Swampert and Salamence.',
       prize:'Same BP pool as Tower.' },
-    { name:'BATTLE FACTORY', icon:'🏭', color:'#44BB44', brain:'Noland', streak:21, mode:'Rental Pokémon only — choose 3 from 6 random rentals. After every win, you can swap one rental.',
+    { name:'BATTLE FACTORY', color:'#44BB44', brain:'Noland', streak:21, mode:'Rental Pokémon only — choose 3 from 6 random rentals. After every win, you can swap one rental.',
       tip:'IVs and EVs on rentals are random. Focus on raw base stats and coverage. After 21 wins, Noland challenges you with the legendary Articuno. Accept the swap offer strategically — don\'t just take the shiny new option.',
       prize:'BP rewarded based on win streak length.' },
-    { name:'BATTLE PIKE', icon:'🐍', color:'#AA66FF', brain:'Lucy', streak:70, mode:'Choose from 3 rooms per floor (14 floors). Rooms may contain nothing, trainers, or hazards.',
+    { name:'BATTLE PIKE', color:'#AA66FF', brain:'Lucy', streak:70, mode:'Choose from 3 rooms per floor (14 floors). Rooms may contain nothing, trainers, or hazards.',
       tip:'No healing between floors except from specific rooms. Room hints: two people = safe, one person = trainer or healing, nobody = wild Pokémon or status. Lucy uses Seviper and Milotic at room 140.',
       prize:'BP per streak segment.' },
-    { name:'BATTLE PYRAMID', icon:'🔺', color:'#FF5555', brain:'Brandon', streak:70, mode:'Navigate dark floors, find items, reach the top. Own Pokémon — no PP/HP recovery between floors.',
+    { name:'BATTLE PYRAMID', color:'#FF5555', brain:'Brandon', streak:70, mode:'Navigate dark floors, find items, reach the top. Own Pokémon — no PP/HP recovery between floors.',
       tip:'Items found in the pyramid replenish PP and HP — collect everything. Bring Pokémon with Rest, or wide move coverage. Brandon uses legendary Regis (Regirock, Regice, Registeel).',
       prize:'BP per cleared pyramid.' },
-    { name:'BATTLE ARENA', icon:'⚔', color:'#FFD700', brain:'Greta', streak:50, mode:'3 turns per battle — if neither Pokémon faints, a judge awards points for HP remaining, Defense shown, and "Mind" (attacking vs. status moves).',
+    { name:'BATTLE ARENA', color:'#FFD700', brain:'Greta', streak:50, mode:'3 turns per battle — if neither Pokémon faints, a judge awards points for HP remaining, Defense shown, and "Mind" (attacking vs. status moves).',
       tip:'KO your opponent in 3 turns or have more judge points. Avoid stall strategies — pure defense scores poorly on Mind. High-power physical attackers (Heracross, Slaking) excel.',
       prize:'BP as normal.' },
-    { name:'BATTLE PALACE', icon:'🏯', color:'#FF6AB4', brain:'Spenser', streak:50, mode:'Your Pokémon choose their own moves based on nature. You only control switches.',
+    { name:'BATTLE PALACE', color:'#FF6AB4', brain:'Spenser', streak:50, mode:'Your Pokémon choose their own moves based on nature. You only control switches.',
       tip:'Natures determine attack bias (Hardy = balanced, Modest = mostly special, Adamant = mostly physical). Bring Pokémon with all good moves regardless of category, so the AI picks well. Bold/Careful natures often stall.',
       prize:'BP as normal.' },
   ];
 
   var html = p('Emerald\'s Battle Frontier contains <strong>7 facilities</strong>, each with unique rules. Earn Battle Points (BP) by winning streaks and spend them on rare items. Each facility has a <strong>Frontier Brain</strong> who challenges you after reaching a win milestone.')
-    +'<div style="padding:10px 14px;background:rgba(255,215,0,0.06);border:1px solid var(--gold);border-radius:6px;font-size:11px;color:var(--muted);margin-bottom:20px;line-height:1.7;">'
-    +'💡 <strong style="color:var(--text);">Key BP prizes:</strong> Salac/Petaya/Liechi/Ganlon/Apicot/Lansat/Starf berries (1 BP) · TM26 Earthquake (32 BP) · Choice Band (48 BP) · Scope Lens (48 BP) · Bright Powder (48 BP) · White Herb (48 BP)'
+    +'<div style="padding:10px 14px;background:color-mix(in srgb,var(--game-color,var(--gold)) 6%,transparent);border:1px solid var(--game-color,var(--gold));border-radius:6px;font-size:11px;color:var(--muted);margin-bottom:20px;line-height:1.7;">'
+    +'<strong style="color:var(--text);">Key BP prizes:</strong> Salac/Petaya/Liechi/Ganlon/Apicot/Lansat/Starf berries (1 BP) · TM26 Earthquake (32 BP) · Choice Band (48 BP) · Scope Lens (48 BP) · Bright Powder (48 BP) · White Herb (48 BP)'
     +'</div>';
 
   html += facilities.map(function(f) {
     return '<div style="background:var(--card);border:1px solid '+f.color+';border-radius:8px;padding:16px 18px;margin-bottom:14px;">'
-      +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
-      +'<span style="font-size:22px;">'+f.icon+'</span>'
-      +'<div>'
-      +'<div style="font-family:\'Press Start 2P\',monospace;font-size:8px;color:'+f.color+';">'+f.name+'</div>'
-      +'<div style="font-size:10px;color:var(--muted);margin-top:3px;">Brain: <strong style="color:var(--text);">'+f.brain+'</strong> · Challenge at win '+f.streak+'</div>'
-      +'</div></div>'
+      +'<div style="margin-bottom:10px;">'
+      +'<div style="font-family:\'Press Start 2P\',monospace;font-size:8px;color:var(--game-color,var(--gold));margin-bottom:4px;">'+f.name+'</div>'
+      +'<div style="font-size:10px;color:var(--muted);">Brain: <strong style="color:var(--text);">'+f.brain+'</strong> · Challenge at win '+f.streak+'</div>'
+      +'</div>'
       +'<div style="font-size:12px;color:var(--muted);margin-bottom:8px;padding:6px 10px;background:var(--panel);border-radius:5px;line-height:1.6;"><strong style="color:var(--text);">Format:</strong> '+f.mode+'</div>'
       +'<div style="font-size:12px;color:var(--text);line-height:1.7;margin-bottom:8px;">'+f.tip+'</div>'
       +'<div style="font-size:11px;color:var(--muted);">'+f.prize+'</div>'
@@ -16537,7 +16555,7 @@ function buildEssentialsPage() {
     return '<div style="display:flex;flex-direction:column;gap:8px;">'
       + items.map(function(item) {
         return '<div style="display:flex;gap:10px;align-items:flex-start;">'
-          + '<span style="color:var(--gold);font-size:12px;line-height:1.6;">•</span>'
+          + '<span style="color:var(--game-color,var(--gold));font-size:12px;line-height:1.6;">•</span>'
           + '<div style="font-size:12px;color:var(--text);line-height:1.7;">' + item + '</div>'
           + '</div>';
       }).join('')
@@ -18238,7 +18256,7 @@ function buildHappinessPage() {
             + '<div style="font-size:10px;color:var(--muted);margin-top:2px;">Threshold: 220 friendship &nbsp;|&nbsp; Base friendship: ' + (POKE_META[h.num] ? POKE_META[h.num].fr : '?') + '</div>'
             + '</div>'
             + '<button onclick="hapToggle(\'' + key + '\')" style="font-size:10px;padding:5px 12px;border-radius:4px;cursor:pointer;border:1px solid var(--border);'
-            + (ready ? 'background:var(--gold);color:#000;' : 'background:var(--panel);color:var(--text);') + '">'
+            + (ready ? 'background:var(--game-color,var(--gold));color:#000;' : 'background:var(--panel);color:var(--text);') + '">'
             + (ready ? '✓ Ready' : 'Mark Ready') + '</button>'
             + '</div>';
         }).join('')
@@ -18438,7 +18456,7 @@ var PAGE_LIST=[
 
 var BULBA_SECTIONS={
   FRLG:[
-    {type:'index',label:'🏠 Contents'},
+    {type:'index',label:'Contents'},
     {type:'part',n:1, label:'Part 1 — Pallet Town',    desc:'Introduction, Pallet Town'},
     {type:'part',n:2, label:'Part 2 — Viridian City',  desc:'Route 1, Viridian City, Route 2'},
     {type:'part',n:3, label:'Part 3 — Pewter City',    desc:'Viridian Forest, Pewter City'},
@@ -18462,10 +18480,10 @@ var BULBA_SECTIONS={
     {type:'part',n:21,label:'Part 21 — Event Islands ✦',desc:'Birth Island, Navel Rock'},
     {type:'extra',key:'frlg-sevii',   label:'Sevii Guide'},
     {type:'extra',key:'frlg-legends', label:'Legendary Checklist'},
-    {type:'extra',key:'frlg-safari',  label:'🌳 Safari Zone'},
+    {type:'extra',key:'frlg-safari',  label:'Safari Zone'},
   ],
   RS:[
-    {type:'index',label:'🏠 Contents'},
+    {type:'index',label:'Contents'},
     {type:'part',n:1, label:'Part 1 — Littleroot',      desc:'Littleroot Town, Route 101'},
     {type:'part',n:2, label:'Part 2 — Petalburg City',  desc:'Oldale Town, Petalburg City'},
     {type:'part',n:3, label:'Part 3 — Rustboro City',   desc:'Rustboro City'},
@@ -18491,10 +18509,10 @@ var BULBA_SECTIONS={
     {type:'part',n:23,label:'Part 23 — Post-Game',      desc:'Misc Post-Game'},
     {type:'extra',key:'rs-features',label:'RSE Features'},
     {type:'extra',key:'rs-legends', label:'Legendary Checklist'},
-    {type:'extra',key:'rs-safari',  label:'🌳 Safari Zone'},
+    {type:'extra',key:'rs-safari',  label:'Safari Zone'},
   ],
   E:[
-    {type:'index',label:'🏠 Contents'},
+    {type:'index',label:'Contents'},
     {type:'part',n:1, label:'Part 1 — Littleroot',      desc:'Littleroot Town, Route 101'},
     {type:'part',n:2, label:'Part 2 — Rustboro City',   desc:'Rustboro City'},
     {type:'part',n:3, label:'Part 3 — Dewford & Slateport',desc:'Dewford Town, Slateport City'},
@@ -18518,7 +18536,7 @@ var BULBA_SECTIONS={
     {type:'part',n:21,label:'Part 21 — League Round 2', desc:'Pokémon League Round 2'},
     {type:'extra',key:'e-features',label:'RSE Features'},
     {type:'extra',key:'e-legends', label:'Legendary Checklist'},
-    {type:'extra',key:'e-safari',  label:'🌳 Safari Zone'},
+    {type:'extra',key:'e-safari',  label:'Safari Zone'},
   ],
 };
 
@@ -19263,7 +19281,7 @@ function noteLinkItem(name){
   if(!window._itemsBuilt){buildItemDex();window._itemsBuilt=true;}
   setTimeout(function(){
     var inp=document.getElementById('itSearch');
-    if(inp){inp.value=name;if(typeof filterItemDex==='function')filterItemDex();}
+    if(inp){inp.value=name;updateItClear(inp);if(typeof filterItemDex==='function')filterItemDex();}
     // Find the item's numeric ID and open its detail panel
     var item=typeof ALL_ITEMS!=='undefined'
       ? ALL_ITEMS.find(function(it){return it[1].toLowerCase()===name.toLowerCase();})
@@ -25700,6 +25718,11 @@ function buildKantoMapView() {
   }
   iframe.onload = function() {
     if (status) status.classList.add('hidden');
+    // Sync current game color into the freshly loaded iframe
+    setTimeout(function() {
+      var _rc = getComputedStyle(document.documentElement).getPropertyValue('--game-color').trim() || '#f5c518';
+      try { iframe.contentWindow.postMessage({ type: 'mapGameColor', color: _rc }, '*'); } catch(e) {}
+    }, 80);
   };
   iframe.onerror = function() {
     if (status) {
@@ -25721,6 +25744,11 @@ function buildEmeraldMapView() {
   }
   iframe.onload = function() {
     if (status) status.classList.add('hidden');
+    // Sync current game color into the freshly loaded iframe
+    setTimeout(function() {
+      var _rc = getComputedStyle(document.documentElement).getPropertyValue('--game-color').trim() || '#f5c518';
+      try { iframe.contentWindow.postMessage({ type: 'mapGameColor', color: _rc }, '*'); } catch(e) {}
+    }, 80);
   };
   iframe.onerror = function() {
     if (status) {

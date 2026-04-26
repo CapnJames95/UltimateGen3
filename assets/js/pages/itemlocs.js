@@ -75,7 +75,7 @@ function ilocRender() {
         +'</tr>';
     }).join('');
     return '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;overflow:hidden;">'
-      +'<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--text);padding:10px 14px;border-bottom:1px solid var(--border);background:var(--panel);">'+sec.label+'</div>'
+      +'<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--game-color,var(--gold));padding:10px 14px;border-bottom:1px solid var(--border);background:var(--panel);">'+sec.label+'</div>'
       +'<table style="width:100%;border-collapse:collapse;">'
       +'<thead><tr style="border-bottom:1px solid var(--border);">'
       +'<th style="padding:5px 12px;font-size:9px;color:var(--game-color,var(--gold));text-align:left;width:35%;">Item</th>'
