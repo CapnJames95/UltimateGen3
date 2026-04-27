@@ -194,6 +194,8 @@ function resetHome() {
   if (hp) { hp.classList.add('active'); buildHomePage(); try { localStorage.setItem('gen3-last-page','home'); } catch(e){} }
   setPageHash('home');
   setBrowserPageTitle('home');
+  // Keep iOS tab bar in sync
+  if (typeof iosSetActive === 'function') iosSetActive('iosTabHome');
 }
 
 function homeIntroCollapsed() {
@@ -314,7 +316,7 @@ function buildHomePage() {
 
   function bigCard(s) {
     return '<div class="home-big-card" onclick="' + s.action.replace(/"/g, '&quot;') + '" style="cursor:pointer;padding:18px 20px;background:var(--panel);border:2px solid var(--border);border-radius:8px;transition:border-color .15s,background .15s;" onmouseover="this.style.borderColor=\'' + s.color + '\'" onmouseout="this.style.borderColor=\'var(--border)\'">'
-      + '<div style="font-family:\'Press Start 2P\',monospace;font-size:9px;color:' + s.color + ';letter-spacing:1px;margin-bottom:6px;">' + s.label + '</div>'
+      + '<div style="font-family:\'Press Start 2P\',monospace;font-size:9px;color:var(--game-color,' + s.color + ');letter-spacing:1px;margin-bottom:6px;">' + s.label + '</div>'
       + '<div style="font-size:11px;color:var(--muted);line-height:1.6;">' + s.desc + '</div>'
       + '</div>';
   }
@@ -329,7 +331,7 @@ function buildHomePage() {
         + '</div>';
     }).join('');
     return '<div class="home-group-card" style="background:var(--panel);border:2px solid var(--border);border-radius:8px;overflow:hidden;">'
-      + '<div class="home-group-header" style="padding:10px 14px;border-bottom:1px solid var(--border);font-family:\'Press Start 2P\',monospace;font-size:7px;color:' + s.color + ';letter-spacing:1px;">' + s.label + '</div>'
+      + '<div class="home-group-header" style="padding:10px 14px;border-bottom:1px solid var(--border);font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--game-color,' + s.color + ');letter-spacing:1px;">' + s.label + '</div>'
       + '<div style="display:grid;grid-template-columns:' + (mobile ? '1fr' : '1fr 1fr') + ';gap:0;">' + items + '</div>'
       + '</div>';
   }
@@ -1724,6 +1726,8 @@ function showPage(id, btn) {
     buildBulbaGuide();
     window._bulbaBuilt = true;
   }
+  // Keep iOS tab bar in sync
+  if (typeof iosUpdateForPage === 'function') iosUpdateForPage(id);
 }
 
 function setMapGame(g, btn) {
@@ -11925,7 +11929,6 @@ function settingsSaveAccessibilityPrefs() {
   prefSet('gen3-access-contrast', document.getElementById('settingsHighContrast').checked ? '1' : '0');
   prefSet('gen3-access-motion', document.getElementById('settingsReducedMotion').checked ? '1' : '0');
   prefSet('gen3-access-focus', document.getElementById('settingsStrongFocus').checked ? '1' : '0');
-  prefSet('gen3-access-large-text', document.getElementById('settingsLargeText').checked ? '1' : '0');
   settingsApplyAccessibilityPrefs();
 }
 
@@ -11933,9 +11936,6 @@ function settingsApplyAccessibilityPrefs() {
   document.body.classList.toggle('high-contrast', prefBool('gen3-access-contrast', false));
   document.body.classList.toggle('reduced-motion', prefBool('gen3-access-motion', false));
   document.body.classList.toggle('strong-focus', prefBool('gen3-access-focus', false));
-  if (prefBool('gen3-access-large-text', false)) {
-    settingsApplyFontSize(Math.max(parseInt(prefGet('gen3-font-size', '18'), 10) || 18, 20));
-  }
 }
 
 function settingsSaveConfirmPrefs() {
@@ -12273,11 +12273,9 @@ function settingsSyncAccessibilityPrefs() {
   var contrast = document.getElementById('settingsHighContrast');
   var motion = document.getElementById('settingsReducedMotion');
   var focus = document.getElementById('settingsStrongFocus');
-  var text = document.getElementById('settingsLargeText');
   if (contrast) contrast.checked = prefBool('gen3-access-contrast', false);
   if (motion) motion.checked = prefBool('gen3-access-motion', false);
   if (focus) focus.checked = prefBool('gen3-access-focus', false);
-  if (text) text.checked = prefBool('gen3-access-large-text', false);
 }
 
 function settingsSyncConfirmPrefs() {
@@ -12300,8 +12298,21 @@ function settingsSyncAll() {
   settingsSyncEasyDexPrefs();
   settingsSyncTrackerPrefs();
   settingsSyncAccessibilityPrefs();
-  settingsSyncConfirmPrefs();
   settingsRefreshDataSummary();
+  if (typeof settingsSyncIosBar === 'function') settingsSyncIosBar();
+  settingsSyncMascot();
+}
+function settingsSyncMascot() {
+  var cb = document.getElementById('settingsMascotOff');
+  if (!cb) return;
+  try { cb.checked = localStorage.getItem('gen3-mascot-off') === '1'; } catch(e) {}
+}
+function settingsSaveMascotPref() {
+  try {
+    var off = document.getElementById('settingsMascotOff').checked;
+    localStorage.setItem('gen3-mascot-off', off ? '1' : '0');
+    if (off && typeof window.hideMascotTip === 'function') window.hideMascotTip();
+  } catch(e) {}
 }
 
 // Patch setGameFromHeader to persist selection
@@ -18954,6 +18965,39 @@ window.mapSelectRegion = function(region) {
   iframe.src = _mapRegionUrls[region] || _mapRegionUrls.hoenn;
 };
 
+/* iOS Safari scroll-lock for panels.
+   overflow:hidden on html/body is not enough — Safari decides to show/hide
+   its toolbar before any DOM scroll event fires. The only reliable fix is a
+   non-passive touchmove listener that calls preventDefault(), cancelling the
+   gesture entirely, while still allowing scroll inside any overflow container. */
+function _iosPanelTouchGuard(e) {
+  var el = e.target;
+  while (el && el !== document.documentElement) {
+    var ov = window.getComputedStyle(el).overflowY;
+    if ((ov === 'auto' || ov === 'scroll') && el.scrollHeight > el.clientHeight) {
+      return; // touch is inside a real scroll container — let it scroll
+    }
+    el = el.parentElement;
+  }
+  e.preventDefault(); // nothing scrollable in the chain — block the gesture
+}
+
+function _panelScrollLock() {
+  if (window.innerWidth <= 767) {
+    document.documentElement.classList.add('panel-open');
+    document.addEventListener('touchmove', _iosPanelTouchGuard, { passive: false });
+  }
+}
+function _panelScrollUnlock() {
+  // Only unlock if no panel is still open
+  var anyOpen = (document.getElementById('notes-panel') && document.getElementById('notes-panel').classList.contains('open'))
+             || (document.getElementById('map-panel') && document.getElementById('map-panel').classList.contains('open'));
+  if (!anyOpen) {
+    document.documentElement.classList.remove('panel-open');
+    document.removeEventListener('touchmove', _iosPanelTouchGuard, { passive: false });
+  }
+}
+
 window.toggleMapPanel = function() {
   var panel = document.getElementById('map-panel');
   if (panel.classList.contains('open')) { closeMapPanel(); return; }
@@ -18968,18 +19012,27 @@ window.toggleMapPanel = function() {
   var url = _mapRegionUrls[region];
   if (iframe.src !== url) iframe.src = url;
   panel.classList.add('open');
+  _panelScrollLock();
+  if (typeof iosSetActiveByOptId === 'function') iosSetActiveByOptId('map');
 };
 window.closeMapPanel = function() {
   document.getElementById('map-panel').classList.remove('open');
+  _panelScrollUnlock();
+  if (typeof iosRestorePageActive === 'function') iosRestorePageActive();
 };
 
 window.toggleNotesPanel=function(){
   var p=document.getElementById('notes-panel'),o=document.getElementById('notes-overlay');
   if (p.classList.contains('fullpage')) { closeNotesPanel(); return; }
-  if(p.classList.contains('open')){p.classList.remove('open');o.classList.remove('open');}
-  else{
+  if(p.classList.contains('open')){
+    p.classList.remove('open');o.classList.remove('open');
+    _panelScrollUnlock();
+    if(typeof iosRestorePageActive==='function') iosRestorePageActive();
+  } else{
     if(typeof window.notesSyncToGlobalGame==='function') window.notesSyncToGlobalGame();
     p.classList.add('open');o.classList.add('open');renderNotesList();renderLabelBar();
+    _panelScrollLock();
+    if(typeof iosSetActiveByOptId==='function') iosSetActiveByOptId('notes');
   }
 };
 window.enterNotesFullPage=function(){
@@ -19002,6 +19055,7 @@ window.exitNotesFullPage=function(restorePage){
   if(!panel||!sideHost||!panel.classList.contains('fullpage')) return;
   sideHost.appendChild(panel);
   panel.classList.remove('fullpage','open');
+  _panelScrollUnlock();
   if(restorePage){
     var target=NOTES_PREV_PAGE || 'home';
     if(target === 'home') resetHome();
@@ -19014,6 +19068,7 @@ window.closeNotesPanel=function(){
   if(panel && panel.classList.contains('fullpage')){window.exitNotesFullPage(true);destroySlashDropdown();return;}
   if(panel) panel.classList.remove('open');
   if(overlay) overlay.classList.remove('open');
+  _panelScrollUnlock();
   destroySlashDropdown();
 };
 
@@ -33301,6 +33356,7 @@ function emBindPanZoom() {
     var txt = document.getElementById('mascot-tip-text');
     var img = document.getElementById('mascot-sprite');
     if (!el || !txt || !img) return;
+    try { if (localStorage.getItem('gen3-mascot-off') === '1') return; } catch(e) {}
     txt.textContent = TIPS[tipIdx % TIPS.length];
     tipIdx++;
     var game = (function(){ try{ return localStorage.getItem('gen3-game')||'all'; }catch(e){ return 'all'; }})();

@@ -1,4 +1,5 @@
 :root {
+  --ios-bar-h: 0px;
   --darker:#0d0f1e;--panel:#141828;--card:#1a2238;--border:#243058;
   --text:#eceef8;--muted:#8892cc;--gold:#F5C518;
   --fire:#FF6B35;--leaf:#4CAF50;--ruby:#CC2200;--sapphire:#0055CC;--emerald:#00AA44;
@@ -10,6 +11,11 @@
   --radius-sm:6px;--radius-md:10px;--radius-lg:12px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
+/* Give html a background so it never shows browser-default white behind the
+   fixed iOS bar or in safe-area padding regions. Dark theme default; light
+   theme override uses :has() (supported Safari 15.4+, Chrome 105+). */
+html { background: #0d0f1e; }
+html:has(body.light-theme) { background: #e2d8c4; }
 body{font-family:'Nunito',sans-serif;background:var(--darker);color:var(--text);min-height:100vh;overflow-x:hidden;}
 .header-logo{
   font-family:var(--headline);
@@ -365,18 +371,23 @@ tr.evo-chain-row.open .evo-panel{
 /* ── MAP PANEL ──────────────────────────────────────────────────── */
 .map-panel-tab{position:fixed;right:0;top:calc(25% + 60px);z-index:200;background:var(--game-color,#b8960c);color:#fff;font-family:'Press Start 2P',monospace;font-size:7px;padding:14px 6px;border-radius:6px 0 0 6px;cursor:pointer;writing-mode:vertical-rl;text-orientation:mixed;letter-spacing:1px;border:none;box-shadow:-3px 0 12px rgba(0,0,0,0.4);transition:background 0.15s;}
 .map-panel-tab:hover{filter:brightness(1.2);}
-.map-panel{position:fixed;right:-680px;top:0;width:680px;height:100vh;z-index:299;background:var(--darker);border-left:3px solid #44DD88;box-shadow:-8px 0 40px rgba(0,0,0,0.7);transition:right 0.35s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;overflow:hidden;}
+.map-panel{position:fixed;right:-680px;top:0;width:680px;height:100vh;z-index:299;background:var(--darker);border-left:3px solid #44DD88;box-shadow:-8px 0 40px rgba(0,0,0,0.7);transition:right 0.35s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;overflow:hidden;overscroll-behavior:contain;}
 .map-panel.open{right:0;}
 .map-iframe-wrap{flex:1;overflow:hidden;position:relative;}
 .map-iframe-wrap iframe{position:absolute;top:-95px;left:0;width:100%;height:calc(100% + 95px);border:none;}
 .notes-panel-tab .notes-tab-badge{display:none;position:absolute;top:6px;right:4px;background:#fff;color:var(--game-color,#b8960c);border-radius:999px;font-size:6px;font-weight:700;min-width:13px;height:13px;line-height:13px;text-align:center;writing-mode:horizontal-tb;padding:0 2px;}
 .notes-panel-tab .notes-tab-badge.visible{display:block;}
-.notes-panel{position:fixed;right:-460px;top:0;width:460px;height:100vh;z-index:299;background:var(--darker);border-left:3px solid var(--border);box-shadow:-8px 0 40px rgba(0,0,0,0.7);transition:right 0.35s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;overflow:hidden;}
+.notes-panel{position:fixed;right:-460px;top:0;width:460px;height:100vh;z-index:299;background:var(--darker);border-left:3px solid var(--border);box-shadow:-8px 0 40px rgba(0,0,0,0.7);transition:right 0.35s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;overflow:hidden;overscroll-behavior:contain;}
 .notes-panel.open{right:0;}
 .notes-panel.notes-saved{box-shadow:-8px 0 40px rgba(0,0,0,0.7),0 0 0 1px rgba(255,215,0,.22) inset,0 0 18px rgba(255,215,0,.18);}
 .notes-page-host{height:calc(100vh - var(--page-top, 115px));}
 .notes-panel.fullpage{position:relative;right:auto;top:auto;width:100%;height:calc(100vh - var(--page-top, 115px));border-left:none;border-top:none;box-shadow:none;}
 .notes-panel.fullpage.open{right:auto;}
+/* Prevent notes scroll from propagating to document and triggering browser toolbar show/hide */
+#notes-list-inner,
+#notes-editor-view > div {
+  overscroll-behavior: contain;
+}
 .notes-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:298;display:none;pointer-events:all;}
 .notes-overlay.open{display:block;}
 .notes-badge{display:inline-flex;align-items:center;justify-content:center;background:var(--game-color,var(--gold));color:#000;border-radius:999px;font-size:8px;font-weight:700;min-width:16px;height:16px;padding:0 4px;margin-left:4px;line-height:1;vertical-align:middle;}
@@ -454,7 +465,7 @@ tr.evo-chain-row.open .evo-panel{
 .map-game-btns{display:flex;gap:4px;}
 .map-game-btns button{font-size:9px;font-weight:800;padding:3px 8px;border-radius:3px;border:2px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s;font-family:'Nunito',sans-serif;}
 .map-game-btns button.active{border-color:var(--fire);color:var(--fire);background:rgba(255,107,53,0.1);}
-.map-results{flex:1;overflow-y:auto;padding:10px;}
+.map-results{flex:1;overflow-y:auto;padding:10px;overscroll-behavior:contain;}
 .map-results::-webkit-scrollbar{width:4px;}.map-results::-webkit-scrollbar-track{background:var(--panel);}.map-results::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 .map-empty{color:var(--muted);font-size:11px;text-align:center;padding:24px 12px;font-style:italic;line-height:1.8;}
 .map-poke-card{display:flex;align-items:center;gap:8px;padding:5px 8px;background:var(--card);border-radius:5px;border:1px solid var(--border);margin-bottom:4px;cursor:pointer;transition:border-color 0.15s;}
@@ -470,7 +481,7 @@ tr.evo-chain-row.open .evo-panel{
 .map-tab{font-size:9px;font-weight:800;padding:7px 12px;border:none;background:transparent;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s;font-family:'Nunito',sans-serif;white-space:nowrap;}
 .map-tab:hover{color:var(--text);}
 .map-tab.active{color:var(--leaf);border-bottom-color:var(--leaf);}
-.map-scroll{flex:1;overflow:auto;background:#1e3a2e;display:flex;align-items:flex-start;justify-content:flex-start;}
+.map-scroll{flex:1;overflow:auto;background:#1e3a2e;display:flex;align-items:flex-start;justify-content:flex-start;overscroll-behavior:contain;}
 .map-scroll::-webkit-scrollbar{width:6px;height:6px;}.map-scroll::-webkit-scrollbar-track{background:var(--darker);}.map-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
 .map-zone-hit{cursor:pointer;}
 .map-zone-hit:hover .map-zone-rect{fill:rgba(255,215,0,0.2)!important;stroke:rgba(255,215,0,0.7)!important;}
@@ -1461,10 +1472,10 @@ body.light-theme .ag-none{color:#726554;}
 .settings-overlay.open{display:flex;align-items:flex-start;justify-content:center;}
 .settings-modal{background:var(--darker);border:2px solid var(--border);border-radius:var(--radius-lg);width:100%;max-width:680px;box-shadow:0 16px 60px rgba(0,0,0,0.6);overflow:hidden;}
 .settings-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:linear-gradient(180deg,var(--panel) 0%,rgba(20,24,40,0.95) 100%);border-bottom:2px solid var(--border);border-radius:var(--radius-lg) var(--radius-lg) 0 0;}
-.settings-title{font-family:'Press Start 2P',monospace;font-size:10px;letter-spacing:1px;color:var(--gold);}
+.settings-title{font-family:'Press Start 2P',monospace;font-size:10px;letter-spacing:1px;color:var(--game-color,var(--gold));}
 .settings-body{padding:20px;display:flex;flex-direction:column;gap:18px;max-height:76vh;overflow-y:auto;}
 .settings-section{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px 16px;box-shadow:var(--shadow-sm);}
-.settings-section-title{font-family:'Press Start 2P',monospace;font-size:7.5px;letter-spacing:0.8px;color:var(--gold);margin-bottom:0;cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:center;}
+.settings-section-title{font-family:'Press Start 2P',monospace;font-size:7.5px;letter-spacing:0.8px;color:var(--game-color,var(--gold));margin-bottom:0;cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:center;}
 .settings-section-title::after{content:'▶';font-size:7px;color:var(--muted);transition:transform 0.2s ease;flex-shrink:0;margin-left:8px;}
 .settings-section.ss-open .settings-section-title{margin-bottom:12px;}
 .settings-section.ss-open .settings-section-title::after{transform:rotate(90deg);}
@@ -1490,7 +1501,7 @@ body.light-theme .ag-none{color:#726554;}
 .settings-divider{height:1px;background:var(--border);margin:4px 0 2px;}
 .settings-hidden{display:none!important;}
 .settings-check{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text);margin:6px 0;}
-.settings-check input{accent-color:var(--fire);}
+.settings-check input{accent-color:var(--game-color,var(--gold));}
 /* ── Drive setup wizard ── */
 .drive-connected-badge{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,170,68,0.08);border:1px solid rgba(0,170,68,0.28);border-radius:4px;margin-bottom:8px;}
 .drive-connected-icon{font-size:15px;color:var(--emerald);}
@@ -2837,8 +2848,6 @@ tr.poke-row:hover {
 .home-mast-tagline.tl-visible { opacity: 1; }
 /* 768px — show mascot, hide first two stats, reduce padding */
 @media (max-width: 768px) {
-  .notes-panel-tab { top: 38%; }
-  .map-panel-tab   { top: calc(38% + 60px); }
   .home-mast-inner { padding: 10px 130px 10px 18px; overflow: visible; }
   .home-mast-tagline { display: none; }
   .home-mast-sep { display: none; }
@@ -2854,8 +2863,6 @@ tr.poke-row:hover {
 
 /* 480px — compact single-row + scrollable contents strip */
 @media (max-width: 480px) {
-  .notes-panel-tab { top: 42%; }
-  .map-panel-tab   { top: calc(42% + 60px); }
   .home-mast-mascot { display: none; }
   .home-mast-inner {
     flex-wrap: nowrap;
@@ -3829,3 +3836,209 @@ tr.poke-row:hover {
 #e4-game-btns,
 #rm-game-btns,
 #sz-game-btns{display:none!important;}
+
+/* ═══════════════════════════════════════════════════════════════
+   iOS-style bottom tab bar
+   ═══════════════════════════════════════════════════════════════ */
+.ios-tab-bar {
+  display: none; /* hidden on desktop — shown via media query */
+}
+.ios-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border: none;
+  background: transparent;
+  color: #6b7296;
+  cursor: pointer;
+  padding: 7px 4px 5px;
+  transition: color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  min-width: 0;
+}
+.ios-tab.active { color: var(--game-color, var(--gold)); }
+.ios-tab-icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+  flex-shrink: 0;
+}
+.ios-tab-icon-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.ios-tab-label {
+  font-family: -apple-system, 'Nunito', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.ios-tab-badge {
+  display: none;
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  background: #ff3b30;
+  color: #fff;
+  border-radius: 999px;
+  font-family: -apple-system, 'Nunito', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  min-width: 14px;
+  height: 14px;
+  line-height: 14px;
+  text-align: center;
+  padding: 0 3px;
+}
+.ios-tab-badge.visible { display: block; }
+
+/* ── iOS bar settings preview ── */
+.ios-bar-settings-preview {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin: 10px 0 14px;
+  padding: 10px 14px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.ios-bsp-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.ios-bsp-tab svg { width: 13px; height: 13px; flex-shrink: 0; }
+.ios-bsp-tab.ios-bsp-fixed { color: var(--game-color, var(--gold)); }
+.ios-bsp-sep { color: var(--border); font-size: 12px; flex-shrink: 0; }
+
+/* ── Mobile (<768px): side tabs become bottom tabs, panels slide up ── */
+@media(max-width:767px){
+  /* iOS bar height as a variable so every height calc can reference it */
+  :root { --ios-bar-h: calc(56px + env(safe-area-inset-bottom, 0px)); }
+
+  /* Body scroll lock while a panel is open — prevents iOS Safari from
+     scrolling the document and triggering browser-toolbar show/hide,
+     which would otherwise make the fixed iOS nav bar jump. */
+  html.panel-open,
+  html.panel-open body {
+    overflow: hidden !important;
+  }
+
+  /* ── All fixed-height pages: shrink by the iOS bar so nothing is cut off ── */
+  .item-page, .moves-page, .map-page, .home-scroll,
+  .notes-page-host,
+  #page-excl, #page-team, #page-tracker, #page-calc, #page-ivev,
+  .breed-outer, #page-compare, #page-tutors,
+  #page-kantomapview, #page-emeraldmapview {
+    height: calc(100vh - var(--page-top, 115px) - var(--ios-bar-h)) !important;
+  }
+  .main {
+    height: calc(100vh - var(--page-top, 82px) - var(--ios-bar-h)) !important;
+  }
+
+  /* Mascot tip: sit just above the iOS bar */
+  #mascot-tip { bottom: calc(var(--ios-bar-h) + 8px); }
+
+  /* Show the iOS tab bar */
+  .ios-tab-bar {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: calc(56px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: rgba(10, 12, 24, 0.86);
+    backdrop-filter: blur(22px) saturate(180%);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    border-top: 1px solid rgba(255,255,255,0.09);
+    z-index: 400;
+    align-items: stretch;
+  }
+  body.light-theme .ios-tab-bar {
+    background: rgba(240, 242, 255, 0.88);
+    border-top: 1px solid rgba(0,0,0,0.1);
+  }
+  /* Solid colour fill behind the safe-area strip so no html background bleeds through */
+  .ios-tab-bar::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: env(safe-area-inset-bottom, 0px);
+    background: rgba(10, 12, 24, 0.97);
+  }
+  body.light-theme .ios-tab-bar::after {
+    background: rgba(240, 242, 255, 0.97);
+  }
+  body.light-theme .ios-tab { color: #8890b0; }
+  body.light-theme .ios-tab.active { color: var(--game-color, var(--gold)); }
+
+  /* Body padding so content isn't hidden behind the bar */
+  body { padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px)); }
+  /* Hide the bottom tips ticker on mobile — replaced by nav bar */
+  #bottom-ticker { display: none !important; }
+
+  /* Hide the old Notes/Map side-panel tabs — iOS bar takes over */
+  .notes-panel-tab,
+  .map-panel-tab {
+    display: none !important;
+  }
+
+  /* Panels slide up from the bottom and cover the full screen (inc. iOS bar) */
+  .notes-panel,
+  .map-panel {
+    right: 0;
+    left: 0;
+    top: auto;
+    bottom: -100vh;   /* static vh keeps off-screen pos stable */
+    width: 100vw;
+    height: 100vh;    /* svh = Small VP height: stable when browser toolbar shows/hides */
+    height: 100svh;   /* supported Safari 15.4+, Chrome 108+ */
+    border-left: none;
+    border-right: none;
+    border-top: 3px solid var(--border);
+    transition: bottom 0.35s cubic-bezier(0.4,0,0.2,1);
+    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+    touch-action: pan-y;
+  }
+  .map-panel { border-top-color: #44DD88; }
+
+  .notes-panel.open,
+  .map-panel.open {
+    bottom: 0;
+    right: 0;
+  }
+
+  /* fullpage mode still fills the page normally */
+  .notes-panel.fullpage {
+    width: 100%;
+    height: calc(100vh - var(--page-top, 115px) - var(--ios-bar-h));
+    bottom: auto;
+    right: auto;
+    top: 0;
+    border-top: none;
+    border-left: none;
+  }
+  .notes-panel.fullpage.open {
+    bottom: auto;
+    right: auto;
+  }
+
+}
