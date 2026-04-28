@@ -360,9 +360,11 @@ tr.evo-chain-row.open .evo-panel{
 .trk-card.nuzlocke-fainted .trk-card-check{display:none!important;}
 .lvl-badge{display:inline-block;background:var(--card);border:1px solid var(--border);border-radius:3px;padding:1px 6px;font-size:10px;font-weight:700;color:var(--gold);margin-left:4px;}
 /* Item badge */
-.item-badge{display:inline-block;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);border-radius:3px;padding:1px 6px;font-size:10px;font-weight:700;color:var(--gold);}
+.item-badge{display:inline-block;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);border-radius:3px;padding:1px 6px;font-size:10px;font-weight:700;color:var(--gold);cursor:pointer;transition:background 0.15s,border-color 0.15s;}
+.item-badge:hover{background:rgba(255,215,0,0.2);border-color:rgba(255,215,0,0.6);}
 /* HM/TM badge */
-.hm-badge{display:inline-block;background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.35);border-radius:3px;padding:1px 6px;font-size:10px;font-weight:700;color:var(--fire);}
+.hm-badge{display:inline-block;background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.35);border-radius:3px;padding:1px 6px;font-size:10px;font-weight:700;color:var(--fire);cursor:pointer;transition:background 0.15s,border-color 0.15s;}
+.hm-badge:hover{background:rgba(255,107,53,0.28);border-color:rgba(255,107,53,0.65);}
 
 /* ── NOTES PANEL ──────────────────────────────────────────────── */
 .notes-panel-tab{position:fixed;right:0;top:25%;transform:translateY(-50%);z-index:200;background:var(--game-color,#b8960c);color:#fff;font-family:'Press Start 2P',monospace;font-size:7px;padding:14px 6px;border-radius:6px 0 0 6px;cursor:pointer;writing-mode:vertical-rl;text-orientation:mixed;letter-spacing:1px;border:none;box-shadow:-3px 0 12px rgba(0,0,0,0.4);transition:background 0.15s,transform .15s,box-shadow .15s;}
