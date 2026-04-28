@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Gen3 eGuide</title>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Press+Start+2P&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/app.css">
@@ -200,7 +200,10 @@
   <div class="settings-modal">
     <div class="settings-header">
       <span class="settings-title">⚙ Settings</span>
-      <button class="shortcuts-close" onclick="closeSettingsOverlay()">✕</button>
+      <div style="display:flex;align-items:center;gap:6px">
+        <button class="settings-action-btn" onclick="openShortcutsOverlay('master')" style="font-size:10px;padding:4px 10px">⌨ All Shortcuts</button>
+        <button class="shortcuts-close" onclick="closeSettingsOverlay()">✕</button>
+      </div>
     </div>
     <div class="settings-body">
       <div class="settings-section">
@@ -297,35 +300,7 @@
 
       <div class="settings-section">
         <div class="settings-section-title">Startup Defaults</div>
-        <div class="settings-copy">Choose the default page and game to open on startup.</div>
         <div class="settings-grid">
-          <div class="settings-field" id="settingsStartupPageField">
-            <label class="settings-label" for="settingsStartupPage">Default Page</label>
-            <select id="settingsStartupPage" class="settings-select" onchange="settingsSaveStartup()">
-              <option value="dex">Pokedex</option>
-              <option value="bulba">Bulba Guide</option>
-              <option value="moves">Moves</option>
-              <option value="items">Items</option>
-              <option value="excl">Exclusives</option>
-              <option value="tracker">Tracker</option>
-              <option value="tmhm">TM/HM</option>
-              <option value="held">Held Items</option>
-              <option value="opt">Optimizer</option>
-              <option value="easydex">Easy Dex</option>
-              <option value="tradeevo">Trade Evos</option>
-            </select>
-          </div>
-          <div class="settings-field" id="settingsStartupGameField">
-            <label class="settings-label" for="settingsStartupGame">Default Game</label>
-            <select id="settingsStartupGame" class="settings-select" onchange="settingsSaveStartup()">
-              <option value="all">All Games</option>
-              <option value="FR">FireRed</option>
-              <option value="LG">LeafGreen</option>
-              <option value="R">Ruby</option>
-              <option value="S">Sapphire</option>
-              <option value="E">Emerald</option>
-            </select>
-          </div>
           <div class="settings-field">
             <label class="settings-label" for="settingsBootMode">Boot Screen</label>
             <select id="settingsBootMode" class="settings-select" onchange="settingsSaveBootMode()">
@@ -338,6 +313,46 @@
       </div>
 
 
+      <div class="settings-section" id="settingsIosBarSection">
+        <div class="settings-section-title">Mobile Bottom Bar</div>
+        <div class="settings-copy">Customise the 4 shortcut tabs on the bottom nav bar (phones &amp; small tablets). Home is always Tab 1.</div>
+        <div class="ios-bar-settings-preview" id="iosBarSettingsPreview">
+          <span class="ios-bsp-tab ios-bsp-fixed">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            Home
+          </span>
+          <span class="ios-bsp-sep">·</span>
+          <span class="ios-bsp-tab" id="iosBspTab2"></span>
+          <span class="ios-bsp-sep">·</span>
+          <span class="ios-bsp-tab" id="iosBspTab3"></span>
+          <span class="ios-bsp-sep">·</span>
+          <span class="ios-bsp-tab" id="iosBspTab4"></span>
+          <span class="ios-bsp-sep">·</span>
+          <span class="ios-bsp-tab" id="iosBspTab5"></span>
+        </div>
+        <div class="settings-grid">
+          <div class="settings-field">
+            <label class="settings-label" for="iosBarTab2">Tab 2</label>
+            <select id="iosBarTab2" class="settings-select" onchange="saveIosBarSettings()"></select>
+          </div>
+          <div class="settings-field">
+            <label class="settings-label" for="iosBarTab3">Tab 3</label>
+            <select id="iosBarTab3" class="settings-select" onchange="saveIosBarSettings()"></select>
+          </div>
+          <div class="settings-field">
+            <label class="settings-label" for="iosBarTab4">Tab 4</label>
+            <select id="iosBarTab4" class="settings-select" onchange="saveIosBarSettings()"></select>
+          </div>
+          <div class="settings-field">
+            <label class="settings-label" for="iosBarTab5">Tab 5</label>
+            <select id="iosBarTab5" class="settings-select" onchange="saveIosBarSettings()"></select>
+          </div>
+        </div>
+        <div class="settings-inline" style="margin-top:10px">
+          <button class="settings-action-btn" onclick="resetIosBarSettings()">Reset to defaults</button>
+        </div>
+      </div>
+
       <div class="settings-section">
         <div class="settings-section-title">Layout &amp; Display</div>
         <div class="settings-copy">Choose default panel visibility and sprite display for the parts of the site that already remember their own layout state.</div>
@@ -346,6 +361,7 @@
         <label class="settings-check"><input id="settingsBulbaSidebarVisible" type="checkbox" onchange="settingsSaveLayoutPrefs()"> Show Bulba Guide sidebar by default</label>
         <label class="settings-check"><input id="settingsTeamSidebarVisible" type="checkbox" onchange="settingsSaveLayoutPrefs()"> Show Team Builder sidebar by default</label>
         <label class="settings-check"><input id="settingsTrackerSidebarVisible" type="checkbox" onchange="settingsSaveLayoutPrefs()"> Show Tracker sidebar by default</label>
+        <label class="settings-check"><input id="settingsMascotOff" type="checkbox" onchange="settingsSaveMascotPref()"> Hide the Pokémon tip mascot</label>
       </div>
 
       <div class="settings-section">
@@ -433,25 +449,8 @@
         <label class="settings-check"><input id="settingsHighContrast" type="checkbox" onchange="settingsSaveAccessibilityPrefs()"> High contrast mode</label>
         <label class="settings-check"><input id="settingsReducedMotion" type="checkbox" onchange="settingsSaveAccessibilityPrefs()"> Reduced motion</label>
         <label class="settings-check"><input id="settingsStrongFocus" type="checkbox" onchange="settingsSaveAccessibilityPrefs()"> Strong focus outlines</label>
-        <label class="settings-check"><input id="settingsLargeText" type="checkbox" onchange="settingsSaveAccessibilityPrefs()"> Larger text preset</label>
       </div>
 
-      <div class="settings-section">
-        <div class="settings-section-title">Confirmation Settings</div>
-        <div class="settings-copy">Choose which destructive actions should ask before changing data.</div>
-        <label class="settings-check"><input id="settingsConfirmImport" type="checkbox" onchange="settingsSaveConfirmPrefs()"> Confirm imports and Drive loads</label>
-        <label class="settings-check"><input id="settingsConfirmReset" type="checkbox" onchange="settingsSaveConfirmPrefs()"> Confirm tracker save reset</label>
-        <label class="settings-check"><input id="settingsConfirmClear" type="checkbox" onchange="settingsSaveConfirmPrefs()"> Confirm clear site data</label>
-      </div>
-
-      <div class="settings-section">
-        <div class="settings-section-title">Shortcuts</div>
-        <div class="settings-copy">Open the current-view shortcut list or the full master list from here too.</div>
-        <div class="settings-inline">
-          <button class="settings-action-btn" onclick="openShortcutsOverlay()">⌨ Current View Shortcuts</button>
-          <button class="settings-action-btn" onclick="openShortcutsOverlay('master')">⌨ All Shortcuts</button>
-        </div>
-      </div>
 
       <div class="settings-section">
         <div class="settings-section-title">Data Management</div>
@@ -477,15 +476,6 @@
         </div>
       </div>
 
-      <div class="settings-section">
-        <div class="settings-section-title">About / Version</div>
-        <div class="settings-kv">
-          <strong>App</strong><span>Gen 3 Dex</span>
-          <strong>Version</strong><span>Settings Hub v1</span>
-          <strong>Data</strong><span>386 Pokemon across FireRed, LeafGreen, Ruby, Sapphire, and Emerald</span>
-          <strong>Backups include</strong><span>Tracker progress, completion states, TM checklist progress, shinies, Nuzlocke fainted marks, selected game, theme, Bulba guide progress, and local preferences</span>
-        </div>
-      </div>
     </div>
   </div>
 </div>
@@ -668,7 +658,7 @@
 <!-- GUIDE PAGE                                                         -->
 <!-- ══════════════════════════════════════════════════════════════════ -->
 <!-- ═══════════════ BULBAPEDIA GUIDE PAGE ═══════════════ -->
-<div id="page-bulba" class="page" style="flex-direction:row;height:calc(100vh - var(--page-top, 115px));overflow:hidden;">
+<div id="page-bulba" class="page" style="flex-direction:row;height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow:hidden;">
 
   <!-- Sidebar -->
   <div id="bulba-sidebar" style="width:220px;flex-shrink:0;background:var(--darker);border-right:2px solid var(--border);overflow-y:auto;padding:12px 0;display:flex;flex-direction:column;">
@@ -1586,7 +1576,7 @@
 
 
 <div id="page-held" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:900px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">HELD ITEM REFERENCE</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:20px;">Key in-game and competitive held items in Gen 3 — where to find them and what they do.</div>
@@ -1618,7 +1608,7 @@
 
 
 <div id="page-opt" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:980px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">ENCOUNTER OPTIMIZER</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">Targeted grinding tools for Gen 3: farmable held items, EXP route picks, EV training spots, and Safari odds.</div>
@@ -1647,7 +1637,7 @@
 
 
 <div id="page-easydex" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:1080px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">EASY DEX ROUTE</div>
       <div id="easyDexIntro" style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">A chronological easiest-dex route for FireRed using the Bulbapedia walkthrough order. Each stop highlights the Pokémon whose absolute best direct encounter rate lands there, with separate views for in-game trades, evolution cleanup, and non-wild special pickups.</div>
@@ -1671,7 +1661,7 @@
 
 <!-- ══ ABILITIES PAGE ══ -->
 <div id="page-abilities" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:900px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">ABILITIES REFERENCE</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">All Gen 3 abilities — effects and which Pokémon have them. Click any Pokémon to open its Pokédex entry.</div>
@@ -1687,7 +1677,7 @@
 
 <!-- ══ LEARNSETS PAGE ══ -->
 <div id="page-learnsets" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:900px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">LEARNSET VIEWER</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">Full move learnsets by Pokémon — level-up, TM/HM, egg moves with parent lookup, and tutors.</div>
@@ -1704,7 +1694,7 @@
 
 <!-- ══ ENCOUNTERS PAGE ══ -->
 <div id="page-encounters" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:900px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">ENCOUNTER TABLES</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">Wild Pokémon encounter tables by route — all methods and rates. Select a game then filter by location.</div>
@@ -1723,7 +1713,7 @@
 
 <!-- ══ ITEM LOCATIONS PAGE ══ -->
 <div id="page-itemlocs" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:900px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">ITEM LOCATIONS</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">Browse every in-game item by location — ordered chronologically through the game.</div>
@@ -1742,7 +1732,7 @@
 
 <!-- ══ SPEED TIERS PAGE ══ -->
 <div id="page-speedtiers" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:900px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">SPEED TIERS</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">All Gen 3 Pokémon sorted by base Speed. Enter a Speed stat to see what you outspeed.</div>
@@ -1771,7 +1761,7 @@
 
 <!-- ══ CONTESTS PAGE ══ -->
 <div id="page-contests" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:900px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">POKÉMON CONTESTS</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">Complete guide to Pokémon Contests in Ruby, Sapphire &amp; Emerald — conditions, Pokéblocks, appeal, and ribbons.</div>
@@ -1782,7 +1772,7 @@
 
 <!-- ══ BATTLE FRONTIER PAGE ══ -->
 <div id="page-frontier" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:900px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">BATTLE FRONTIER</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">Emerald's Battle Frontier — all 7 facilities, how each works, the Frontier Brain you face, and strategy tips.</div>
@@ -1793,7 +1783,7 @@
 
 <!-- ══ BEGINNER ESSENTIALS PAGE ══ -->
 <div id="page-essentials" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:900px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">BEGINNER ESSENTIALS</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">A quick-start guide to how Gen 3 actually plays: where to heal, how encounters work, when to fish or surf, and what matters early.</div>
@@ -1804,7 +1794,7 @@
 
 <!-- ══ MISSABLES PAGE ══ -->
 <div id="page-missables" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:900px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">MISSABLES &amp; ONE-TIME EVENTS</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">Everything you can permanently miss or only get once — check them off as you go. Progress saved locally per game.</div>
@@ -1825,7 +1815,7 @@
 
 <!-- ══ BERRY FARMING PAGE ══ -->
 <div id="page-berries" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:900px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">BERRY FARMING</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">Berry growth timers, yields, mutation chart, and Berry Master phrases for Ruby, Sapphire &amp; Emerald.</div>
@@ -1836,7 +1826,7 @@
 
 <!-- ══ RIBBON TRACKER PAGE ══ -->
 <div id="page-ribbons" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:960px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">RIBBON TRACKER</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">All obtainable ribbons across Gen 3 GBA games. Check them off as you earn them — progress saved per-game.</div>
@@ -1857,7 +1847,7 @@
 
 <!-- ══ EXPERIENCE CALCULATOR PAGE ══ -->
 <div id="page-expcalc" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:800px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">EXPERIENCE CALCULATOR</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">EXP to next level, total EXP, growth group lookup, and Rare Candy planner for all 386 Gen 3 Pokémon.</div>
@@ -1867,7 +1857,7 @@
 </div>
 
 <div id="page-npctrades" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:900px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">NPC IN-GAME TRADES</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">Every NPC trade across all 5 Gen 3 games — what they want, what they give, OT names, held items, and tips.</div>
@@ -1877,7 +1867,7 @@
 </div>
 
 <div id="page-happiness" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:860px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">HAPPINESS TRACKER</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">Track friendship-evolution candidates and happiness methods across all Gen 3 games.</div>
@@ -1888,7 +1878,7 @@
 
 <!-- ══ RNG GUIDE PAGE ══ -->
 <div id="page-rng" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:860px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">RNG MANIPULATION GUIDE</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">Gen 3 RNG mechanics — TID/SID manipulation, Methods 1/2/4, shiny hunting, IV abuse for Ruby/Sapphire/Emerald/FireRed/LeafGreen.</div>
@@ -1899,7 +1889,7 @@
 
 <!-- ══ DISTRIBUTIONS PAGE ══ -->
 <div id="page-distributions" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:1100px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">GEN 3 DISTRIBUTIONS</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">Catalog of classic Gen 3 event distribution ROMs and modern Project Wonder patches, plus a full per-game checklist for every obtainable reward.</div>
@@ -1909,7 +1899,7 @@
 </div>
 
 <div id="page-natures" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:860px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">NATURE CHART</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">All 25 natures — boosted stat (+10%), lowered stat (−10%), and preferred/disliked Pokéblock flavors.</div>
@@ -1919,7 +1909,7 @@
 </div>
 
 <div id="page-catchcalc" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:860px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">CATCH RATE CALCULATOR</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">Gen 3 catch probability per ball — enter Pokémon, HP%, status condition, and battle conditions.</div>
@@ -1929,7 +1919,7 @@
 </div>
 
 <div id="page-dexdash" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:860px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">POKÉDEX DASHBOARD</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">Pokédex completion across all Gen 3 saves — seen, caught, and shiny counts from your tracker data.</div>
@@ -1939,7 +1929,7 @@
 </div>
 
 <div id="page-tradeevo" class="page main">
-  <div id="tradeevo-scroll" style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;overflow-x:hidden;">
+  <div id="tradeevo-scroll" style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;overflow-x:hidden;">
     <div style="max-width:860px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">TRADE EVOLUTION HELPER</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.7;">All Pokémon that evolve via trading in Gen 3, including what held item is required and where to obtain it. Pokémon that require trading can only be obtained by linking two GBA systems or using an emulator link cable.</div>
@@ -2013,7 +2003,7 @@
 
 <!-- ══ TYPE CHART PAGE ══ -->
 <!-- ══ TYPE CHART PAGE ══ -->
-<div id="page-typechart" class="page main" style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;flex-direction:column;">
+<div id="page-typechart" class="page main" style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;flex-direction:column;">
   <div style="max-width:960px;margin:0 auto;padding:24px 20px;">
     <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:4px;">TYPE CHART</div>
     <div style="font-size:11px;color:var(--muted);margin-bottom:18px;line-height:1.7;">Gen 3 · Full chart + single-type lookup</div>
@@ -2259,7 +2249,7 @@
 
 <!-- ══ SAFARI ZONE CALCULATOR ══ -->
 <div id="page-safarizone" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:900px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">SAFARI ZONE CALCULATOR</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">Track steps &amp; balls, calculate catch odds per strategy, and browse Pokémon by area.</div>
@@ -2270,7 +2260,7 @@
 
 <!-- ══ STAT CALCULATOR ══ -->
 <div id="page-statcalc" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:900px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">STAT CALCULATOR</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">Enter a Pokémon, level, nature, IVs, and EVs to compute all final stats using the Gen 3 formula.</div>
@@ -2281,7 +2271,7 @@
 
 <!-- ══ POKÉBLOCK OPTIMIZER ══ -->
 <div id="page-pokeblock" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:900px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">POKÉBLOCK OPTIMIZER</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">Find the best berries to blend for each contest condition. Reference for every Gen 3 berry flavor.</div>
@@ -2292,7 +2282,7 @@
 
 <!-- ══ ELITE FOUR & CHAMPION ══ -->
 <div id="page-e4ref" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:1000px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">ELITE FOUR &amp; CHAMPION</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">Full team rosters and type weaknesses for every E4 member and Champion across all 5 Gen 3 games.</div>
@@ -2303,7 +2293,7 @@
 
 <!-- ══ REMATCH TRAINERS ══ -->
 <div id="page-rematches" class="page main">
-  <div style="height:calc(100vh - var(--page-top, 115px));overflow-y:auto;">
+  <div style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow-y:auto;">
     <div style="max-width:1000px;margin:0 auto;padding:24px;">
       <div class="page-hd-title" style="font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;margin-bottom:6px;">REMATCH TRAINERS</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7;">VS Seeker rematches (FR/LG) and Trainer's Eye (Emerald) — curated for EV training and EXP grinding.</div>
@@ -2315,7 +2305,7 @@
 
 
 <!-- ══ ROUTE BROWSER ══ -->
-<div id="page-routebrowser" class="page main" style="height:calc(100vh - var(--page-top, 115px));overflow:hidden;flex-direction:column;">
+<div id="page-routebrowser" class="page main" style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow:hidden;flex-direction:column;">
   <div style="padding:10px 16px;background:var(--darker);border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex-shrink:0;">
     <span id="rb-page-title" style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--game-color,var(--gold));letter-spacing:0.5px;">ROUTE BROWSER</span>
     <div id="rb-game-btns" style="display:flex;gap:4px;"></div>
@@ -2571,6 +2561,219 @@
     window.updateHeaderSprites(saved, false);
   });
 })();
+</script>
+
+<!-- ── iOS-style mobile bottom tab bar ──────────────────────── -->
+<nav class="ios-tab-bar" id="iosTabBar" role="navigation" aria-label="Main navigation">
+  <!-- Tab 1: Home — always fixed -->
+  <button class="ios-tab" id="iosTabHome" onclick="iosNavHome()">
+    <svg class="ios-tab-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+    </svg>
+    <span class="ios-tab-label">Home</span>
+  </button>
+  <!-- Tabs 2-5: configurable, built by buildIosTabs() -->
+  <div id="iosTabsDynamic" style="display:contents"></div>
+</nav>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   iOS Bottom Tab Bar — config, rendering & navigation
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Available tab options ── */
+var IOS_TAB_OPTIONS = [
+  { id:'guide',      label:'Guide',      badge:false, svg:'<path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/>' },
+  { id:'dex',        label:'Pokédex',   badge:false, svg:'<path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>' },
+  { id:'easydex',    label:'Easy Dex',  badge:false, svg:'<path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>' },
+  { id:'tracker',    label:'Tracker',   badge:false, svg:'<path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>' },
+  { id:'team',       label:'Team',      badge:false, svg:'<path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>' },
+  { id:'moves',      label:'Moves',     badge:false, svg:'<path d="M7 2v11h3v9l7-12h-4l4-8z"/>' },
+  { id:'items',      label:'Items',     badge:false, svg:'<path d="M20 6h-2.18c.07-.44.18-.88.18-1.35C18 2.55 16.45 1 14.55 1c-.97 0-1.96.75-2.06.75S11.26 1 10.45 1C8.55 1 7 2.55 7 4.65c0 .47.1.91.17 1.35H5C3.9 7 3 7.9 3 9v11c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>' },
+  { id:'tmhm',       label:'TM / HM',  badge:false, svg:'<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5zm0-5.5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/>' },
+  { id:'types',      label:'Types',     badge:false, svg:'<path d="M3 3v8h8V3H3zm6 6H5V5h4v4zm-6 4v8h8v-8H3zm6 6H5v-4h4v4zm4-16v8h8V3h-8zm6 6h-4V5h4v4zm-6 4v8h8v-8h-8zm6 6h-4v-4h4v4z"/>' },
+  { id:'calc',       label:'Calc',      badge:false, svg:'<path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-2h2v2zm0-4H7v-2h2v2zm0-4H7V7h2v2zm4 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V7h2v2zm4 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V7h2v2z"/>' },
+  { id:'notes',      label:'Notes',     badge:true,  svg:'<path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>' },
+  { id:'map',        label:'Map',       badge:false, svg:'<path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/>' },
+  { id:'missables',  label:'Missables', badge:false, svg:'<path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>' },
+  { id:'essentials', label:'Tips',      badge:false, svg:'<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>' },
+  { id:'ribbons',    label:'Ribbons',   badge:false, svg:'<path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2z"/>' },
+];
+var IOS_BAR_DEFAULTS = ['guide','tracker','notes','map'];
+
+/* ── Config persistence ── */
+function getIosBarConfig() {
+  try {
+    var s = localStorage.getItem('gen3-ios-bar');
+    if (s) { var a = JSON.parse(s); if (Array.isArray(a) && a.length === 4) return a; }
+  } catch(e) {}
+  return IOS_BAR_DEFAULTS.slice();
+}
+
+/* ── Build / rebuild tabs 2-5 in the bar ── */
+function buildIosTabs() {
+  var container = document.getElementById('iosTabsDynamic');
+  if (!container) return;
+  var config = getIosBarConfig();
+  var html = '';
+  config.forEach(function(id, i) {
+    var opt = IOS_TAB_OPTIONS.filter(function(o){ return o.id === id; })[0] || IOS_TAB_OPTIONS[0];
+    var tabId = 'iosTabDyn' + (i + 2);
+    var iconHtml = opt.badge
+      ? '<span class="ios-tab-icon-wrap"><svg class="ios-tab-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">'+opt.svg+'</svg><span class="ios-tab-badge" id="iosNotesBadge"></span></span>'
+      : '<svg class="ios-tab-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">'+opt.svg+'</svg>';
+    html += '<button class="ios-tab" id="'+tabId+'" data-ios-id="'+id+'" onclick="iosExecTab(\''+id+'\')">'
+          + iconHtml
+          + '<span class="ios-tab-label">'+opt.label+'</span>'
+          + '</button>';
+  });
+  container.innerHTML = html;
+  // Re-sync badge count after rebuild
+  _iosSyncBadge();
+}
+
+/* ── Find a tab button by option ID ── */
+function iosFindTab(optId) {
+  if (optId === 'home') return document.getElementById('iosTabHome');
+  return document.querySelector('#iosTabsDynamic .ios-tab[data-ios-id="'+optId+'"]');
+}
+
+/* ── Active-state helpers ── */
+function iosSetActive(tabId) {
+  document.querySelectorAll('.ios-tab').forEach(function(t){ t.classList.remove('active'); });
+  var t = document.getElementById(tabId);
+  if (t) t.classList.add('active');
+}
+function iosClearActive() {
+  document.querySelectorAll('.ios-tab').forEach(function(t){ t.classList.remove('active'); });
+}
+function iosSetActiveByOptId(optId) {
+  var tab = iosFindTab(optId);
+  if (tab) iosSetActive(tab.id);
+  else iosClearActive();
+}
+
+/* ── Page → option-id map (used by showPage hook & restoreActive) ── */
+var IOS_PAGE_TO_OPT = {
+  home:'home', bulba:'guide', dex:'dex', easydex:'easydex', tracker:'tracker',
+  team:'team', moves:'moves', items:'items', tmhm:'tmhm', typechart:'types',
+  calc:'calc', missables:'missables', essentials:'essentials', ribbons:'ribbons'
+};
+window.iosUpdateForPage = function(pageId) {
+  if (pageId === 'home') { iosSetActive('iosTabHome'); return; }
+  var optId = IOS_PAGE_TO_OPT[pageId];
+  if (!optId) { iosClearActive(); return; }
+  iosSetActiveByOptId(optId);
+};
+function iosRestorePageActive() {
+  try { window.iosUpdateForPage(localStorage.getItem('gen3-last-page') || 'home'); } catch(e) {}
+}
+
+/* ── Tab execution ── */
+var _IOS_ACTIONS = {
+  guide:      function(){ var b=document.getElementById('navBulba'); showPage('bulba',b); if(!window._bulbaBuilt){buildBulbaGuide();window._bulbaBuilt=true;} bulbaAutoSelectGame(); },
+  dex:        function(){ showPage('dex',document.getElementById('navDex')); },
+  easydex:    function(){ showPage('easydex',document.getElementById('navEasydex')); if(!window._easyDexBuilt){renderEasyDexPage();window._easyDexBuilt=true;} },
+  tracker:    function(){ showPage('tracker',document.getElementById('navTracker')); buildTracker(); window._trackerBuilt=true; },
+  team:       function(){ showPage('team',document.getElementById('navTeam')); if(!window._teamBuilt){window._teamBuilt=true;if(typeof tbApplyRestore==='function')tbApplyRestore();} },
+  moves:      function(){ showPage('moves',document.getElementById('navMoves')); if(!window._movesBuilt){buildMoveDex();window._movesBuilt=true;} },
+  items:      function(){ showPage('items',document.getElementById('navItems')); if(!window._itemsBuilt){buildItemDex();window._itemsBuilt=true;} },
+  tmhm:       function(){ showPage('tmhm',document.getElementById('navTmhm')); if(!window._tmhmBuilt){buildTmhmLocator();window._tmhmBuilt=true;} },
+  types:      function(){ showPage('typechart',document.getElementById('navTypeChart')); if(!window._typeChartBuilt){buildTypePage();window._typeChartBuilt=true;} },
+  calc:       function(){ showPage('calc',document.getElementById('navCalc')); },
+  missables:  function(){ showPage('missables',document.getElementById('navMissables')); if(!window._missablesBuilt){buildMissablesPage();window._missablesBuilt=true;} },
+  essentials: function(){ showPage('essentials',document.getElementById('navEssentials')); if(!window._essentialsBuilt){buildEssentialsPage();window._essentialsBuilt=true;} },
+  ribbons:    function(){ showPage('ribbons',document.getElementById('navRibbons')); if(!window._ribbonsBuilt){buildRibbonPage();window._ribbonsBuilt=true;} },
+  notes: function(){
+    var mp=document.getElementById('map-panel');
+    if(mp&&mp.classList.contains('open'))closeMapPanel();
+    var np=document.getElementById('notes-panel');
+    if(np&&np.classList.contains('open')){
+      np.classList.remove('open');
+      var o=document.getElementById('notes-overlay'); if(o)o.classList.remove('open');
+      iosClearActive(); iosRestorePageActive();
+    } else {
+      if(typeof window.notesSyncToGlobalGame==='function')window.notesSyncToGlobalGame();
+      if(np)np.classList.add('open');
+      var ov=document.getElementById('notes-overlay'); if(ov)ov.classList.add('open');
+      if(typeof renderNotesList==='function')renderNotesList();
+      if(typeof renderLabelBar==='function')renderLabelBar();
+      iosSetActiveByOptId('notes');
+    }
+  },
+  map: function(){
+    var np=document.getElementById('notes-panel');
+    if(np&&np.classList.contains('open')){np.classList.remove('open');var o=document.getElementById('notes-overlay');if(o)o.classList.remove('open');}
+    var mp=document.getElementById('map-panel');
+    if(mp&&mp.classList.contains('open')){
+      closeMapPanel(); iosClearActive(); iosRestorePageActive();
+    } else {
+      toggleMapPanel(); iosSetActiveByOptId('map');
+    }
+  }
+};
+function iosExecTab(id) {
+  if (_IOS_ACTIONS[id]) _IOS_ACTIONS[id]();
+}
+function iosNavHome() { resetHome(); }
+
+/* ── Settings: populate selects, save & update preview ── */
+function settingsSyncIosBar() {
+  var config = getIosBarConfig();
+  [2,3,4,5].forEach(function(n) {
+    var sel = document.getElementById('iosBarTab' + n);
+    if (!sel) return;
+    if (!sel.options.length) {
+      IOS_TAB_OPTIONS.forEach(function(opt) {
+        var o = document.createElement('option');
+        o.value = opt.id; o.textContent = opt.label;
+        sel.appendChild(o);
+      });
+    }
+    sel.value = config[n - 2];
+    // Update preview pill
+    var pill = document.getElementById('iosBspTab' + n);
+    if (pill) {
+      var opt = IOS_TAB_OPTIONS.filter(function(o){ return o.id === config[n-2]; })[0];
+      if (opt) pill.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor">'+opt.svg+'</svg>'+opt.label;
+    }
+  });
+}
+function saveIosBarSettings() {
+  var config = [2,3,4,5].map(function(n){
+    return document.getElementById('iosBarTab'+n).value;
+  });
+  try { localStorage.setItem('gen3-ios-bar', JSON.stringify(config)); } catch(e) {}
+  buildIosTabs();
+  settingsSyncIosBar();
+  iosRestorePageActive();
+}
+function resetIosBarSettings() {
+  try { localStorage.removeItem('gen3-ios-bar'); } catch(e) {}
+  buildIosTabs();
+  settingsSyncIosBar();
+  iosRestorePageActive();
+}
+
+/* ── Badge sync ── */
+function _iosSyncBadge() {
+  var b = document.getElementById('iosNotesBadge');
+  if (!b) return;
+  var srcBadge = document.getElementById('notes-tab-badge');
+  var count = srcBadge ? (parseInt(srcBadge.textContent) || 0) : 0;
+  b.textContent = count > 9 ? '9+' : (count || '');
+  b.classList.toggle('visible', count > 0);
+}
+
+/* ── Bootstrap on DOMContentLoaded ── */
+document.addEventListener('DOMContentLoaded', function() {
+  buildIosTabs();
+  // Patch updateBadge to also refresh iOS bar badge
+  var _orig = window.updateBadge;
+  if (typeof _orig === 'function') {
+    window.updateBadge = function() { _orig(); _iosSyncBadge(); };
+  }
+});
 </script>
 </body>
 </html>

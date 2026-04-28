@@ -56,6 +56,10 @@ function buildPokeblockPage() {
 
   var selCond = 0;
 
+  function berryLink(b) {
+    return '<a href="https://bulbapedia.bulbagarden.net/wiki/'+b.name+'_Berry" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;border-bottom:1px dotted var(--muted);" title="Bulbapedia: '+b.name+' Berry">'+b.name+'</a>';
+  }
+
   function renderBestBerries(condIdx) {
     var sorted = BERRIES.slice().sort(function(a,b){ return b.f[condIdx]-a.f[condIdx]; }).filter(function(b){ return b.f[condIdx]>0; });
     return '<div style="display:flex;flex-wrap:wrap;gap:8px;">'
@@ -63,7 +67,7 @@ function buildPokeblockPage() {
           var val = b.f[condIdx];
           var color = val>=50?'var(--gold)':val>=30?'var(--text)':'var(--muted)';
           return '<div style="display:flex;align-items:center;gap:6px;padding:7px 12px;background:var(--card);border:1px solid var(--border);border-radius:6px;">'
-            +'<span style="font-size:12px;font-weight:700;color:'+color+'">'+b.name+'</span>'
+            +'<span style="font-size:12px;font-weight:700;color:'+color+'">'+berryLink(b)+'</span>'
             +'<span style="font-size:11px;font-weight:800;color:'+CONDITIONS[condIdx].color+'">+'+val+'</span>'
             +'</div>';
         }).join('')
@@ -80,7 +84,7 @@ function buildPokeblockPage() {
       +'</tr></thead><tbody>'
       + BERRIES.map(function(b){
           return '<tr style="border-bottom:1px solid rgba(255,255,255,.04);">'
-            +'<td style="padding:6px 10px;font-weight:700;">'+b.name+'</td>'
+            +'<td style="padding:6px 10px;font-weight:700;">'+berryLink(b)+'</td>'
             + b.f.map(function(v,ci){
                 return '<td style="text-align:center;padding:6px 8px;font-weight:'+(v>0?'700':'400')+';color:'+(v>=50?'var(--gold)':v>=30?'var(--text)':v>0?CONDITIONS[ci].color:'var(--border)')+';">'+(v>0?'+'+v:'—')+'</td>';
               }).join('')
