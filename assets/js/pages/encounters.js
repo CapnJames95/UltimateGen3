@@ -90,22 +90,22 @@ function encRender() {
           : e.name;
         return '<tr style="border-bottom:1px solid rgba(255,255,255,0.04);">'
           +'<td style="padding:5px 10px;">'+nameHtml+noteHtml+'</td>'
-          +'<td style="padding:5px 10px;font-size:11px;color:var(--muted);">'+e.levels+'</td>'
+          +'<td style="padding:5px 10px;font-size:11px;color:var(--game-color,var(--gold));">'+e.levels+'</td>'
           +'<td style="padding:5px 10px;font-size:11px;color:var(--game-color,var(--gold));text-align:right;font-weight:700;">'+e.rate+'</td>'
           +'</tr>';
       }).join('');
       return '<div style="margin-bottom:10px;">'
-        +'<div style="font-size:10px;font-weight:700;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">'+label+'</div>'
+        +'<div style="font-size:10px;font-weight:700;color:var(--game-color,var(--gold));margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">'+label+'</div>'
         +'<table style="width:100%;border-collapse:collapse;">'
         +'<thead><tr style="border-bottom:1px solid var(--border);">'
-        +'<th style="padding:4px 10px;font-size:9px;color:var(--muted);text-align:left;">Pokémon</th>'
-        +'<th style="padding:4px 10px;font-size:9px;color:var(--muted);text-align:left;">Levels</th>'
-        +'<th style="padding:4px 10px;font-size:9px;color:var(--muted);text-align:right;">Rate</th>'
+        +'<th style="padding:4px 10px;font-size:9px;color:var(--game-color,var(--gold));text-align:left;">Pokémon</th>'
+        +'<th style="padding:4px 10px;font-size:9px;color:var(--game-color,var(--gold));text-align:left;">Levels</th>'
+        +'<th style="padding:4px 10px;font-size:9px;color:var(--game-color,var(--gold));text-align:right;">Rate</th>'
         +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
     }).join('');
 
     return '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:12px;">'
-      +'<div style="font-family:\'Press Start 2P\',monospace;font-size:8px;color:var(--text);margin-bottom:10px;">'+routeName+'</div>'
+      +'<div style="font-family:\'Press Start 2P\',monospace;font-size:8px;color:var(--game-color,var(--gold));margin-bottom:10px;">'+routeName+'</div>'
       +methodHtml+'</div>';
   }).join('');
 

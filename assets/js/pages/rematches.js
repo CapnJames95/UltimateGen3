@@ -41,6 +41,15 @@ function buildRematchesPage() {
   var selGame = (typeof GAME !== 'undefined' && GAME !== 'all' && _rmGameMap[GAME]) ? _rmGameMap[GAME] : 'FR/LG';
   var searchQ = '';
 
+  var _rmPokeNames = POKE.map(function(p){ return p.name; }).sort(function(a,b){ return b.length-a.length; });
+  function _rmLinkPoke(text) {
+    _rmPokeNames.forEach(function(name) {
+      var re = new RegExp('\\b' + name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b', 'g');
+      text = text.replace(re, '<span class="guide-poke-link" onclick="guideDex(\''+name.replace(/'/g,"\\'")+'\')">'+name+'</span>');
+    });
+    return text;
+  }
+
   function renderTable() {
     var rows = REMATCHES[selGame].filter(function(r){
       if (!searchQ) return true;
@@ -62,7 +71,7 @@ function buildRematchesPage() {
             +'<td style="padding:8px 10px;color:var(--muted);white-space:nowrap;">'+r.loc+'</td>'
             +'<td style="padding:8px 10px;"><div style="font-weight:700;">'+r.name+'</div><div style="font-size:10px;color:var(--muted);">'+r.class+'</div></td>'
             +'<td style="padding:8px 10px;"><span style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:3px;background:rgba(255,255,255,.05);color:'+evColor+';">'+evLabel+'</span></td>'
-            +'<td style="padding:8px 10px;color:var(--muted);font-size:11px;">'+r.note+'</td>'
+            +'<td style="padding:8px 10px;color:var(--muted);font-size:11px;">'+_rmLinkPoke(r.note)+'</td>'
             +'</tr>';
         }).join('')
       +'</tbody></table></div>';

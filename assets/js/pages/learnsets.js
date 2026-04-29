@@ -49,7 +49,7 @@ function lsRender(num) {
     var md = moveTypeMap[moveName] || {};
     return '<tr style="border-bottom:1px solid rgba(255,255,255,0.04);">'
       +(extra !== undefined ? '<td style="padding:5px 10px;font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--game-color,var(--gold));text-align:center;">'+extra+'</td>' : '')
-      +'<td style="padding:5px 10px;font-size:12px;font-weight:600;color:var(--text);">'+moveName+'</td>'
+      +'<td style="padding:5px 10px;font-size:12px;font-weight:600;"><span class="guide-move-link" onclick="_openMoveDex(\''+moveName.replace(/'/g,"\\'")+'\')">'+moveName+'</span></td>'
       +(md.type ? '<td style="padding:5px 8px;">'+typeSprite(md.type.toLowerCase())+'</td>' : '<td></td>')
       +'<td style="padding:5px 8px;font-size:11px;color:var(--muted);">'+(md.cat === 'P' ? '⚔' : md.cat === 'S' ? '✨' : md.cat ? '●' : '')+'</td>'
       +'<td style="padding:5px 8px;font-size:11px;color:var(--muted);text-align:right;">'+(md.power || '—')+'</td>'
@@ -60,18 +60,18 @@ function lsRender(num) {
   function tableWrap(headExtra, rows) {
     return '<div style="overflow-x:auto;margin-bottom:20px;"><table style="width:100%;border-collapse:collapse;">'
       +'<thead><tr style="border-bottom:2px solid var(--border);">'
-      +(headExtra ? '<th style="padding:6px 10px;font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--muted);text-align:center;">'+headExtra+'</th>' : '')
-      +'<th style="padding:6px 10px;font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--muted);text-align:left;">MOVE</th>'
-      +'<th style="padding:6px 10px;font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--muted);">TYPE</th>'
-      +'<th style="padding:6px 10px;font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--muted);">CAT</th>'
-      +'<th style="padding:6px 10px;font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--muted);text-align:right;">PWR</th>'
-      +'<th style="padding:6px 10px;font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--muted);text-align:right;">ACC</th>'
+      +(headExtra ? '<th style="padding:6px 10px;font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--game-color,var(--gold));text-align:center;">'+headExtra+'</th>' : '')
+      +'<th style="padding:6px 10px;font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--game-color,var(--gold));text-align:left;">MOVE</th>'
+      +'<th style="padding:6px 10px;font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--game-color,var(--gold));">TYPE</th>'
+      +'<th style="padding:6px 10px;font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--game-color,var(--gold));">CAT</th>'
+      +'<th style="padding:6px 10px;font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--game-color,var(--gold));text-align:right;">PWR</th>'
+      +'<th style="padding:6px 10px;font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--game-color,var(--gold));text-align:right;">ACC</th>'
       +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
   }
 
   function section(title, html) {
     return '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;overflow:hidden;">'
-      +'<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--muted);letter-spacing:1px;padding:9px 14px;border-bottom:1px solid var(--border);background:var(--panel);">'+title+'</div>'
+      +'<div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:var(--game-color,var(--gold));letter-spacing:1px;padding:9px 14px;border-bottom:1px solid var(--border);background:var(--panel);">'+title+'</div>'
       +'<div style="padding:14px 16px;">'+html+'</div></div>';
   }
 
@@ -153,6 +153,11 @@ function lsRender(num) {
     +'<div style="display:flex;gap:6px;">'+typeHtml+'</div>'
     +(myGroups.length ? '<div style="font-size:11px;color:var(--muted);margin-top:5px;">Egg groups: '+myGroups.join(', ')+'</div>' : '')
     +'</div></div>'
+    +'<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;font-size:11px;color:var(--muted);">'
+    +'<span><span style="color:var(--text);margin-right:4px;">⚔</span>Physical</span>'
+    +'<span><span style="color:var(--text);margin-right:4px;">✨</span>Special</span>'
+    +'<span><span style="color:var(--text);margin-right:4px;">●</span>Status</span>'
+    +'</div>'
     +section('LEVEL-UP MOVES', levelHtml)
     +section('TM / HM', tmHtml)
     +section('EGG MOVES', eggHtml)

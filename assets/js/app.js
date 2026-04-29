@@ -260,10 +260,10 @@ function buildHomePage() {
     {
       label:'MAPS', color:'#4CAF50', icon:'🗾', group:true,
       items:[
-        { icon:'🧭', label:'Kanto Map',       desc:'Interactive FR/LG map with clickable zones',    action:"closeNavDropdown('navMapsDropdown');showPage('kantomapview',document.getElementById('navKantoMapView'));if(!window._kantomapviewBuilt){buildKantoMapView();window._kantomapviewBuilt=true;}" },
-        { icon:'🧭', label:'Emerald Map',     desc:'Interactive Hoenn map with clickable zones',    action:"closeNavDropdown('navMapsDropdown');showPage('emeraldmapview',document.getElementById('navEmeraldMapView'));if(!window._emeraldmapviewBuilt){buildEmeraldMapView();window._emeraldmapviewBuilt=true;}" },
-        { icon:'↗', label:'FRLG Sidebar Map',    desc:'Open FR/LG IronMON map standalone in a new tab', action:"window.open('./FRLGIronmonMap/index.html','_blank')" },
-        { icon:'↗', label:'Emerald Sidebar Map', desc:'Open Emerald IronMON map standalone in a new tab', action:"window.open('./EmeraldIronmonMap/index.html','_blank')" },
+        { icon:'🧭', label:'Kanto Map',       desc:'Interactive FR/LG map with clickable zones',    games:['FR','LG'], action:"closeNavDropdown('navMapsDropdown');showPage('kantomapview',document.getElementById('navKantoMapView'));if(!window._kantomapviewBuilt){buildKantoMapView();window._kantomapviewBuilt=true;}" },
+        { icon:'🧭', label:'Emerald Map',     desc:'Interactive Hoenn map with clickable zones',    games:['R','S','E'], action:"closeNavDropdown('navMapsDropdown');showPage('emeraldmapview',document.getElementById('navEmeraldMapView'));if(!window._emeraldmapviewBuilt){buildEmeraldMapView();window._emeraldmapviewBuilt=true;}" },
+        { icon:'↗', label:'FRLG Sidebar Map',    desc:'Open FR/LG IronMON map standalone in a new tab', games:['FR','LG'], action:"window.open('./FRLGIronmonMap/index.html','_blank')" },
+        { icon:'↗', label:'Emerald Sidebar Map', desc:'Open Emerald IronMON map standalone in a new tab', games:['R','S','E'], action:"window.open('./EmeraldIronmonMap/index.html','_blank')" },
         { icon:'🗺', label:'Route Browser',   desc:'Select any area to see every Pokémon available', action:"return openPage('routebrowser','navRouteBrowser','navMapsDropdown')" },
       ]
     },
@@ -307,11 +307,11 @@ function buildHomePage() {
       label:'GUIDES', color:'#FF9800', icon:'📚', group:true,
       items:[
         { icon:'🧭', label:'Essentials',     desc:'Beginner basics: grass, fishing, surfing, status, money, and flow', action:"closeNavDropdown('navGuidesDropdown');showPage('essentials',document.getElementById('navEssentials'));if(!window._essentialsBuilt){buildEssentialsPage();window._essentialsBuilt=true;}" },
-        { icon:'🎀', label:'Contests',       desc:'Pokéblocks, conditions, appeal & jamming', action:"closeNavDropdown('navGuidesDropdown');showPage('contests',document.getElementById('navContests'));if(!window._contestsBuilt){buildContestsPage();window._contestsBuilt=true;}" },
-        { icon:'🏆', label:'Battle Frontier',desc:'All 7 facilities, Brains & streaks',       action:"closeNavDropdown('navGuidesDropdown');showPage('frontier',document.getElementById('navFrontier'));if(!window._frontierBuilt){buildFrontierPage();window._frontierBuilt=true;}" },
-        { icon:'🫐', label:'Berry Farming',  desc:'Growth cycles, mutations, Berry Master',   action:"closeNavDropdown('navGuidesDropdown');showPage('berries',document.getElementById('navBerries'));if(!window._berriesBuilt){buildBerriesPage();window._berriesBuilt=true;}" },
+        { icon:'🎀', label:'Contests',       desc:'Pokéblocks, conditions, appeal & jamming', games:['R','S','E'], action:"closeNavDropdown('navGuidesDropdown');showPage('contests',document.getElementById('navContests'));if(!window._contestsBuilt){buildContestsPage();window._contestsBuilt=true;}" },
+        { icon:'🏆', label:'Battle Frontier',desc:'All 7 facilities, Brains & streaks',       games:['E'], action:"closeNavDropdown('navGuidesDropdown');showPage('frontier',document.getElementById('navFrontier'));if(!window._frontierBuilt){buildFrontierPage();window._frontierBuilt=true;}" },
+        { icon:'🫐', label:'Berry Farming',  desc:'Growth cycles, mutations, Berry Master',   games:['R','S','E'], action:"closeNavDropdown('navGuidesDropdown');showPage('berries',document.getElementById('navBerries'));if(!window._berriesBuilt){buildBerriesPage();window._berriesBuilt=true;}" },
         { icon:'🎲', label:'RNG Guide',      desc:'TID/SID, Methods 1/2/4, shiny & IV abuse', action:"closeNavDropdown('navGuidesDropdown');showPage('rng',document.getElementById('navRng'));if(!window._rngBuilt){buildRngPage();}" },
-        { icon:'🍬', label:'Pokéblock Optimizer', desc:'Best berries and contest-feeding reference', action:"return openPage('pokeblock','navPokeblock','navGuidesDropdown')" },
+        { icon:'🍬', label:'Pokéblock Optimizer', desc:'Best berries and contest-feeding reference', games:['R','S','E'], action:"return openPage('pokeblock','navPokeblock','navGuidesDropdown')" },
       ]
     },
   ];
@@ -325,7 +325,8 @@ function buildHomePage() {
 
   function groupSection(s) {
     var items = s.items.map(function(it) {
-      return '<div onclick="' + it.action.replace(/"/g, '&quot;') + '" style="cursor:pointer;padding:10px 12px;border-radius:6px;transition:background .12s;" onmouseover="this.style.background=\'rgba(255,255,255,.05)\'" onmouseout="this.style.background=\'\'">'
+      var gAttr = it.games ? ' data-games="' + it.games.join(',') + '"' : '';
+      return '<div' + gAttr + ' onclick="' + it.action.replace(/"/g, '&quot;') + '" style="cursor:pointer;padding:10px 12px;border-radius:6px;transition:background .12s;" onmouseover="this.style.background=\'rgba(255,255,255,.05)\'" onmouseout="this.style.background=\'\'">'
         + '<div style="min-width:0;">'
         + '<div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:1px;">' + it.label + '</div>'
         + '<div style="font-size:10px;color:var(--muted);">' + it.desc + '</div>'
@@ -340,7 +341,7 @@ function buildHomePage() {
 
   function buildPotdWidget() {
     if (!POKE || !POKE.length) return '';
-    var dateStr = new Date().toISOString().slice(0, 10);
+    var dateStr = new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString().slice(0, 10);
     var seed = 0;
     for (var i = 0; i < dateStr.length; i++) seed = (seed * 31 + dateStr.charCodeAt(i)) | 0;
     var p = POKE[Math.abs(seed) % POKE.length];
@@ -354,8 +355,9 @@ function buildHomePage() {
       return id ? '<img src="' + TYPE_ICON_BASE + id + '.png" class="type-img type-img-' + t + '" height="18" style="image-rendering:pixelated;vertical-align:middle;margin-right:2px;">' : '<span class="type-badge type-' + t + '">' + t + '</span>';
     }).join('');
     var action = "guideDex('" + p.name.replace(/'/g, "\\'") + "')";
+    var isSmall = window.innerWidth < 768;
     return '<div class="home-mast-potd" onclick="' + action.replace(/"/g,'&quot;') + '" title="Open in Pokédex">'
-      + '<div class="home-mast-now-playing">Featured Today</div>'
+      + '<div class="home-mast-now-playing">' + (isSmall ? 'POTD' : 'Pokemon of the Day') + '</div>'
       + '<div class="home-mast-potd-row">'
       + '<img class="home-mast-potd-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + p.num + '.png" alt="' + p.name + '">'
       + '<div class="home-mast-potd-detail">'
@@ -453,7 +455,7 @@ function buildHomePage() {
     + '<div class="home-mast-inner">'
     +   '<div class="home-mast-pub">'
     +     '<div class="home-mast-logo">GEN3<br>eGUIDE</div>'
-    +     '<div class="home-mast-pub-sub">Strategy Guide<br>Special Edition</div>'
+    +     '<div class="home-mast-pub-sub">The complete<br>Gen 3 companion</div>'
     +   '</div>'
     +   '<div class="home-mast-sep"></div>'
     +   '<div class="home-mast-game">'
@@ -524,6 +526,15 @@ function buildHomePage() {
     setTimeout(showNext, 600);
     setInterval(showNext, 5000);
   })();
+
+  _applyGameFilter(GAME);
+}
+
+function _applyGameFilter(g) {
+  document.querySelectorAll('[data-games]').forEach(function(el) {
+    var games = el.getAttribute('data-games').split(',');
+    el.style.display = (g === 'all' || games.indexOf(g) !== -1) ? '' : 'none';
+  });
 }
 
 function setFontSize(val) {
@@ -1328,10 +1339,16 @@ function setGameFromHeader(g, btn) {
   setSiteGameColor(g);
   // Update header badges
   syncHeaderBadges(g);
+  // Sync tracker save FIRST so buildHomePage reads the correct TRK_SAVE
+  if (prefBool('gen3-tracker-auto-follow', true) && g !== 'all' && ['FR','LG','R','S','E'].includes(g)) {
+    TRK_SAVE = g;
+    trkUpdateTabAccent(g, true);
+  }
   // Sync the game-tab row in Pokédex
   GAME = g; SORT_KEY = null; SORT_DIR = 1;
   var homePage = document.getElementById('page-home');
   if (homePage && homePage.classList.contains('active')) buildHomePage();
+  _applyGameFilter(g);
   const clsMap = {all:'active-all',FR:'active-fr',LG:'active-lg',R:'active-r',S:'active-s',E:'active-e'};
   document.querySelectorAll('.game-tab').forEach(b => { b.className = 'game-tab'; });
   const tab = document.querySelector(`.game-tab[onclick*="'${g}'"]`);
@@ -1359,10 +1376,8 @@ function setGameFromHeader(g, btn) {
   if (tbBtn) tbBtn.className = 'tb-game-btn active-'+g.toLowerCase();
   tbUpdateTitleColor(g);
   if (TB_TEAM.length) { tbRenderSlots(); tbRenderAnalysis(); }
-  // Sync Pokédex Tracker to match selected game
+  // Re-render tracker (TRK_SAVE already updated above)
   if (prefBool('gen3-tracker-auto-follow', true) && g !== 'all' && ['FR','LG','R','S','E'].includes(g)) {
-    TRK_SAVE = g;
-    trkUpdateTabAccent(g, true);
     if (window._trackerBuilt) { trkRenderSidebar(); trkRenderGrid(); }
   }
   // Sync Exclusives mode to match selected game
@@ -1428,6 +1443,7 @@ function setGame(g, btn) {
   localStorage.setItem('gen3-game', g);
   setSiteGameColor(g);
   if (window._applyGameClass) window._applyGameClass(g);
+  _applyGameFilter(g);
   document.querySelectorAll('.game-tab').forEach(b => { b.className = 'game-tab'; });
   const clsMap = {all:'active-all',FR:'active-fr',LG:'active-lg',R:'active-r',S:'active-s',E:'active-e'};
   btn.className = 'game-tab ' + (clsMap[g]||'active-all');
@@ -8920,11 +8936,12 @@ function exclCard(p, game) {
   var raw = p.games[game] || '';
   var line = raw.split('\n')[0] || '\u2014';
   var typeHtml = typeBadges(p.types);
+  var nameEsc = p.name.replace(/'/g, "\\'");
   return '<div class="excl-card">'
-    + '<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + p.num + '.png" loading="lazy" width="32" height="32" style="image-rendering:pixelated">'
+    + '<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + p.num + '.png" loading="lazy" width="32" height="32" style="image-rendering:pixelated;cursor:pointer;" onclick="guideDex(\'' + nameEsc + '\')">'
     + '<div>'
     + '<div class="excl-pnum">#' + String(p.num).padStart(3,'0') + ' ' + typeHtml + '</div>'
-    + '<div class="excl-pname">' + p.name + '</div>'
+    + '<div class="excl-pname guide-poke-link" onclick="guideDex(\'' + nameEsc + '\')" style="cursor:pointer;">' + p.name + '</div>'
     + '<div class="excl-method">' + line + '</div>'
     + '</div>'
     + '</div>';
@@ -9460,8 +9477,7 @@ function trkSetMarkMode(mode, btn) {
       evolved:'mark evolved',
       bred:'mark bred',
       traded:'mark traded',
-      held:'mark held-item farmed',
-      legendary:'mark legendary obtained'
+      held:'mark held-item farmed'
     })[mode] + ' · Right-click = shiny · Data saved locally per save file';
   }
 }
@@ -9500,7 +9516,10 @@ function trkToggleTm(id) {
 }
 
 function openTmChecklist() {
-  document.getElementById('tmChecklistOverlay').classList.add('open');
+  var overlay = document.getElementById('tmChecklistOverlay');
+  var trkColor = getComputedStyle(document.getElementById('page-tracker') || document.documentElement).getPropertyValue('--trk-color').trim();
+  if (trkColor) overlay.style.setProperty('--trk-color', trkColor);
+  overlay.classList.add('open');
   renderTmChecklist();
 }
 
@@ -9904,9 +9923,20 @@ function trkToggle(num) {
         card.addEventListener('animationend', function(){ card.classList.remove('just-caught'); }, {once:true});
         _spawnConfetti(card);
       }
+      // Auto-mark legendary status for legendary Pokémon
+      if (TRK_LEGENDARIES[num]) {
+        var leg = trkLoadCompletion('legendary', TRK_SAVE);
+        if (leg.indexOf(num) === -1) { leg.push(num); trkSaveCompletion('legendary', TRK_SAVE, leg); }
+      }
     } else {
       caught.splice(idx, 1);
       if (card && !motionReduced()) pulseElement(card, 'trk-mark-pop', 420);
+      // Remove auto-legendary on uncatch
+      if (TRK_LEGENDARIES[num]) {
+        var leg2 = trkLoadCompletion('legendary', TRK_SAVE);
+        var li = leg2.indexOf(num);
+        if (li !== -1) { leg2.splice(li, 1); trkSaveCompletion('legendary', TRK_SAVE, leg2); }
+      }
     }
     trkSave(TRK_SAVE, caught);
   } else if (TRK_MARK_MODE === 'seen') {
@@ -9953,7 +9983,8 @@ function trkSetFilter(f, btn) {
   TRK_FILTER = f;
   prefSet('gen3-tracker-filter', f);
   document.querySelectorAll('.trk-filter-btn').forEach(function(b) { b.classList.remove('active'); });
-  btn.classList.add('active');
+  document.querySelectorAll('.trk-stat-box').forEach(function(b) { b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
   trkRenderGrid();
   settingsMaybeDriveReminder();
 }
@@ -10021,24 +10052,6 @@ function trkRenderSidebar() {
   el('trk-s-legendary', legendaryList.length);
   el('trk-s-tm', tmList.length + ' / ' + trkTmListForSave(TRK_SAVE).length);
 
-  // Milestone sticker badges
-  var milestoneStrip = document.getElementById('trk-milestone-strip');
-  if (milestoneStrip) {
-    var msKey = 'gen3-milestones-' + TRK_SAVE;
-    var earned = (function(){ try{ return JSON.parse(localStorage.getItem(msKey)||'[]'); }catch(e){ return []; }})();
-    var changed = false;
-    [25,50,75,100].forEach(function(m){ if (pct >= m && earned.indexOf(m) === -1) { earned.push(m); changed = true; } });
-    if (changed) { try{ localStorage.setItem(msKey, JSON.stringify(earned)); }catch(e){} }
-    var msDefs = {
-      25:  { label:'🥉 BRONZE TRAINER', cls:'ms-25'  },
-      50:  { label:'🥈 SILVER TRAINER', cls:'ms-50'  },
-      75:  { label:'🥇 GOLD TRAINER',   cls:'ms-75'  },
-      100: { label:'🏆 POKÉMON MASTER', cls:'ms-100' }
-    };
-    milestoneStrip.innerHTML = earned.map(function(m){
-      var d = msDefs[m]; return d ? '<span class="trk-milestone-badge ' + d.cls + '">' + d.label + '</span>' : '';
-    }).join('');
-  }
 
   var remainingBody = document.getElementById('trk-remaining-body');
   if (remainingBody) {
@@ -10074,9 +10087,20 @@ function trkRenderSidebar() {
       ['In-game trades', gr.npcTrade],
       ['Link trades', gr.linkTrade]
     ];
-    remainingBody.innerHTML = defs.map(function(def) {
-      var sample = def[1].slice(0, 4).join(', ');
-      return '<div class="trk-remaining-row"><div class="trk-remaining-head"><span>' + def[0] + '</span><span>' + def[1].length + '</span></div><div class="trk-remaining-sub">' + (sample || 'Nothing left in this bucket.') + (def[1].length > 4 ? ' +' + (def[1].length - 4) + ' more' : '') + '</div></div>';
+    remainingBody.innerHTML = defs.map(function(def, idx) {
+      var names = def[1];
+      var preview = names.slice(0, 4).join(', ');
+      var rest = names.slice(4);
+      var expandId = 'trk-rem-expand-' + idx;
+      var btnId = 'trk-rem-btn-' + idx;
+      var extraHtml = rest.length
+        ? '<span id="' + expandId + '" style="display:none;">, ' + rest.join(', ') + '</span>'
+          + '<button id="' + btnId + '" class="trk-rem-more-btn" onclick="trkToggleRemaining(' + idx + ',' + rest.length + ')">+' + rest.length + ' more</button>'
+        : '';
+      return '<div class="trk-remaining-row">'
+        + '<div class="trk-remaining-head"><span>' + def[0] + '</span><span>' + names.length + '</span></div>'
+        + '<div class="trk-remaining-sub">' + (names.length ? preview + extraHtml : 'Nothing left in this bucket.') + '</div>'
+        + '</div>';
     }).join('');
   }
 }
@@ -10149,6 +10173,13 @@ function trkRenderGrid() {
   var q = (document.getElementById('trk-search') || {}).value || '';
   q = q.toLowerCase();
 
+  var _filterSets = {};
+  if (['seen','evolved','bred','traded','held','legendary'].indexOf(TRK_FILTER) !== -1) {
+    var _kind = TRK_FILTER === 'seen' ? 'seen' : TRK_FILTER;
+    trkLoadCompletion(_kind, TRK_SAVE).forEach(function(n){ _filterSets[n] = true; });
+    if (TRK_FILTER === 'seen') caught.forEach(function(n){ _filterSets[n] = true; });
+  }
+
   var filtered = POKE.filter(function(p) {
     // search
     if (q && p.name.toLowerCase().indexOf(q) === -1 && String(p.num).indexOf(q) === -1) return false;
@@ -10159,14 +10190,20 @@ function trkRenderGrid() {
     var isFaintedFilter = NUZLOCKE_MODE && nuzlockeIsFainted(TRK_SAVE, p.num);
     var isShinyFilter = trkIsShiny(p.num);
     switch (TRK_FILTER) {
-      case 'caught':   return isCaught && !isFaintedFilter;
-      case 'uncaught': return !isCaught && !isFaintedFilter;
-      case 'shiny':    return isShinyFilter;
-      case 'native':   return av === 'native';
-      case 'trade':    return av === 'trade';
-      case 'national': return true;
-      case 'fainted':  return isFaintedFilter;
-      case 'alive':    return isCaught && !isFaintedFilter;
+      case 'caught':    return isCaught && !isFaintedFilter;
+      case 'uncaught':  return !isCaught && !isFaintedFilter;
+      case 'shiny':     return isShinyFilter;
+      case 'native':    return av === 'native';
+      case 'trade':     return av === 'trade';
+      case 'national':  return true;
+      case 'fainted':   return isFaintedFilter;
+      case 'alive':     return isCaught && !isFaintedFilter;
+      case 'seen':
+      case 'evolved':
+      case 'bred':
+      case 'traded':
+      case 'held':
+      case 'legendary': return !!_filterSets[p.num];
       default: return true;
     }
   });
@@ -10240,11 +10277,11 @@ function trkRenderGrid() {
     return '<div class="' + cls + '" id="trk-card-' + p.num + '" data-trk-num="' + p.num + '" onclick="trkToggle(' + p.num + ')" oncontextmenu="' + contextHandler + '" title="' + safeTitle + '">'
       + '<div class="trk-card-check">' + (isShiny ? '✨' : '✓') + '</div>'
       + '<span class="trk-shiny-badge">✨</span>'
-      + '<span class="trk-trade-badge">TRADE</span>'
       + '<img class="trk-card-img" src="' + spriteUrl + '" loading="lazy" onerror="this.src=&quot;' + fallbackSrc + '&quot;">'
       + '<div class="trk-card-num">#' + String(p.num).padStart(3,'0') + '</div>'
       + '<div class="trk-card-name">' + p.name + '</div>'
       + '<div class="trk-type-dots">' + typeDots + '</div>'
+      + '<span class="trk-trade-badge">TRADE</span>'
       + '<div class="trk-status-badges">'
       + '<span class="trk-status-chip seen ' + ((seenSet[p.num] || isCaught) ? 'on' : '') + '">SEEN</span>'
       + '<span class="trk-status-chip evolved ' + (evolvedSet[p.num] ? 'on' : '') + '">EVO</span>'
@@ -10265,6 +10302,9 @@ function trkRenderGrid() {
 function trkMarkAll() {
   var all = POKE.map(function(p) { return p.num; });
   trkSave(TRK_SAVE, all);
+  // Auto-mark all legendaries
+  var legNums = POKE.filter(function(p) { return !!TRK_LEGENDARIES[p.num]; }).map(function(p) { return p.num; });
+  trkSaveCompletion('legendary', TRK_SAVE, legNums);
   trkRenderGrid();
   trkRenderSidebar();
   renderTmChecklist();
@@ -10286,6 +10326,26 @@ function trkClearSave() {
   trkStatus(TRK_GAME_LABELS[TRK_SAVE] + ' save reset.', '');
   if (window._easyDexBuilt && GAME === TRK_SAVE) renderEasyDexPage();
   settingsMaybeDriveReminder();
+}
+
+// ── Remaining obtainable expand ──────────────────────────────
+function trkToggleRemaining(idx, count) {
+  var expand = document.getElementById('trk-rem-expand-' + idx);
+  var btn    = document.getElementById('trk-rem-btn-'    + idx);
+  if (!expand || !btn) return;
+  var open = expand.style.display !== 'none';
+  expand.style.display = open ? 'none' : 'inline';
+  btn.textContent = open ? '+' + count + ' more' : 'Show less';
+}
+
+// ── Legend ────────────────────────────────────────────────────
+function trkShowLegend() {
+  var el = document.getElementById('trkLegendOverlay');
+  if (el) el.classList.add('open');
+}
+function trkHideLegend() {
+  var el = document.getElementById('trkLegendOverlay');
+  if (el) el.classList.remove('open');
 }
 
 // ── Init ──────────────────────────────────────────────────────
@@ -13562,7 +13622,7 @@ function breedCalc() {
   html += '<div style="background:rgba(0,204,85,0.08);border:1px solid rgba(0,204,85,0.3);border-radius:8px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:16px;">'
     + '<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + offspring + '.png" width="48" height="48" style="image-rendering:pixelated">'
     + '<div><div style="font-family:\'Press Start 2P\',monospace;font-size:7px;color:#44DD88;margin-bottom:6px;">✓ COMPATIBLE — OFFSPRING</div>'
-    + '<div style="font-size:14px;font-weight:800;color:var(--text);">' + offspringPoke.name + ' <span style="font-size:11px;color:var(--muted);">#' + String(offspring).padStart(3,'0') + '</span></div>'
+    + '<div style="font-size:14px;font-weight:800;"><span class="guide-poke-link" onclick="guideDex(\'' + offspringPoke.name.replace(/'/g,"\\'") + '\')">' + offspringPoke.name + '</span> <span style="font-size:11px;color:var(--muted);">#' + String(offspring).padStart(3,'0') + '</span></div>'
     + '<div style="font-size:11px;color:var(--muted);margin-top:3px;">Shared egg group' + (sharedGroups.length>1?'s':'') + ': <strong>' + sharedGroups.join(', ') + '</strong></div>'
     + '</div></div>';
 
@@ -13596,9 +13656,9 @@ function breedCalc() {
   } else {
     html += '<table style="width:100%;border-collapse:collapse;margin-bottom:24px;">'
       + '<thead><tr style="background:var(--card);">'
-      + '<th style="padding:8px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);border-bottom:2px solid var(--border);">Egg Move</th>'
-      + '<th style="padding:8px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);border-bottom:2px solid var(--border);">Parent A can teach?</th>'
-      + '<th style="padding:8px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);border-bottom:2px solid var(--border);">Parent B can teach?</th>'
+      + '<th style="padding:8px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--game-color,var(--gold));border-bottom:2px solid var(--border);">Egg Move</th>'
+      + '<th style="padding:8px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--game-color,var(--gold));border-bottom:2px solid var(--border);">Parent A can teach?</th>'
+      + '<th style="padding:8px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--game-color,var(--gold));border-bottom:2px solid var(--border);">Parent B can teach?</th>'
       + '</tr></thead><tbody>';
 
     eggMoves.forEach(function(move, i) {
@@ -13610,7 +13670,7 @@ function breedCalc() {
       var bBadge = bHas ? '<span style="background:rgba(0,204,85,0.2);color:#44DD88;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:700;">✓ YES</span>'
                         : '<span style="color:var(--muted);font-size:10px;">—</span>';
       html += '<tr style="border-bottom:1px solid var(--border);background:' + rowBg + ';">'
-        + '<td style="padding:8px 12px;font-size:12px;font-weight:700;">' + move + '</td>'
+        + '<td style="padding:8px 12px;font-size:12px;font-weight:700;"><span class="guide-move-link" onclick="_openMoveDex(\'' + move.replace(/'/g,"\\'") + '\')">' + move + '</span></td>'
         + '<td style="padding:8px 12px;">' + aBadge + '</td>'
         + '<td style="padding:8px 12px;">' + bBadge + '</td>'
         + '</tr>';
@@ -13623,7 +13683,7 @@ function breedCalc() {
     });
     if (passable.length) {
       html += '<div style="background:rgba(0,204,85,0.07);border:1px solid rgba(0,204,85,0.25);border-radius:6px;padding:12px 16px;font-size:12px;">'
-        + '<strong style="color:#44DD88;">✓ Passable moves (' + passable.length + '):</strong> ' + passable.join(', ')
+        + '<strong style="color:#44DD88;">✓ Passable moves (' + passable.length + '):</strong> ' + passable.map(function(m){ return '<span class="guide-move-link" onclick="_openMoveDex(\'' + m.replace(/'/g,"\\'") + '\')">' + m + '</span>'; }).join(', ')
         + '</div>';
     } else {
       html += '<div style="background:rgba(255,107,53,0.07);border:1px solid rgba(255,107,53,0.25);border-radius:6px;padding:12px 16px;font-size:12px;color:var(--muted);">'
@@ -13636,7 +13696,7 @@ function breedCalc() {
   html += '<div style="margin-top:20px;font-family:\'Press Start 2P\',monospace;font-size:8px;color:var(--text);letter-spacing:0.5px;margin-bottom:12px;">INHERITED LEVEL-UP MOVES</div>';
   var lvlMoves = (offspringLearnset.level || []).filter(function(e){ return e[0] === 1; }).map(function(e){ return e[1]; });
   html += '<div style="font-size:12px;color:var(--muted);line-height:1.8;">'
-    + 'Offspring knows these moves at Lv.1: <strong style="color:var(--text);">' + (lvlMoves.length ? lvlMoves.join(', ') : 'None') + '</strong>'
+    + 'Offspring knows these moves at Lv.1: <strong style="color:var(--text);">' + (lvlMoves.length ? lvlMoves.map(function(m){ return '<span class="guide-move-link" onclick="_openMoveDex(\'' + m.replace(/'/g,"\\'") + '\')">' + m + '</span>'; }).join(', ') : 'None') + '</strong>'
     + '<br>In Gen 3, both parents\' Lv.1 moves that the offspring can normally learn are also inherited.'
     + '</div>';
 
@@ -13743,18 +13803,28 @@ function heldFilter() {
     + '<th style="padding:9px 12px;text-align:left;font-size:10px;color:var(--game-color,var(--gold));border-bottom:2px solid var(--border);">Effect</th>'
     + (isMobile ? '' : '<th style="padding:9px 12px;text-align:left;font-size:10px;color:var(--game-color,var(--gold));border-bottom:2px solid var(--border);">Where to Get (Gen 3)</th>')
     + '</tr></thead><tbody>';
+  var _heldPokeNames = POKE.map(function(p){ return p.name; }).sort(function(a,b){ return b.length - a.length; });
+  function _heldLinkPoke(text) {
+    _heldPokeNames.forEach(function(name) {
+      var re = new RegExp('\\b' + name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b', 'g');
+      text = text.replace(re, '<span class="guide-poke-link" onclick="guideDex(\'' + name.replace(/'/g,"\\'") + '\')" style="cursor:pointer;">' + name + '</span>');
+    });
+    return text;
+  }
   items.forEach(function(it, i) {
     var col = CAT_COLORS[it.cat] || 'var(--muted)';
     var lbl = CAT_LABELS[it.cat] || it.cat;
     var rowId = 'held-row-' + i;
     var detId = 'held-det-' + i;
+    var linkedLocation = _heldLinkPoke(it.location);
+    var linkedEffect = _heldLinkPoke(it.effect);
     html += '<tr id="' + rowId + '" style="border-bottom:1px solid var(--border);" ' + (isMobile ? 'onclick="heldToggleDet(\'' + detId + '\',\'' + rowId + '\')" style="cursor:pointer;border-bottom:1px solid var(--border);"' : '') + '>'
       + '<td style="padding:9px 12px;font-size:12px;font-weight:700;white-space:nowrap;"><div style="display:flex;align-items:center;gap:6px;' + (isMobile ? '' : 'cursor:pointer;transition:color 0.12s;') + '" ' + (isMobile ? '' : 'onclick="openItemByName(this.dataset.item)" data-item="' + it.name.replace(/"/g,'&quot;').replace(/'/g,'&#39;') + '" onmouseover="this.style.color=\'var(--game-color,var(--gold))\'" onmouseout="this.style.color=\'\'"') + '>' + itemSprite(it.name, 24) + it.name + '</div></td>'
       + '<td style="padding:9px 12px;"><span style="font-size:10px;font-weight:700;color:' + col + ';white-space:nowrap;">' + lbl + '</span></td>'
-      + '<td style="padding:9px 12px;font-size:11px;color:var(--text);line-height:1.5;">' + it.effect + '</td>'
-      + (isMobile ? '' : '<td style="padding:9px 12px;font-size:11px;color:var(--muted);line-height:1.5;">' + it.location + '</td>')
+      + '<td style="padding:9px 12px;font-size:11px;color:var(--text);line-height:1.5;">' + linkedEffect + '</td>'
+      + (isMobile ? '' : '<td style="padding:9px 12px;font-size:11px;color:var(--muted);line-height:1.5;">' + linkedLocation + '</td>')
       + '</tr>'
-      + (isMobile ? '<tr id="' + detId + '" style="display:none;background:var(--darker);"><td colspan="3" style="padding:10px 14px;font-size:11px;color:var(--muted);line-height:1.5;border-bottom:2px solid var(--game-color,var(--gold));"><span style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--leaf);display:block;margin-bottom:4px;">Where to Get</span>' + it.location + '</td></tr>' : '');
+      + (isMobile ? '<tr id="' + detId + '" style="display:none;background:var(--darker);"><td colspan="3" style="padding:10px 14px;font-size:11px;color:var(--muted);line-height:1.5;border-bottom:2px solid var(--game-color,var(--gold));"><span style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--leaf);display:block;margin-bottom:4px;">Where to Get</span>' + linkedLocation + '</td></tr>' : '');
   });
   html += '</tbody></table>';
   wrap.innerHTML = html;
@@ -14766,7 +14836,7 @@ function renderTradeEvoPage() {
 
   TRADE_EVOS_GEN3.forEach(function(e, i) {
     var itemBadge = e.item
-      ? '<span style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,215,0,0.15);border:1px solid rgba(255,215,0,0.4);border-radius:3px;padding:2px 8px;font-size:10px;font-weight:700;color:var(--game-color,var(--gold));">' + itemSprite(e.item,18) + e.item + '</span>'
+      ? '<span onclick="openItemByName(\'' + e.item.replace(/'/g,"\\'") + '\')" style="display:inline-flex;align-items:center;gap:5px;background:color-mix(in srgb,var(--game-color,var(--gold)) 15%,transparent);border:1px solid color-mix(in srgb,var(--game-color,var(--gold)) 40%,transparent);border-radius:3px;padding:2px 8px;font-size:10px;font-weight:700;color:var(--game-color,var(--gold));cursor:pointer;" title="Open in Item Dex">' + itemSprite(e.item,18) + e.item + '</span>'
       : '<span style="font-size:11px;color:var(--muted);">No item</span>';
     html += '<tr style="border-bottom:1px solid var(--border);">'
       + '<td style="padding:10px 12px;">'
@@ -14800,8 +14870,14 @@ function renderTradeEvoPage() {
     + '<th style="' + thStyle + '">Note</th>'
     + '</tr></thead><tbody>';
   TRADE_EVOS_GEN4.forEach(function(e, i) {
+    var fromEsc = e.from.replace(/'/g,"\\'");
+    var toEsc = e.to.replace(/'/g,"\\'");
     html += '<tr style="border-bottom:1px solid var(--border)">'
-      + '<td style="padding:9px 12px;font-size:12px;font-weight:700;color:var(--muted);">' + e.from + ' → ' + e.to + '</td>'
+      + '<td style="padding:9px 12px;font-size:12px;font-weight:700;color:var(--muted);">'
+      + '<span class="guide-poke-link" onclick="guideDex(\'' + fromEsc + '\')">' + e.from + '</span>'
+      + ' → '
+      + '<span class="guide-poke-link" onclick="guideDex(\'' + toEsc + '\')" style="opacity:0.5;" title="Not available in Gen 3">' + e.to + '</span>'
+      + '</td>'
       + '<td style="padding:9px 12px;font-size:11px;color:var(--muted);">' + e.item + '</td>'
       + '<td style="padding:9px 12px;font-size:11px;color:var(--muted);">' + e.note + '</td>'
       + '</tr>';
@@ -14810,13 +14886,38 @@ function renderTradeEvoPage() {
   gen4el.innerHTML = '<div class="panel" style="overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0;">' + html + '</div>';
 
   // Item locations
+  var _pokeNamesSorted = POKE.map(function(p){ return p.name; }).sort(function(a,b){ return b.length - a.length; });
+  var _itemNamesSorted = ALL_ITEMS.map(function(it){ return it[1]; }).sort(function(a,b){ return b.length - a.length; });
+  var _moveNamesSorted = ALL_MOVES_DATA.map(function(m){ return m[1]; }).sort(function(a,b){ return b.length - a.length; });
+  function _linkNames(text, names, onclickFn, cssClass) {
+    names.forEach(function(name) {
+      var re = new RegExp('\\b' + name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b', 'g');
+      text = text.replace(re, '<span class="' + cssClass + '" onclick="' + onclickFn(name) + '" style="cursor:pointer;">' + name + '</span>');
+    });
+    return text;
+  }
+  function _linkPokeNames(text) {
+    return _linkNames(text, _pokeNamesSorted, function(n){ return 'guideDex(\'' + n.replace(/'/g,"\\'") + '\')'; }, 'guide-poke-link');
+  }
+  function _linkItemNames(text) {
+    return _linkNames(text, _itemNamesSorted, function(n){ return 'openItemByName(\'' + n.replace(/'/g,"\\'") + '\')'; }, 'guide-item-link');
+  }
+  function _linkMoveNames(text) {
+    return _linkNames(text, _moveNamesSorted, function(n){ return '_openMoveDex(\'' + n.replace(/'/g,"\\'") + '\')'; }, 'guide-move-link');
+  }
+  function _linkAll(text) {
+    text = _linkPokeNames(text);
+    text = _linkItemNames(text);
+    text = _linkMoveNames(text);
+    return text;
+  }
   var itemsEl = document.getElementById('tradeevo-items');
   html = '';
   TRADE_ITEM_LOCATIONS.forEach(function(entry) {
     html += '<div style="margin-bottom:16px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;">'
-      + '<div style="display:flex;align-items:center;gap:6px;font-weight:700;font-size:13px;color:var(--game-color,var(--gold));margin-bottom:8px;">' + itemSprite(entry.item,20) + entry.item + '</div>'
+      + '<div onclick="openItemByName(\'' + entry.item.replace(/'/g,"\\'") + '\')" style="display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:13px;color:var(--game-color,var(--gold));margin-bottom:8px;cursor:pointer;" title="Open in Item Dex">' + itemSprite(entry.item,20) + entry.item + '</div>'
       + '<ul style="margin:0;padding-left:18px;">'
-      + entry.locations.map(function(l){ return '<li style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:3px;">' + l + '</li>'; }).join('')
+      + entry.locations.map(function(l){ return '<li style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:3px;">' + _linkAll(l) + '</li>'; }).join('')
       + '</ul></div>';
   });
   itemsEl.innerHTML = html;
@@ -16425,13 +16526,34 @@ function buildFrontierPage() {
   var c = document.getElementById('frontier-content');
   if (!c) return;
 
+  var _frPokeNames = POKE.map(function(p){ return p.name; }).sort(function(a,b){ return b.length-a.length; });
+  var _frItemNames = ALL_ITEMS.map(function(it){ return it[1]; }).sort(function(a,b){ return b.length-a.length; });
+  var _frMoveNames = ALL_MOVES_DATA.map(function(m){ return m[1]; }).sort(function(a,b){ return b.length-a.length; });
+  function _frReplaceInTextNodes(html, names, cssClass, onclickFn) {
+    if (!names.length) return html;
+    var pattern = names.map(function(n){ return '\\b' + n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b'; }).join('|');
+    var nameRe = new RegExp('(' + pattern + ')', 'g');
+    return html.replace(/(<[^>]+>)|([^<]+)/g, function(match, tag, txt) {
+      if (tag) return tag;
+      return txt.replace(nameRe, function(matched) {
+        return '<span class="' + cssClass + '" onclick="' + onclickFn(matched) + '">' + matched + '</span>';
+      });
+    });
+  }
+  function _frLink(text) {
+    text = _frReplaceInTextNodes(text, _frPokeNames, 'guide-poke-link', function(n){ return 'guideDex(\'' + n.replace(/'/g,"\\'") + '\')'; });
+    text = _frReplaceInTextNodes(text, _frItemNames, 'guide-item-link', function(n){ return 'openItemByName(\'' + n.replace(/'/g,"\\'") + '\')'; });
+    text = _frReplaceInTextNodes(text, _frMoveNames, 'guide-move-link', function(n){ return '_openMoveDex(\'' + n.replace(/'/g,"\\'") + '\')'; });
+    return text;
+  }
+
   function card(title, color, body) {
     return '<div style="background:var(--card);border:1px solid '+(color||'var(--border)')+';border-radius:8px;padding:16px 18px;margin-bottom:16px;">'
       +'<div style="font-family:\'Press Start 2P\',monospace;font-size:8px;color:'+(color||'var(--gold)')+';margin-bottom:10px;">'+title+'</div>'
       +body+'</div>';
   }
-  function p(t) { return '<p style="font-size:12px;color:var(--text);line-height:1.7;margin:0 0 8px;">'+t+'</p>'; }
-  function muted(t) { return '<p style="font-size:11px;color:var(--muted);line-height:1.7;margin:0 0 6px;">'+t+'</p>'; }
+  function p(t) { return '<p style="font-size:12px;color:var(--text);line-height:1.7;margin:0 0 8px;">'+_frLink(t)+'</p>'; }
+  function muted(t) { return '<p style="font-size:11px;color:var(--muted);line-height:1.7;margin:0 0 6px;">'+_frLink(t)+'</p>'; }
   function badge(label, color) { return '<span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;background:'+color+'22;border:1px solid '+color+';color:'+color+';margin:2px;">'+label+'</span>'; }
 
   var facilities = [
@@ -16460,7 +16582,7 @@ function buildFrontierPage() {
 
   var html = p('Emerald\'s Battle Frontier contains <strong>7 facilities</strong>, each with unique rules. Earn Battle Points (BP) by winning streaks and spend them on rare items. Each facility has a <strong>Frontier Brain</strong> who challenges you after reaching a win milestone.')
     +'<div style="padding:10px 14px;background:color-mix(in srgb,var(--game-color,var(--gold)) 6%,transparent);border:1px solid var(--game-color,var(--gold));border-radius:6px;font-size:11px;color:var(--muted);margin-bottom:20px;line-height:1.7;">'
-    +'<strong style="color:var(--text);">Key BP prizes:</strong> Salac/Petaya/Liechi/Ganlon/Apicot/Lansat/Starf berries (1 BP) · TM26 Earthquake (32 BP) · Choice Band (48 BP) · Scope Lens (48 BP) · Bright Powder (48 BP) · White Herb (48 BP)'
+    +'<strong style="color:var(--text);">Key BP prizes:</strong> ' + _frLink('Salac/Petaya/Liechi/Ganlon/Apicot/Lansat/Starf berries (1 BP) · TM26 Earthquake (32 BP) · Choice Band (48 BP) · Scope Lens (48 BP) · Bright Powder (48 BP) · White Herb (48 BP)')
     +'</div>';
 
   html += facilities.map(function(f) {
@@ -16469,9 +16591,9 @@ function buildFrontierPage() {
       +'<div style="font-family:\'Press Start 2P\',monospace;font-size:8px;color:var(--game-color,var(--gold));margin-bottom:4px;">'+f.name+'</div>'
       +'<div style="font-size:10px;color:var(--muted);">Brain: <strong style="color:var(--text);">'+f.brain+'</strong> · Challenge at win '+f.streak+'</div>'
       +'</div>'
-      +'<div style="font-size:12px;color:var(--muted);margin-bottom:8px;padding:6px 10px;background:var(--panel);border-radius:5px;line-height:1.6;"><strong style="color:var(--text);">Format:</strong> '+f.mode+'</div>'
-      +'<div style="font-size:12px;color:var(--text);line-height:1.7;margin-bottom:8px;">'+f.tip+'</div>'
-      +'<div style="font-size:11px;color:var(--muted);">'+f.prize+'</div>'
+      +'<div style="font-size:12px;color:var(--muted);margin-bottom:8px;padding:6px 10px;background:var(--panel);border-radius:5px;line-height:1.6;"><strong style="color:var(--text);">Format:</strong> '+_frLink(f.mode)+'</div>'
+      +'<div style="font-size:12px;color:var(--text);line-height:1.7;margin-bottom:8px;">'+_frLink(f.tip)+'</div>'
+      +'<div style="font-size:11px;color:var(--muted);">'+_frLink(f.prize)+'</div>'
       +'</div>';
   }).join('');
 
@@ -16496,7 +16618,7 @@ var MISSABLES_DATA = {
     'ONE-TIME POKÉMON': [
       { id:'snorlax12', label:'Snorlax (Route 12)', desc:'Blocks the road south of Lavender Town. Need Poké Flute. Fleeing or defeating ends the encounter permanently.' },
       { id:'snorlax16', label:'Snorlax (Route 16)', desc:'Blocks the road west of Celadon City. Second and last Snorlax. Need Poké Flute.' },
-      { id:'lapras', label:'Lapras (Silph Co. 7F)', desc:'Given by a Team Rocket victim. Resets weekly — available once per week, but missable if you never visit.' },
+      { id:'lapras', label:'Lapras (Silph Co. 7F)', desc:'Given by a Team Rocket victim on 7F. One per game — permanently missable if you skip Silph Co. or forget to collect it.' },
       { id:'eevee', label:'Eevee (Celadon Mansion)', desc:'Gift from Bill on the roof of Celadon Mansion. One per game.' },
       { id:'mewtwo', label:'Mewtwo (Cerulean Cave)', desc:'Post-game. One-time encounter. The only Mewtwo in the game — if it faints, reload from save.' },
       { id:'articuno', label:'Articuno (Seafoam Islands)', desc:'Legendary — one per game. Can be re-encountered on reset if you save beforehand.' },
@@ -16531,7 +16653,7 @@ var MISSABLES_DATA = {
     'ONE-TIME POKÉMON': [
       { id:'snorlax12', label:'Snorlax (Route 12)', desc:'Blocks the road south of Lavender Town. Need Poké Flute. Fleeing or defeating ends the encounter permanently.' },
       { id:'snorlax16', label:'Snorlax (Route 16)', desc:'Blocks the road west of Celadon City. Need Poké Flute.' },
-      { id:'lapras', label:'Lapras (Silph Co. 7F)', desc:'Weekly reset. Visit every week for a chance, or save before collecting.' },
+      { id:'lapras', label:'Lapras (Silph Co. 7F)', desc:'Given by a Team Rocket victim on 7F. One per game — permanently missable if you skip Silph Co. or forget to collect it.' },
       { id:'eevee', label:'Eevee (Celadon Mansion)', desc:'Gift from Bill. One per game.' },
       { id:'mewtwo', label:'Mewtwo (Cerulean Cave)', desc:'Post-game. Save before engaging.' },
       { id:'articuno', label:'Articuno (Seafoam Islands)', desc:'Legendary — save before engaging.' },
@@ -16645,24 +16767,46 @@ function buildEssentialsPage() {
   var c = document.getElementById('essentials-content');
   if (!c) return;
 
+  var _esPokeNames = POKE.map(function(p){ return p.name; }).sort(function(a,b){ return b.length-a.length; });
+  var _esItemNames = ALL_ITEMS.map(function(it){ return it[1]; }).sort(function(a,b){ return b.length-a.length; });
+  var _esMoveNames = ALL_MOVES_DATA.map(function(m){ return m[1]; }).sort(function(a,b){ return b.length-a.length; });
+  function _esReplaceInTextNodes(html, names, cssClass, onclickFn) {
+    if (!names.length) return html;
+    var pattern = names.map(function(n){ return '\\b' + n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b'; }).join('|');
+    var nameRe = new RegExp('(' + pattern + ')', 'g');
+    return html.replace(/(<[^>]+>)|([^<]+)/g, function(match, tag, txt) {
+      if (tag) return tag;
+      return txt.replace(nameRe, function(matched) {
+        return '<span class="' + cssClass + '" onclick="' + onclickFn(matched) + '">' + matched + '</span>';
+      });
+    });
+  }
+  function _esLink(text) {
+    text = _esReplaceInTextNodes(text, _esPokeNames, 'guide-poke-link', function(n){ return 'guideDex(\'' + n.replace(/'/g,"\\'") + '\')'; });
+    text = _esReplaceInTextNodes(text, _esItemNames, 'guide-item-link', function(n){ return 'openItemByName(\'' + n.replace(/'/g,"\\'") + '\')'; });
+    text = _esReplaceInTextNodes(text, _esMoveNames, 'guide-move-link', function(n){ return '_openMoveDex(\'' + n.replace(/'/g,"\\'") + '\')'; });
+    return text;
+  }
+
   function card(title, body) {
     return '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px 18px;margin-bottom:16px;">'
       + '<div style="font-family:\'Press Start 2P\',monospace;font-size:8px;color:var(--game-color,var(--gold));margin-bottom:10px;">' + title + '</div>'
       + body + '</div>';
   }
   function p(text) {
-    return '<p style="font-size:12px;color:var(--text);line-height:1.7;margin:0 0 8px;">' + text + '</p>';
+    return '<p style="font-size:12px;color:var(--text);line-height:1.7;margin:0 0 8px;">' + _esLink(text) + '</p>';
   }
   function tip(label, text) {
     return '<div style="padding:8px 10px;background:var(--panel);border-radius:6px;font-size:11px;color:var(--muted);line-height:1.7;margin:8px 0 0;">'
-      + '<strong style="color:var(--text);">' + label + ':</strong> ' + text + '</div>';
+      + '<strong style="color:var(--text);">' + label + ':</strong> ' + _esLink(text) + '</div>';
   }
   function bullets(items) {
     return '<div style="display:flex;flex-direction:column;gap:8px;">'
       + items.map(function(item) {
+        var content = (item && typeof item === 'object' && item.raw) ? item.raw : _esLink(item);
         return '<div style="display:flex;gap:10px;align-items:flex-start;">'
           + '<span style="color:var(--game-color,var(--gold));font-size:12px;line-height:1.6;">•</span>'
-          + '<div style="font-size:12px;color:var(--text);line-height:1.7;">' + item + '</div>'
+          + '<div style="font-size:12px;color:var(--text);line-height:1.7;">' + content + '</div>'
           + '</div>';
       }).join('')
       + '</div>';
@@ -16721,7 +16865,7 @@ function buildEssentialsPage() {
       'Flash is quality-of-life for dark caves, not always mandatory.',
       'Waterfall and Dive matter mostly in late Hoenn progression.'
     ])
-    + tip('Team planning', 'Avoid teaching every HM to your main battlers unless the move is genuinely useful. Keeping one utility slot or HM friend is usually cleaner.')
+    + tip('Team planning', 'Avoid teaching every HM to your main battlers unless the move is genuinely useful. Keeping one utility slot or HM slave is usually cleaner.')
   );
 
   html += card('STATUS, HEALING & ITEM BASICS',
@@ -16738,7 +16882,7 @@ function buildEssentialsPage() {
   html += card('TEAM BUILDING WITHOUT OVERTHINKING',
     p('A good story team does not need perfect stats. It needs <strong>coverage, consistency, and a few safe switch-ins</strong>.')
     + bullets([
-      'Try to cover Water, Flying, Psychic, Electric, and Ground threats somewhere on the team.',
+      {raw: 'Try to cover Water, Flying, Psychic, Electric, and Ground threats somewhere on the team.'},
       'Do not stack four Pokemon weak to the same Gym just because they are favorites.',
       'Fast Pokemon help you avoid getting snowballed. Bulky Pokemon help you recover from mistakes.',
       'An HM user, a status support mon, and one reliable sweeper already gives you a strong structure.'
@@ -16802,6 +16946,21 @@ function missUpdateProgress(g) {
 function missRender() {
   var g = _missGame;
   var data = MISSABLES_DATA[g] || {};
+
+  var _missPokeNames = POKE.map(function(p){ return p.name; }).sort(function(a,b){ return b.length-a.length; });
+  var _missItemNames = ALL_ITEMS.map(function(it){ return it[1]; }).sort(function(a,b){ return b.length-a.length; });
+  function _missLink(text) {
+    _missPokeNames.forEach(function(name) {
+      var re = new RegExp('\\b' + name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b', 'g');
+      text = text.replace(re, '<span class="guide-poke-link" onclick="guideDex(\'' + name.replace(/'/g,"\\'") + '\')">' + name + '</span>');
+    });
+    _missItemNames.forEach(function(name) {
+      var re = new RegExp('\\b' + name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b', 'g');
+      text = text.replace(re, '<span class="guide-item-link" onclick="openItemByName(\'' + name.replace(/'/g,"\\'") + '\')">' + name + '</span>');
+    });
+    return text;
+  }
+
   var allItems = [];
   Object.values(data).forEach(function(items) { items.forEach(function(it) { allItems.push(it); }); });
 
@@ -16828,8 +16987,8 @@ function missRender() {
         }).join('');
         return '<div style="'+rowStyle+'" id="miss-row-'+g+'-'+it.id+'">'
           +'<div style="flex:1;">'
-          +'<div style="font-size:12px;font-weight:600;color:var(--text);">'+it.label+'</div>'
-          +'<div style="font-size:11px;color:var(--muted);margin-top:2px;line-height:1.6;">'+it.desc+'</div>'
+          +'<div style="font-size:12px;font-weight:600;color:var(--text);">'+_missLink(it.label)+'</div>'
+          +'<div style="font-size:11px;color:var(--muted);margin-top:2px;line-height:1.6;">'+_missLink(it.desc)+'</div>'
           +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">'+btns+'</div>'
           +'</div></div>';
       }
@@ -16839,8 +16998,8 @@ function missRender() {
         +' onchange="missToggle(\''+g+'\',\''+it.id+'\',this)" '
         +'style="margin-top:2px;flex-shrink:0;width:15px;height:15px;cursor:pointer;">'
         +'<div>'
-        +'<div style="font-size:12px;font-weight:600;color:var(--text);">'+it.label+'</div>'
-        +'<div style="font-size:11px;color:var(--muted);margin-top:2px;line-height:1.6;">'+it.desc+'</div>'
+        +'<div style="font-size:12px;font-weight:600;color:var(--text);">'+_missLink(it.label)+'</div>'
+        +'<div style="font-size:11px;color:var(--muted);margin-top:2px;line-height:1.6;">'+_missLink(it.desc)+'</div>'
         +'</div></label>';
     }).join('');
     return '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;overflow:hidden;">'
@@ -16898,19 +17057,43 @@ function buildBerriesPage() {
   var c = document.getElementById('berries-content');
   if (!c) return;
 
+  var _brPokeNames = POKE.map(function(p){ return p.name; }).sort(function(a,b){ return b.length-a.length; });
+  var _brItemNames = ALL_ITEMS.map(function(it){ return it[1]; }).sort(function(a,b){ return b.length-a.length; });
+  var _brMoveNames = ALL_MOVES_DATA.map(function(m){ return m[1]; }).sort(function(a,b){ return b.length-a.length; });
+  function _brReplaceInTextNodes(html, names, cssClass, onclickFn) {
+    if (!names.length) return html;
+    var pattern = names.map(function(n){ return '\\b' + n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b'; }).join('|');
+    var nameRe = new RegExp('(' + pattern + ')', 'g');
+    return html.replace(/(<[^>]+>)|([^<]+)/g, function(match, tag, txt) {
+      if (tag) return tag;
+      return txt.replace(nameRe, function(matched) {
+        return '<span class="' + cssClass + '" onclick="' + onclickFn(matched) + '">' + matched + '</span>';
+      });
+    });
+  }
+  function _brLink(text) {
+    text = _brReplaceInTextNodes(text, _brPokeNames, 'guide-poke-link', function(n){ return 'guideDex(\'' + n.replace(/'/g,"\\'") + '\')'; });
+    text = _brReplaceInTextNodes(text, _brItemNames, 'guide-item-link', function(n){ return 'openItemByName(\'' + n.replace(/'/g,"\\'") + '\')'; });
+    text = _brReplaceInTextNodes(text, _brMoveNames, 'guide-move-link', function(n){ return '_openMoveDex(\'' + n.replace(/'/g,"\\'") + '\')'; });
+    return text;
+  }
+
   function card(title, body) {
     return '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px 18px;margin-bottom:16px;">'
       +'<div style="font-family:\'Press Start 2P\',monospace;font-size:8px;color:var(--game-color,var(--gold));margin-bottom:10px;">'+title+'</div>'
       +body+'</div>';
   }
-  function p(t) { return '<p style="font-size:12px;color:var(--text);line-height:1.7;margin:0 0 8px;">'+t+'</p>'; }
+  function p(t) { return '<p style="font-size:12px;color:var(--text);line-height:1.7;margin:0 0 8px;">'+_brLink(t)+'</p>'; }
   function table(headers, rows) {
     return '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">'
       +'<thead><tr style="border-bottom:2px solid var(--border);">'
-      +headers.map(function(h){return '<th style="padding:6px 10px;font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--muted);text-align:left;">'+h+'</th>';}).join('')
+      +headers.map(function(h){return '<th style="padding:6px 10px;font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--game-color,var(--gold));text-align:left;">'+h+'</th>';}).join('')
       +'</tr></thead><tbody>'
       +rows.map(function(r){return '<tr style="border-bottom:1px solid rgba(255,255,255,0.04);">'
-        +r.map(function(cell,i){return '<td style="padding:6px 10px;color:'+(i===0?'var(--text)':'var(--muted)')+';">'+cell+'</td>';}).join('')
+        +r.map(function(cell,i){
+          var content = (cell && typeof cell === 'object' && cell.raw) ? cell.raw : _brLink(String(cell));
+          return '<td style="padding:6px 10px;color:'+(i===0?'var(--text)':'var(--muted)')+';">'+content+'</td>';
+        }).join('')
         +'</tr>';}).join('')
       +'</tbody></table></div>';
   }
@@ -16920,7 +17103,7 @@ function buildBerriesPage() {
   html += card('HOW BERRY FARMING WORKS (RSE)',
     p('Berry trees grow in <strong>4 stages</strong>: Planted → Sprout → Taller → Bloom → Berry. Each stage takes a set number of hours. Watering a tree keeps it healthy and <strong>increases berry yield</strong> (up to 5 extra berries per watering, for a max yield).')
     +'<div style="padding:10px 12px;background:var(--panel);border-radius:6px;font-size:11px;color:var(--muted);line-height:1.7;margin-top:6px;">'
-    +'<strong style="color:var(--text);">Watering tip:</strong> Water once per growth stage for maximum yield. A tree watered at every stage (4×) gives the maximum harvest. In Emerald, <strong>Mulch</strong> items (Amaze Mulch, Damp Mulch, etc.) can speed growth or improve yield — obtained in Emerald only from the Berry Master on Route 123.'
+    +'<strong style="color:var(--text);">Watering tip:</strong> ' + _brLink('Water once per growth stage for maximum yield. A tree watered at every stage (4×) gives the maximum harvest. In Emerald, <strong>Mulch</strong> items (Amaze Mulch, Damp Mulch, etc.) can speed growth or improve yield — obtained in Emerald only from the Berry Master on Route 123.')
     +'</div>'
   );
 
@@ -16936,8 +17119,8 @@ function buildBerriesPage() {
     ['Apicot Berry','24h','96h','6','Sp.Def +1 <¼HP — Berry Master phrase'],
     ['Starf Berry','24h','96h','6','Random stat +2 <¼HP — extremely rare phrase'],
     ['Lansat Berry','24h','96h','6','Crit rate +1 <¼HP — Berry Master phrase'],
-    ['Figy / Wiki / Mago / Aguav / Iapapa','8h','32h','10','Flavor berries for Pokéblocks'],
-    ['Pomeg / Kelpsy / Qualot / Hondew / Grepa / Tamato','10h','40h','8','EV-reducing berries'],
+    ['Figy Berry / Wiki Berry / Mago Berry / Aguav Berry / Iapapa Berry','8h','32h','10','Flavor berries for Pokéblocks'],
+    ['Pomeg Berry / Kelpsy Berry / Qualot Berry / Hondew Berry / Grepa Berry / Tamato Berry','10h','40h','8','EV-reducing berries'],
   ];
   var berryTableHtml;
   if (!isMobile) {
@@ -16945,20 +17128,20 @@ function buildBerriesPage() {
   } else {
     berryTableHtml = '<table style="width:100%;border-collapse:collapse;font-size:12px;">'
       +'<thead><tr style="border-bottom:2px solid var(--border);">'
-      +'<th style="padding:6px 10px;font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--muted);text-align:left;">Berry</th>'
-      +'<th style="padding:6px 10px;font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--muted);text-align:left;">Hrs/stage</th>'
-      +'<th style="padding:6px 10px;font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--muted);text-align:left;">Total</th>'
-      +'<th style="padding:6px 10px;font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--muted);text-align:left;">Max</th>'
+      +'<th style="padding:6px 10px;font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--game-color,var(--gold));text-align:left;">Berry</th>'
+      +'<th style="padding:6px 10px;font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--game-color,var(--gold));text-align:left;">Hrs/stage</th>'
+      +'<th style="padding:6px 10px;font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--game-color,var(--gold));text-align:left;">Total</th>'
+      +'<th style="padding:6px 10px;font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--game-color,var(--gold));text-align:left;">Max</th>'
       +'</tr></thead><tbody>'
       + berryRows.map(function(r, idx) {
           var detId = 'berry-det-' + idx;
           return '<tr onclick="berryRowToggle(\'' + detId + '\')" style="border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;">'
-            +'<td style="padding:6px 8px;color:var(--text);font-size:11px;">'+r[0]+'</td>'
+            +'<td style="padding:6px 8px;color:var(--text);font-size:11px;">'+_brLink(r[0])+'</td>'
             +'<td style="padding:6px 8px;color:var(--muted);">'+r[1]+'</td>'
             +'<td style="padding:6px 8px;color:var(--muted);">'+r[2]+'</td>'
             +'<td style="padding:6px 8px;color:var(--muted);">'+r[3]+'</td>'
             +'</tr>'
-            +'<tr id="'+detId+'" style="display:none;background:var(--darker);"><td colspan="4" style="padding:8px 14px;font-size:11px;color:var(--muted);line-height:1.6;border-bottom:2px solid var(--gold);"><span style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--leaf);display:block;margin-bottom:4px;">Notes</span>'+r[4]+'</td></tr>';
+            +'<tr id="'+detId+'" style="display:none;background:var(--darker);"><td colspan="4" style="padding:8px 14px;font-size:11px;color:var(--muted);line-height:1.6;border-bottom:2px solid var(--gold);"><span style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--leaf);display:block;margin-bottom:4px;">Notes</span>'+_brLink(r[4])+'</td></tr>';
         }).join('')
       +'</tbody></table>';
   }
@@ -16967,12 +17150,12 @@ function buildBerriesPage() {
   html += card('BERRY MASTER PHRASES (EMERALD)',
     p('Talk to the Berry Master\'s wife on Route 123 and enter these phrases to get rare berries. <strong>Each phrase works only once per save file.</strong>')
     +table(['Phrase','Berry received'],
-      [['COOL LATIOS','Salac Berry (Speed +1 <¼HP)'],
-       ['CHALLENGE CONTEST','Petaya Berry (Sp.Atk +1 <¼HP)'],
-       ['OVERWHELMING LATIAS','Ganlon Berry (Defense +1 <¼HP)'],
-       ['SUPER HUSTLE','Apicot Berry (Sp.Def +1 <¼HP)'],
-       ['COOL LATIAS','Starf Berry (Random stat +2 <¼HP)'],
-       ['OVERWHELMING LATIOS','Lansat Berry (Crit rate +1 <¼HP)']])
+      [[{raw:'COOL LATIOS'},'Salac Berry (Speed +1 <¼HP)'],
+       [{raw:'CHALLENGE CONTEST'},'Petaya Berry (Sp.Atk +1 <¼HP)'],
+       [{raw:'OVERWHELMING LATIAS'},'Ganlon Berry (Defense +1 <¼HP)'],
+       [{raw:'SUPER HUSTLE'},'Apicot Berry (Sp.Def +1 <¼HP)'],
+       [{raw:'COOL LATIAS'},'Starf Berry (Random stat +2 <¼HP)'],
+       [{raw:'OVERWHELMING LATIOS'},'Lansat Berry (Crit rate +1 <¼HP)']])
     +'<div style="margin-top:10px;padding:8px 12px;background:rgba(255,85,85,0.08);border:1px solid rgba(255,85,85,0.3);border-radius:6px;font-size:11px;color:var(--muted);">⚠ These phrases are Emerald-only. In Ruby/Sapphire the Berry Master\'s wife only gives one berry per phrase, and the rare stat-boosting berries must be obtained from Shoal Cave (Liechi), the Berry Masters themselves, or by trading.</div>'
   );
 
@@ -16987,7 +17170,7 @@ function buildBerriesPage() {
     .map(function(row) {
       return '<div style="display:flex;gap:8px;padding:7px 10px;background:var(--panel);border-radius:5px;font-size:11px;">'
         +'<strong style="color:var(--text);min-width:110px;">'+row[0]+'</strong>'
-        +'<span style="color:var(--muted);">'+row[1]+'</span></div>';
+        +'<span style="color:var(--muted);">'+_brLink(row[1])+'</span></div>';
     }).join('')+'</div>'
   );
 
@@ -17216,10 +17399,10 @@ function buildExpCalcPage() {
     +'<div style="font-family:\'Press Start 2P\',monospace;font-size:8px;color:var(--game-color,var(--gold));margin-bottom:12px;">EXP GROUP REFERENCE — TOTAL EXP TO LEVEL 100</div>'
     +'<table style="width:100%;border-collapse:collapse;font-size:12px;">'
     +'<thead><tr style="border-bottom:1px solid var(--border);">'
-    +'<th style="padding:6px 10px;text-align:left;color:var(--muted);font-size:10px;">Group</th>'
-    +'<th style="padding:6px 10px;text-align:right;color:var(--muted);font-size:10px;">To Lv 50</th>'
-    +'<th style="padding:6px 10px;text-align:right;color:var(--muted);font-size:10px;">To Lv 100</th>'
-    +(window.innerWidth > 600 ? '<th style="padding:6px 10px;text-align:left;color:var(--muted);font-size:10px;">Notable Pokémon</th>' : '')
+    +'<th style="padding:6px 10px;text-align:left;color:var(--game-color,var(--gold));font-size:10px;">Group</th>'
+    +'<th style="padding:6px 10px;text-align:right;color:var(--game-color,var(--gold));font-size:10px;">To Lv 50</th>'
+    +'<th style="padding:6px 10px;text-align:right;color:var(--game-color,var(--gold));font-size:10px;">To Lv 100</th>'
+    +(window.innerWidth > 600 ? '<th style="padding:6px 10px;text-align:left;color:var(--game-color,var(--gold));font-size:10px;">Notable Pokémon</th>' : '')
     +'</tr></thead><tbody>'
     +[
       ['Erratic',     'Chansey, Clefairy, Jigglypuff, Snorunt, Spheal'],
@@ -18245,7 +18428,7 @@ function buildNpcTradesPage() {
     return '<table style="width:100%;border-collapse:collapse;font-size:12px;">'
       + '<thead><tr style="border-bottom:2px solid var(--border);">'
       + ['Games','Location','Give','Receive','OT','Lv','Held Item','Notes'].map(function(h){
-          return '<th style="font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--muted);text-align:left;padding:8px 10px;letter-spacing:0.5px;">' + h + '</th>';
+          return '<th style="font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--game-color,var(--gold));text-align:left;padding:8px 10px;letter-spacing:0.5px;">' + h + '</th>';
         }).join('')
       + '</tr></thead><tbody>'
       + rows.map(function(t, i) {
@@ -18253,11 +18436,11 @@ function buildNpcTradesPage() {
           return '<tr style="' + bg + 'border-bottom:1px solid rgba(255,255,255,.04);">'
             + '<td style="padding:8px 10px;white-space:nowrap;">' + t.games.map(gameBadge).join('') + '</td>'
             + '<td style="padding:8px 10px;color:var(--text);">' + t.location + '</td>'
-            + '<td style="padding:8px 10px;font-weight:600;color:#FF9800;"><span class="guide-poke-link" style="color:#FF9800;border-bottom-color:rgba(255,152,0,0.4);" onclick="guideDex(\'' + t.give.replace(/'/g,"\\'") + '\')">' + t.give + '</span></td>'
-            + '<td style="padding:8px 10px;font-weight:600;color:#64b4ff;"><span class="guide-poke-link" style="color:#64b4ff;border-bottom-color:rgba(100,180,255,0.4);" onclick="guideDex(\'' + t.recv.replace(/'/g,"\\'") + '\')">' + t.recv + '</span></td>'
+            + '<td style="padding:8px 10px;font-weight:600;"><span class="guide-poke-link" onclick="guideDex(\'' + t.give.replace(/'/g,"\\'") + '\')">' + t.give + '</span></td>'
+            + '<td style="padding:8px 10px;font-weight:600;"><span class="guide-poke-link" onclick="guideDex(\'' + t.recv.replace(/'/g,"\\'") + '\')">' + t.recv + '</span></td>'
             + '<td style="padding:8px 10px;color:var(--muted);font-style:italic;">' + t.ot + '</td>'
             + '<td style="padding:8px 10px;text-align:center;">' + t.lv + '</td>'
-            + '<td style="padding:8px 10px;color:var(--gold);">' + (t.held === '—' ? '—' : '<span class="item-badge">' + t.held + '</span>') + '</td>'
+            + '<td style="padding:8px 10px;color:var(--game-color,var(--gold));">' + (t.held === '—' ? '—' : '<span class="item-badge" onclick="openItemByName(\'' + t.held.replace(/'/g,"\\'") + '\')">' + t.held + '</span>') + '</td>'
             + '<td style="padding:8px 10px;color:var(--muted);font-size:11px;">' + t.note + '</td>'
             + '</tr>';
         }).join('')
@@ -18288,7 +18471,7 @@ function buildNpcTradesPage() {
     + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">' + filterBtns + '</div>'
     + '<div id="npctrades-table" style="overflow-x:auto;">' + renderTrades('ALL') + '</div>'
     + '<div style="font-size:10px;color:var(--muted);margin-top:14px;padding-top:14px;border-top:1px solid var(--border);line-height:1.8;">'
-    + '<strong style="color:var(--text)">Lucky Egg OT trick:</strong> Traded Pokémon (OT ≠ yours) gain 1.5× EXP. '
+    + '<strong style="color:var(--game-color,var(--gold))">Lucky Egg OT trick:</strong> Traded Pokémon (OT ≠ yours) gain 1.5× EXP. '
     + 'If you receive a Pokémon via NPC trade, its OT will never match yours — it always gets the EXP boost. '
     + 'Pokémon received from NPC trades also gain friendship faster, which can be useful for happiness evolutions. '
     + 'The Haunter trade in Mossdeep is a trap — it does not evolve into Gengar on trade with an NPC.'
@@ -18322,7 +18505,7 @@ function buildHappinessPage() {
 
   // Happiness methods
   var METHODS = [
-    { icon:'👣', action:'Walking (every 256 steps)',        gain:'+1',     note:'Soothe Bell: +2 per 256 steps' },
+    { icon:'👣', action:'Walking (every 256 steps)',        gain:'+1',     note:'<span class="guide-item-link" onclick="openItemByName(\'Soothe Bell\')">Soothe Bell</span>: +2 per 256 steps' },
     { icon:'⬆️', action:'Level up',                         gain:'+2–5',   note:'+5 at base friendship <100, +3 at 100–199, +2 at 200+' },
     { icon:'💊', action:'Vitamin (HP Up, Iron, etc.)',       gain:'+5',     note:'+3 at 100–199, +2 at 200+' },
     { icon:'💅', action:'Grooming (Veilstone/Ribbon Syn.)', gain:'+1–5',   note:'Not available in FRLG without Eon Ticket events' },
@@ -18354,9 +18537,9 @@ function buildHappinessPage() {
             + '<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + h.num + '.png"'
             + ' width="40" height="40" style="image-rendering:pixelated;flex-shrink:0;" onerror="this.style.display=\'none\'">'
             + '<div style="flex:1;">'
-            + '<div style="font-size:12px;font-weight:600;color:var(--text);">' + h.name
+            + '<div style="font-size:12px;font-weight:600;"><span class="guide-poke-link" onclick="guideDex(\'' + h.name.replace(/'/g,"\\'") + '\')">' + h.name + '</span>'
             + ' <span style="color:var(--muted);font-size:11px;">→</span> '
-            + '<span style="color:#64b4ff;">' + h.evo + '</span>'
+            + '<span class="guide-poke-link" onclick="guideDex(\'' + h.evo.replace(/'/g,"\\'") + '\')">' + h.evo + '</span>'
             + (h.method ? ' <span style="font-size:10px;color:var(--muted);">(' + h.method + ')</span>' : '')
             + '</div>'
             + '<div style="font-size:10px;color:var(--muted);margin-top:2px;">Threshold: 220 friendship &nbsp;|&nbsp; Base friendship: ' + (POKE_META[h.num] ? POKE_META[h.num].fr : '?') + '</div>'
@@ -18416,10 +18599,10 @@ function buildHappinessPage() {
     '<div class="panel" style="overflow-x:auto;margin-bottom:18px;padding:0;">',
     '<table style="width:100%;border-collapse:collapse;">',
     '<thead><tr style="border-bottom:2px solid var(--border);">',
-    '<th style="font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--muted);text-align:left;padding:7px 10px;"></th>',
-    '<th style="font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--muted);text-align:left;padding:7px 10px;">Action</th>',
-    '<th style="font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--muted);text-align:left;padding:7px 10px;">Gain</th>',
-    '<th style="font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--muted);text-align:left;padding:7px 10px;">Notes</th>',
+    '<th style="font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--game-color,var(--gold));text-align:left;padding:7px 10px;"></th>',
+    '<th style="font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--game-color,var(--gold));text-align:left;padding:7px 10px;">Action</th>',
+    '<th style="font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--game-color,var(--gold));text-align:left;padding:7px 10px;">Gain</th>',
+    '<th style="font-family:\'Press Start 2P\',monospace;font-size:6px;color:var(--game-color,var(--gold));text-align:left;padding:7px 10px;">Notes</th>',
     '</tr></thead><tbody>' + methodRows + '</tbody></table></div>',
 
     // Held items
@@ -18427,7 +18610,7 @@ function buildHappinessPage() {
     '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;">',
     HELD_ITEMS.map(function(item) {
       return '<div class="panel" style="padding:10px 14px;display:flex;gap:12px;">'
-        + '<span style="font-weight:700;color:var(--game-color,var(--gold));white-space:nowrap;font-size:12px;">' + item.name + '</span>'
+        + '<span class="guide-item-link" onclick="openItemByName(\'' + item.name.replace(/'/g,"\\'") + '\')" style="font-weight:700;white-space:nowrap;font-size:12px;">' + item.name + '</span>'
         + '<span style="font-size:11px;color:var(--muted);">' + item.effect + '</span>'
         + '</div>';
     }).join(''),
@@ -18436,7 +18619,7 @@ function buildHappinessPage() {
     // Tips
     '<div style="font-size:10px;color:var(--muted);line-height:1.9;background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:12px 14px;">',
     '<strong style="color:var(--text)">Key tips:</strong><br>',
-    '• Start with a Pokémon caught in a <strong style="color:var(--gold)">Luxury Ball</strong> + give it <strong style="color:var(--gold)">Soothe Bell</strong> to hold — fastest combination.<br>',
+    '• Start with a Pokémon caught in a <span class="guide-item-link" onclick="openItemByName(\'Luxury Ball\')">Luxury Ball</span> + give it <span class="guide-item-link" onclick="openItemByName(\'Soothe Bell\')">Soothe Bell</span> to hold — fastest combination.<br>',
     '• Feed EV-reducing berries (Pomeg, Kelpsy, Qualot, Hondew, Grepa, Tamato) for +10 friendship each if they have EVs to spare.<br>',
     '• Base friendship matters: Golbat starts at 70, Chansey at 140 (easiest), Eevee at 70.<br>',
     '• <strong style="color:#FF9800">Eevee → Espeon</strong> requires leveling up during the day; <strong style="color:#9966CC">Eevee → Umbreon</strong> requires leveling up at night. Use a Rare Candy at the right time.',

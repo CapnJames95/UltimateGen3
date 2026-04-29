@@ -6,13 +6,15 @@
 <title>Gen3 eGuide</title>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Press+Start+2P&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/app.css">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="shortcut icon" href="assets/favicon.svg">
 </head>
 <body>
 <header>
   <div class="header-logo" onclick="resetHome()" title="Reset to home" style="cursor:pointer">GEN3<br><span>eGUIDE</span></div>
   <div class="header-title">
-    <h1>Gen3 eGuide</h1>
-    <p>FireRed · LeafGreen · Ruby · Sapphire · Emerald · 386 Pokémon · Real encounter rates</p>
+    <p>The complete Gen 3 companion</p>
+    <p><span style="color:var(--fire)">FireRed</span> · <span style="color:var(--leaf)">LeafGreen</span> · <span style="color:#FF5555">Ruby</span> · <span style="color:#5599FF">Sapphire</span> · <span style="color:#44DD88">Emerald</span></p>
   </div>
   <div class="game-badges" id="headerGameBadges">
     <button class="gbadge gbadge-all active-game-badge" id="hbadge-all" onclick="setGameFromHeader('all',this)" title="All Games">ALL</button>
@@ -515,8 +517,10 @@
     <div class="page-nav-dropdown" id="navMapsDropdown">
       <button class="page-nav-btn page-nav-dropdown-trigger" id="navMapsGroup" onclick="toggleNavDropdown(event,'navMapsDropdown')">MAPS ▾</button>
       <div class="page-nav-dropdown-menu" id="navMapsMenu">
-        <button class="page-nav-dropdown-item" id="navKantoMapView" onclick="closeNavDropdown('navMapsDropdown');showPage('kantomapview',document.getElementById('navKantoMapView'));if(!window._kantomapviewBuilt){buildKantoMapView();window._kantomapviewBuilt=true;}">Kanto Map</button>
-        <button class="page-nav-dropdown-item" id="navEmeraldMapView" onclick="closeNavDropdown('navMapsDropdown');showPage('emeraldmapview',document.getElementById('navEmeraldMapView'));if(!window._emeraldmapviewBuilt){buildEmeraldMapView();window._emeraldmapviewBuilt=true;}">Emerald Map</button>
+        <button class="page-nav-dropdown-item" data-games="FR,LG" id="navKantoMapView" onclick="closeNavDropdown('navMapsDropdown');showPage('kantomapview',document.getElementById('navKantoMapView'));if(!window._kantomapviewBuilt){buildKantoMapView();window._kantomapviewBuilt=true;}">Kanto Map</button>
+        <button class="page-nav-dropdown-item" data-games="R,S,E" id="navEmeraldMapView" onclick="closeNavDropdown('navMapsDropdown');showPage('emeraldmapview',document.getElementById('navEmeraldMapView'));if(!window._emeraldmapviewBuilt){buildEmeraldMapView();window._emeraldmapviewBuilt=true;}">Emerald Map</button>
+        <button class="page-nav-dropdown-item" data-games="FR,LG" id="navFRLGSidebarMap" onclick="closeNavDropdown('navMapsDropdown');window.open('./FRLGIronmonMap/index.html','_blank')">FRLG Sidebar Map</button>
+        <button class="page-nav-dropdown-item" data-games="R,S,E" id="navEmeraldSidebarMap" onclick="closeNavDropdown('navMapsDropdown');window.open('./EmeraldIronmonMap/index.html','_blank')">Emerald Sidebar Map</button>
         <button class="page-nav-dropdown-item" id="navRouteBrowser" onclick="return openPage('routebrowser','navRouteBrowser','navMapsDropdown')">Route Browser</button>
       </div>
     </div>
@@ -563,11 +567,11 @@
       <button class="page-nav-btn page-nav-dropdown-trigger" id="navGuidesGroup" onclick="toggleNavDropdown(event,'navGuidesDropdown')">GUIDES ▾</button>
       <div class="page-nav-dropdown-menu" id="navGuidesMenu">
         <button class="page-nav-dropdown-item" id="navEssentials" onclick="closeNavDropdown('navGuidesDropdown');showPage('essentials',document.getElementById('navEssentials'));buildEssentialsPage();window._essentialsBuilt=true;">Essentials</button>
-        <button class="page-nav-dropdown-item" id="navContests" onclick="closeNavDropdown('navGuidesDropdown');showPage('contests',document.getElementById('navContests'));buildContestsPage();window._contestsBuilt=true;">Contests</button>
-        <button class="page-nav-dropdown-item" id="navFrontier" onclick="closeNavDropdown('navGuidesDropdown');showPage('frontier',document.getElementById('navFrontier'));buildFrontierPage();window._frontierBuilt=true;">Battle Frontier</button>
-        <button class="page-nav-dropdown-item" id="navBerries" onclick="closeNavDropdown('navGuidesDropdown');showPage('berries',document.getElementById('navBerries'));buildBerriesPage();window._berriesBuilt=true;">Berry Farming</button>
+        <button class="page-nav-dropdown-item" data-games="R,S,E" id="navContests" onclick="closeNavDropdown('navGuidesDropdown');showPage('contests',document.getElementById('navContests'));buildContestsPage();window._contestsBuilt=true;">Contests</button>
+        <button class="page-nav-dropdown-item" data-games="E" id="navFrontier" onclick="closeNavDropdown('navGuidesDropdown');showPage('frontier',document.getElementById('navFrontier'));buildFrontierPage();window._frontierBuilt=true;">Battle Frontier</button>
+        <button class="page-nav-dropdown-item" data-games="R,S,E" id="navBerries" onclick="closeNavDropdown('navGuidesDropdown');showPage('berries',document.getElementById('navBerries'));buildBerriesPage();window._berriesBuilt=true;">Berry Farming</button>
         <button class="page-nav-dropdown-item" id="navRng" onclick="closeNavDropdown('navGuidesDropdown');showPage('rng',document.getElementById('navRng'));buildRngPage();window._rngBuilt=true;">RNG Guide</button>
-        <button class="page-nav-dropdown-item" id="navPokeblock" onclick="return openPage('pokeblock','navPokeblock','navGuidesDropdown')">Pokéblock Optimizer</button>
+        <button class="page-nav-dropdown-item" data-games="R,S,E" id="navPokeblock" onclick="return openPage('pokeblock','navPokeblock','navGuidesDropdown')">Pokéblock Optimizer</button>
       </div>
     </div>
   </div>
@@ -658,7 +662,7 @@
 <!-- GUIDE PAGE                                                         -->
 <!-- ══════════════════════════════════════════════════════════════════ -->
 <!-- ═══════════════ BULBAPEDIA GUIDE PAGE ═══════════════ -->
-<div id="page-bulba" class="page" style="flex-direction:row;height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow:hidden;">
+<div id="page-bulba" class="page" style="flex-direction:row;height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px) - var(--page-bottom, 24px));overflow:hidden;">
 
   <!-- Sidebar -->
   <div id="bulba-sidebar" style="width:220px;flex-shrink:0;background:var(--darker);border-right:2px solid var(--border);overflow-y:auto;padding:12px 0;display:flex;flex-direction:column;">
@@ -782,7 +786,7 @@
     </div>
 
     <!-- Content area -->
-    <div id="bulba-content" style="flex:1;overflow-y:auto;overflow-x:hidden;background:#ffffff;color:#202122;">
+    <div id="bulba-content" style="flex:1;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:#ffffff;color:#202122;">
       <!-- Index page renders here or fetched content -->
     </div>
   </div>
@@ -925,14 +929,13 @@
       </div>
 
       <div class="trk-stats-grid" id="trk-stats-grid">
-        <div class="trk-stat-box"><div class="trk-stat-num" id="trk-s-caught">0</div><div class="trk-stat-label">Caught</div></div>
-        <div class="trk-stat-box"><div class="trk-stat-num" id="trk-s-seen">0</div><div class="trk-stat-label">Remaining</div></div>
-        <div class="trk-stat-box"><div class="trk-stat-num" id="trk-s-native">0</div><div class="trk-stat-label">Regional</div></div>
-        <div class="trk-stat-box"><div class="trk-stat-num" id="trk-s-trade">0</div><div class="trk-stat-label">Need Trade</div></div>
-        <div class="trk-stat-box" style="grid-column:1/-1;border-color:rgba(255,215,0,0.4);"><div class="trk-stat-num" id="trk-s-shiny" style="color:#FFD700;">0</div><div class="trk-stat-label">✨ Shinies</div></div>
+        <div class="trk-stat-box" onclick="trkSetFilter('caught',this)" title="Show caught"><div class="trk-stat-num" id="trk-s-caught">0</div><div class="trk-stat-label">Caught</div></div>
+        <div class="trk-stat-box" onclick="trkSetFilter('uncaught',this)" title="Show remaining"><div class="trk-stat-num" id="trk-s-seen">0</div><div class="trk-stat-label">Remaining</div></div>
+        <div class="trk-stat-box" onclick="trkSetFilter('native',this)" title="Show regional dex"><div class="trk-stat-num" id="trk-s-native">0</div><div class="trk-stat-label">Regional</div></div>
+        <div class="trk-stat-box" onclick="trkSetFilter('trade',this)" title="Show trade-only"><div class="trk-stat-num" id="trk-s-trade">0</div><div class="trk-stat-label">Need Trade</div></div>
+        <div class="trk-stat-box" onclick="trkSetFilter('shiny',this)" style="grid-column:1/-1;border-color:rgba(255,215,0,0.4);" title="Show shinies"><div class="trk-stat-num" id="trk-s-shiny" style="color:#FFD700;">0</div><div class="trk-stat-label">✨ Shinies</div></div>
       </div>
 
-      <div id="trk-milestone-strip" class="trk-milestone-strip"></div>
 
       <div class="trk-sidebar-panel" id="trk-completion-panel">
         <div class="trk-dropdown-head" onclick="trkToggleSidebarDropdown('trk-completion-panel')">
@@ -940,38 +943,20 @@
           <div class="trk-dropdown-caret">▼</div>
         </div>
         <div class="trk-dropdown-body">
-          <div class="trk-mode-btns-extended" id="trk-mark-modes">
-            <button class="trk-mark-btn active" onclick="trkSetMarkMode('caught',this)">Caught</button>
-            <button class="trk-mark-btn" onclick="trkSetMarkMode('seen',this)">Seen</button>
-            <button class="trk-mark-btn" onclick="trkSetMarkMode('evolved',this)">Evolved</button>
-            <button class="trk-mark-btn" onclick="trkSetMarkMode('bred',this)">Bred</button>
-            <button class="trk-mark-btn" onclick="trkSetMarkMode('traded',this)">Traded</button>
-            <button class="trk-mark-btn" onclick="trkSetMarkMode('held',this)">Held Farmed</button>
-            <button class="trk-mark-btn" onclick="trkSetMarkMode('legendary',this)">Legendary</button>
-          </div>
           <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px;">
-            <div class="trk-stat-box"><div class="trk-stat-num" id="trk-s-seen2">0</div><div class="trk-stat-label">Seen</div></div>
-            <div class="trk-stat-box"><div class="trk-stat-num" id="trk-s-evolved">0</div><div class="trk-stat-label">Evolved</div></div>
-            <div class="trk-stat-box"><div class="trk-stat-num" id="trk-s-bred">0</div><div class="trk-stat-label">Bred</div></div>
-            <div class="trk-stat-box"><div class="trk-stat-num" id="trk-s-traded2">0</div><div class="trk-stat-label">Traded</div></div>
-            <div class="trk-stat-box"><div class="trk-stat-num" id="trk-s-held">0</div><div class="trk-stat-label">Held Farmed</div></div>
-            <div class="trk-stat-box"><div class="trk-stat-num" id="trk-s-legendary">0</div><div class="trk-stat-label">Legendary</div></div>
-            <div class="trk-stat-box" style="grid-column:1/-1;"><div class="trk-stat-num" id="trk-s-tm">0</div><div class="trk-stat-label">TM/HM Collected</div></div>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
-            <button class="trk-mini-action" onclick="openTmChecklist()">💿 TM Checklist</button>
+            <div class="trk-stat-box" onclick="trkSetFilter('seen',this)" title="Show seen"><div class="trk-stat-num" id="trk-s-seen2">0</div><div class="trk-stat-label">Seen</div></div>
+            <div class="trk-stat-box" onclick="trkSetFilter('evolved',this)" title="Show evolved"><div class="trk-stat-num" id="trk-s-evolved">0</div><div class="trk-stat-label">Evolved</div></div>
+            <div class="trk-stat-box" onclick="trkSetFilter('bred',this)" title="Show bred"><div class="trk-stat-num" id="trk-s-bred">0</div><div class="trk-stat-label">Bred</div></div>
+            <div class="trk-stat-box" onclick="trkSetFilter('traded',this)" title="Show traded"><div class="trk-stat-num" id="trk-s-traded2">0</div><div class="trk-stat-label">Traded</div></div>
+            <div class="trk-stat-box" onclick="trkSetFilter('held',this)" title="Show held-item farmed"><div class="trk-stat-num" id="trk-s-held">0</div><div class="trk-stat-label">Held Farmed</div></div>
+            <div class="trk-stat-box" onclick="trkSetFilter('legendary',this)" title="Show legendaries"><div class="trk-stat-num" id="trk-s-legendary">0</div><div class="trk-stat-label">Legendary</div></div>
+            <div class="trk-stat-box" onclick="openTmChecklist()" style="grid-column:1/-1;" title="Open TM checklist"><div class="trk-stat-num" id="trk-s-tm">0</div><div class="trk-stat-label">TM/HM Collected</div></div>
           </div>
         </div>
       </div>
 
       <div class="trk-filter-btns">
         <button class="trk-filter-btn active" onclick="trkSetFilter('all',this)">📋 All Pokémon</button>
-        <button class="trk-filter-btn" onclick="trkSetFilter('caught',this)">✅ Caught</button>
-        <button class="trk-filter-btn" onclick="trkSetFilter('uncaught',this)">⬜ Not Yet Caught</button>
-        <button class="trk-filter-btn" onclick="trkSetFilter('shiny',this)" style="border-color:rgba(255,215,0,0.3);color:rgba(255,215,0,0.7);">✨ Shiny</button>
-        <button class="trk-filter-btn" onclick="trkSetFilter('trade',this)">🔄 Needs Trade</button>
-        <button class="trk-filter-btn" onclick="trkSetFilter('native',this)">🏠 Regional Dex</button>
-        <button class="trk-filter-btn" onclick="trkSetFilter('national',this)">🌐 National Dex</button>
         <button class="trk-filter-btn" id="trk-filter-fainted" onclick="trkSetFilter('fainted',this)" style="display:none;">💀 Fainted</button>
         <button class="trk-filter-btn" id="trk-filter-alive" onclick="trkSetFilter('alive',this)" style="display:none;">✅ Alive (Caught)</button>
       </div>
@@ -997,10 +982,70 @@
         <div class="trk-mode-btns">
           <button class="trk-mode-btn active" onclick="trkSetMode('game',this)">Regional Dex</button>
           <button class="trk-mode-btn" onclick="trkSetMode('national',this)">National Dex</button>
+          <button class="trk-mode-btn trk-legend-btn" onclick="trkShowLegend()" title="Tile legend">?</button>
         </div>
         <span id="trk-count" style="font-size:10px;color:var(--muted);margin-left:auto;"></span>
+        <div class="trk-mark-divider"></div>
+        <div class="trk-mark-mode-row">
+          <span class="trk-mark-label">CLICK MODE</span>
+          <button class="trk-mark-btn active" onclick="trkSetMarkMode('caught',this)">Caught</button>
+          <button class="trk-mark-btn" onclick="trkSetMarkMode('seen',this)">Seen</button>
+          <button class="trk-mark-btn" onclick="trkSetMarkMode('evolved',this)">Evolved</button>
+          <button class="trk-mark-btn" onclick="trkSetMarkMode('bred',this)">Bred</button>
+          <button class="trk-mark-btn" onclick="trkSetMarkMode('traded',this)">Traded</button>
+          <button class="trk-mark-btn" onclick="trkSetMarkMode('held',this)">Held</button>
+        </div>
       </div>
       <div class="trk-grid" id="trk-grid"></div>
+    </div>
+  </div>
+</div>
+
+<div id="trkLegendOverlay" class="tmcheck-overlay" onclick="if(event.target===this)trkHideLegend()">
+  <div class="tmcheck-modal" style="max-width:560px;">
+    <div class="tmcheck-header">
+      <div class="tmcheck-title">📖 TILE LEGEND</div>
+      <button class="features-close" onclick="trkHideLegend()">✕</button>
+    </div>
+    <div class="tmcheck-body">
+
+      <div class="trk-legend-section-title">TILE STATES</div>
+      <div class="trk-legend-rows">
+        <div class="trk-legend-row">
+          <div class="trk-legend-demo trk-legend-demo--uncaught"></div>
+          <div class="trk-legend-desc"><strong>Not caught</strong> — Sprite is greyed out. Tap to mark as caught.</div>
+        </div>
+        <div class="trk-legend-row">
+          <div class="trk-legend-demo trk-legend-demo--caught"></div>
+          <div class="trk-legend-desc"><strong>Caught</strong> — Green border &amp; ✓ checkmark. Counts toward your completion total.</div>
+        </div>
+        <div class="trk-legend-row">
+          <div class="trk-legend-demo trk-legend-demo--shiny"></div>
+          <div class="trk-legend-desc"><strong>Shiny caught</strong> — Gold border &amp; ✨. Right-click (or long-press) a caught tile to toggle shiny status.</div>
+        </div>
+        <div class="trk-legend-row">
+          <div class="trk-legend-demo trk-legend-demo--trade"></div>
+          <div class="trk-legend-desc"><strong>Trade required</strong> — Orange border. This Pokémon can only be obtained via trade in the selected game. The <span class="trk-trade-badge" style="visibility:visible;position:static;display:inline-block;margin:0 2px 0 1px;">TRADE</span> badge marks the tile.</div>
+        </div>
+      </div>
+
+      <div class="trk-legend-section-title" style="margin-top:18px;">STATUS CHIPS</div>
+      <div class="trk-legend-chips">
+        <div class="trk-legend-chip-row"><span class="trk-status-chip seen on">SEEN</span><span class="trk-legend-chip-desc">Encountered in the wild or via battle</span></div>
+        <div class="trk-legend-chip-row"><span class="trk-status-chip evolved on">EVO</span><span class="trk-legend-chip-desc">Obtained by evolving another Pokémon</span></div>
+        <div class="trk-legend-chip-row"><span class="trk-status-chip bred on">BRD</span><span class="trk-legend-chip-desc">Hatched from an egg</span></div>
+        <div class="trk-legend-chip-row"><span class="trk-status-chip traded on">TRD</span><span class="trk-legend-chip-desc">Received via an in-game or link trade</span></div>
+        <div class="trk-legend-chip-row"><span class="trk-status-chip held on">HLD</span><span class="trk-legend-chip-desc">Held item sourced or tracked</span></div>
+        <div class="trk-legend-chip-row"><span class="trk-status-chip legendary on">LEG</span><span class="trk-legend-chip-desc">Legendary — shown only on eligible Pokémon</span></div>
+      </div>
+
+      <div class="trk-legend-section-title" style="margin-top:18px;">INTERACTIONS</div>
+      <div class="trk-legend-chips">
+        <div class="trk-legend-chip-row"><span class="trk-legend-action">Left-click</span><span class="trk-legend-chip-desc">Toggle caught / not caught</span></div>
+        <div class="trk-legend-chip-row"><span class="trk-legend-action">Right-click</span><span class="trk-legend-chip-desc">Toggle shiny (must be caught first)</span></div>
+        <div class="trk-legend-chip-row"><span class="trk-legend-action">Long-press</span><span class="trk-legend-chip-desc">Toggle shiny on mobile / touch devices</span></div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -1016,7 +1061,7 @@
     </div>
     <div class="tmcheck-body">
       <div style="font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.7;">Use this to track one-off TM/HM pickups for the current save. This list is game-specific and saved with the tracker.</div>
-      <div id="tmChecklistCount" style="font-family:'Press Start 2P',monospace;font-size:7px;color:var(--gold);margin-bottom:12px;"></div>
+      <div id="tmChecklistCount" style="font-family:'Press Start 2P',monospace;font-size:7px;color:var(--trk-color,var(--gold));margin-bottom:12px;"></div>
       <div id="tmChecklistGrid" class="tmcheck-grid"></div>
     </div>
   </div>
@@ -1547,9 +1592,9 @@
       </div>
 
       <!-- Hatch Steps display -->
-      <div id="breed-hatch-info" style="display:none;background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.3);border-radius:6px;padding:10px;">
+      <div id="breed-hatch-info" style="display:none;background:color-mix(in srgb,var(--game-color,var(--gold)) 7%,transparent);border:1px solid color-mix(in srgb,var(--game-color,var(--gold)) 30%,transparent);border-radius:6px;padding:10px;">
         <div style="font-family:'Press Start 2P',monospace;font-size:7px;color:var(--game-color,var(--gold));margin-bottom:6px;">🥚 HATCH COUNTER</div>
-        <div id="breed-hatch-steps" style="font-size:13px;font-weight:800;color:var(--text);"></div>
+        <div id="breed-hatch-steps" style="font-size:13px;font-weight:800;color:var(--game-color,var(--gold));"></div>
         <div id="breed-hatch-cycles" style="font-size:10px;color:var(--muted);margin-top:3px;"></div>
         <div style="font-size:10px;color:var(--muted);margin-top:6px;line-height:1.6;">Steps = walking while egg is in party. Flame Body / Magma Armor halves this (get Slugma or Magcargo from Route 113).</div>
       </div>
@@ -2030,7 +2075,7 @@
     <div style="font-size:11px;color:var(--muted);margin-bottom:18px;line-height:1.7;">All move tutors across Gen 3 GBA games · FR/LG tutors are one-time events · Emerald tutors require Battle Points (BP)</div>
     <div class="panel" style="overflow:hidden;">
       <div style="padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--border);font-size:11px;color:var(--muted);line-height:1.7;">
-        <strong style="color:var(--text);">Ruby / Sapphire:</strong> Only two tutors — one NPC in Fallarbor Town teaches either Double-Edge or Seismic Toss (one-time choice). These are also in the FRLG list below.
+        <strong style="color:var(--game-color,var(--gold));">Ruby / Sapphire:</strong> Only two tutors — one NPC in Fallarbor Town teaches either <span class="guide-move-link" onclick="_openMoveDex('Double-Edge')">Double-Edge</span> or <span class="guide-move-link" onclick="_openMoveDex('Seismic Toss')">Seismic Toss</span> (one-time choice). These are also in the FRLG list below.
       </div>
       <div style="overflow-x:auto;">
         <table class="tutors-table" id="tutors-table">
@@ -2305,7 +2350,7 @@
 
 
 <!-- ══ ROUTE BROWSER ══ -->
-<div id="page-routebrowser" class="page main" style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px));overflow:hidden;flex-direction:column;">
+<div id="page-routebrowser" class="page main" style="height:calc(100vh - var(--page-top, 115px) - var(--ios-bar-h, 0px) - var(--page-bottom, 24px));overflow:hidden;flex-direction:column;">
   <div style="padding:10px 16px;background:var(--darker);border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex-shrink:0;">
     <span id="rb-page-title" style="font-family:'Press Start 2P',monospace;font-size:8px;color:var(--game-color,var(--gold));letter-spacing:0.5px;">ROUTE BROWSER</span>
     <div id="rb-game-btns" style="display:flex;gap:4px;"></div>

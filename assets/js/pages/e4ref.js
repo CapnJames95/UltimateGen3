@@ -126,8 +126,8 @@ function buildE4RefPage() {
           return '<button onclick="e4SetGame(\''+k+'\')" style="padding:7px 16px;font-size:11px;font-weight:700;background:'+(active?g.color:'var(--panel)')+';color:'+(active?'#000':'var(--text)')+';border:1px solid '+(active?g.color:'var(--border)')+';border-radius:5px;cursor:pointer;">'+g.label+'</button>';
         }).join('')
       +'</div>'
-      +'<div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.2);border-radius:6px;padding:10px 14px;margin-bottom:16px;font-size:11px;color:var(--muted);line-height:1.7;">'
-      +'Levels shown are for the <strong style="color:var(--text);">first challenge</strong>. Click any Pokémon to jump to its Pokédex entry.'
+      +'<div style="background:color-mix(in srgb,var(--game-color,var(--gold)) 6%,transparent);border:1px solid color-mix(in srgb,var(--game-color,var(--gold)) 20%,transparent);border-radius:6px;padding:10px 14px;margin-bottom:16px;font-size:11px;color:var(--muted);line-height:1.7;">'
+      +'Levels shown are for the <strong style="color:var(--game-color,var(--gold));">first challenge</strong>. Click any Pokémon to jump to its Pokédex entry.'
       +'</div>'
       + game.trainers.map(trainerCard).join('');
   }
